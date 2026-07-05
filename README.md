@@ -24,8 +24,8 @@ Siapa pun yang belum pernah ngoding — dari anak SD sampai orang dewasa yang pe
 
 ```
 .
-├── docs/        # Perencanaan: plan, design system, catatan animasi
-├── naskah/      # Sumber tunggal — naskah tiap bab (Markdown)
+├── docs/        # Dokumentasi PDF
+├── code/        # Berkas kode Python (dipakai web & buku)
 ├── buku/        # Output PDF per bab
 ├── web/         # Website interaktif (HTML/CSS/JS)
 │   ├── css/
@@ -36,7 +36,9 @@ Siapa pun yang belum pernah ngoding — dari anak SD sampai orang dewasa yang pe
 └── assets/      # Gambar bersama: maskot Pyto, ilustrasi, ikon
 ```
 
-Alur kerja: tulis di **`naskah/`** → hasilkan **`buku/`**, **`web/`**, dan **`konten/`** dari sana. Semua mengikuti warna & gaya di `docs/design-system.md`.
+> Catatan: folder **`plan/`** (dokumen kerja: rencana, design system, naskah, catatan animasi) sengaja **tidak diupload** ke GitHub — hanya ada di komputer pengembang.
+
+Alur kerja: tulis naskah di **`plan/naskah/`** → hasilkan **`buku/`**, **`web/`**, dan **`konten/`**. Semua mengikuti warna & gaya di `plan/design-system.md`.
 
 ---
 

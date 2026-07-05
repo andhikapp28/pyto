@@ -32,5 +32,6 @@ build/
 # (Aktifkan bila PDF tak ingin di-commit)
 # buku/*.pdf
 
-# ─── Naskah sumber (tidak diupload ke GitHub) ───
+# ─── Dokumen kerja / perencanaan (tidak diupload ke GitHub) ───
+plan/
 naskah/
