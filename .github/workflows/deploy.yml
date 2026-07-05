@@ -28,7 +28,8 @@ jobs:
         uses: withastro/action@v3
         with:
           path: ./web
-          node-version: 20
+          node-version: 22
+          cache: npm
 
   deploy:
     needs: build
