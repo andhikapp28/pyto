@@ -1,0 +1,254 @@
+---
+const starterCode = `# Klik tombol Jalankan untuk mencoba!
+print("Halo, dunia!")
+print("Namaku Pyto, si robot ular")
+
+# Coba ubah tulisan di dalam tanda kutip ini
+print("Aku sedang belajar Python!")
+`;
+---
+
+<section class="editor-section" id="editor">
+  <div class="container">
+    <div class="section-head">
+      <span class="badge">🎮 Main Yuk!</span>
+      <h2>Coba Kode Python di Sini!</h2>
+      <p>Ketik kodemu, tekan Jalankan, dan lihat apa yang terjadi. Aman, kok — tidak akan merusak apa pun!</p>
+    </div>
+
+    <div class="editor card">
+      <div class="editor__header">
+        <span class="editor__title">🐍 Editor Python</span>
+        <div class="editor__buttons">
+          <button type="button" class="btn btn-secondary editor__reset" id="editor-reset">
+            ↺ Reset
+          </button>
+          <button type="button" class="btn btn-primary editor__run" id="editor-run">
+            ▶ Jalankan
+          </button>
+        </div>
+      </div>
+
+      <textarea
+        id="editor-code"
+        class="editor__code"
+        spellcheck="false"
+        autocomplete="off"
+        autocapitalize="off"
+        rows="8"
+        aria-label="Kotak kode Python"
+      >{starterCode}</textarea>
+
+      <div class="editor__result" id="editor-result">
+        <span class="editor__result-label" id="editor-result-label">Hasil:</span>
+        <pre class="editor__result-body" id="editor-result-body">Klik ▶ Jalankan untuk melihat hasilnya di sini.</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .editor-section {
+    background: var(--white);
+    padding-block: var(--section-spacing);
+  }
+
+  .editor {
+    max-width: 820px;
+    margin-inline: auto;
+    overflow: hidden;
+  }
+
+  .editor__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 16px 20px;
+    background: var(--cloud);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .editor__title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 16px;
+  }
+
+  .editor__buttons {
+    display: flex;
+    gap: 10px;
+  }
+
+  .editor__buttons .btn {
+    padding: 10px 18px;
+    font-size: 14px;
+    min-height: 40px;
+  }
+
+  .editor__code {
+    display: block;
+    width: 100%;
+    min-height: 220px;
+    resize: vertical;
+    border: none;
+    outline: none;
+    background: var(--code-bg);
+    color: var(--code-text);
+    font-family: var(--font-code);
+    font-size: 15px;
+    line-height: 1.7;
+    padding: 20px;
+    tab-size: 4;
+  }
+
+  .editor__result {
+    padding: 18px 20px 22px;
+    background: var(--white);
+    transition: background-color 0.2s ease;
+  }
+
+  .editor__result.is-error {
+    background: var(--box-awas-bg);
+  }
+
+  .editor__result-label {
+    display: block;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--slate);
+    margin-bottom: 8px;
+  }
+
+  .editor__result.is-error .editor__result-label {
+    color: var(--coral);
+  }
+
+  .editor__result-body {
+    margin: 0;
+    font-family: var(--font-code);
+    font-size: 15px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--ink);
+  }
+
+  .editor__result.is-error .editor__result-body {
+    color: #b3392f;
+  }
+
+  .editor__run:disabled,
+  .editor__reset:disabled {
+    opacity: 0.6;
+    cursor: wait;
+    transform: none;
+  }
+
+  @media (max-width: 600px) {
+    .editor__header {
+      justify-content: center;
+      text-align: center;
+    }
+
+    .editor__code {
+      font-size: 14px;
+      min-height: 200px;
+    }
+  }
+</style>
+
+<script>
+  const PYODIDE_VERSION = '0.26.4';
+  const PYODIDE_CDN = `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`;
+  const LOADING_MESSAGE = '🐍 Pyto sedang bangun... sebentar ya';
+
+  const codeEl = document.getElementById('editor-code');
+  const runBtn = document.getElementById('editor-run');
+  const resetBtn = document.getElementById('editor-reset');
+  const resultWrap = document.getElementById('editor-result');
+  const resultLabel = document.getElementById('editor-result-label');
+  const resultBody = document.getElementById('editor-result-body');
+
+  const STARTER_CODE = codeEl ? codeEl.value : '';
+
+  let pyodideReadyPromise = null;
+
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = src;
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error('Gagal memuat Pyodide. Cek koneksi internetmu, ya.'));
+      document.head.appendChild(script);
+    });
+  }
+
+  function getPyodide() {
+    if (!pyodideReadyPromise) {
+      pyodideReadyPromise = (async () => {
+        if (typeof window.loadPyodide !== 'function') {
+          await loadScript(`${PYODIDE_CDN}pyodide.js`);
+        }
+        return window.loadPyodide({ indexURL: PYODIDE_CDN });
+      })();
+    }
+    return pyodideReadyPromise;
+  }
+
+  function showResult(text, isError) {
+    if (!resultWrap || !resultBody || !resultLabel) return;
+    resultWrap.classList.toggle('is-error', isError);
+    resultLabel.textContent = isError ? '⚠️ Oops! Ada yang perlu diperbaiki:' : 'Hasil:';
+    resultBody.textContent = text || '(Tidak ada tulisan yang ditampilkan)';
+  }
+
+  function friendlyError(err) {
+    const message = err instanceof Error ? err.message : String(err);
+    // Ambil baris terakhir yang biasanya berisi jenis error Python (mis. "NameError: ...")
+    const lines = message.trim().split('\n');
+    return lines[lines.length - 1] || message;
+  }
+
+  runBtn?.addEventListener('click', async () => {
+    if (!codeEl || !runBtn) return;
+    const code = codeEl.value;
+
+    runBtn.disabled = true;
+    const isFirstLoad = !pyodideReadyPromise;
+    if (isFirstLoad) {
+      showResult(LOADING_MESSAGE, false);
+    } else {
+      showResult('Menjalankan...', false);
+    }
+
+    try {
+      const pyodide = await getPyodide();
+      let output = '';
+      pyodide.setStdout({
+        batched: (s: string) => {
+          output += s + '\n';
+        },
+      });
+      pyodide.setStderr({
+        batched: (s: string) => {
+          output += s + '\n';
+        },
+      });
+
+      await pyodide.runPythonAsync(code);
+      showResult(output.replace(/\n$/, ''), false);
+    } catch (err) {
+      showResult(friendlyError(err), true);
+    } finally {
+      runBtn.disabled = false;
+    }
+  });
+
+  resetBtn?.addEventListener('click', () => {
+    if (!codeEl) return;
+    codeEl.value = STARTER_CODE;
+    showResult('Klik ▶ Jalankan untuk melihat hasilnya di sini.', false);
+  });
+</script>

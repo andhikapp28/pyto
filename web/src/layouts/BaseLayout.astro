@@ -1,0 +1,46 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Belajar Python Bareng Pyto',
+  description = 'Belajar ngoding Python dari nol, dengan bahasa yang ramah dan seru — ditemani Pyto, si robot ular. Gratis, langsung coba di browser.',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}/favicon.svg`} />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+
+    <!-- Google Fonts: Baloo 2 (judul), Nunito (isi teks), JetBrains Mono (kode) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!--
+      Tandai bahwa JS aktif SEBELUM halaman dirender, agar CSS animasi
+      "muncul saat scroll" hanya menyembunyikan konten kalau JS benar-benar
+      akan menyalakannya kembali (lihat src/scripts/reveal.js). Kalau JS
+      gagal/dimatikan pengguna, kelas ini tidak pernah ditambahkan dan
+      semua konten tetap terlihat penuh.
+    -->
+    <script is:inline>
+      document.documentElement.classList.add('js-reveal');
+    </script>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

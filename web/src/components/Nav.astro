@@ -1,0 +1,222 @@
+---
+---
+
+<header class="nav" id="site-nav">
+  <div class="container nav__inner">
+    <a href="#top" class="nav__brand">
+      <span class="nav__logo" aria-hidden="true">🐍</span>
+      <span class="nav__wordmark">
+        <strong>Belajar Python</strong>
+        <span>Bareng Pyto</span>
+      </span>
+    </a>
+
+    <nav class="nav__links" aria-label="Navigasi utama">
+      <a href="#editor">Editor</a>
+      <a href="#fitur">Kenapa Python</a>
+      <a href="#bab">Daftar Bab</a>
+    </nav>
+
+    <div class="nav__actions">
+      <a href="#bab" class="btn btn-primary nav__cta">Mulai Belajar</a>
+      <button
+        type="button"
+        class="nav__toggle"
+        id="nav-toggle"
+        aria-expanded="false"
+        aria-controls="nav-mobile-menu"
+        aria-label="Buka menu navigasi"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </div>
+
+  <nav id="nav-mobile-menu" class="nav__mobile" aria-label="Navigasi mobile">
+    <a href="#editor">Editor</a>
+    <a href="#fitur">Kenapa Python</a>
+    <a href="#bab">Daftar Bab</a>
+    <a href="#bab" class="btn btn-primary">Mulai Belajar</a>
+  </nav>
+</header>
+
+<style>
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(245, 248, 247, 0.75);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    height: 76px;
+  }
+
+  .nav__brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: var(--ink);
+  }
+
+  .nav__logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    background: var(--pyto-green);
+    font-size: 22px;
+    box-shadow: 0 4px 12px rgba(47, 191, 113, 0.35);
+  }
+
+  .nav__wordmark {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+    font-family: var(--font-heading);
+  }
+
+  .nav__wordmark strong {
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .nav__wordmark span {
+    font-size: 13px;
+    color: var(--pyto-green-dark);
+    font-weight: 600;
+  }
+
+  .nav__links {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    font-weight: 700;
+    font-size: 16px;
+  }
+
+  .nav__links a {
+    text-decoration: none;
+    color: var(--ink);
+    transition: color 0.2s ease;
+  }
+
+  .nav__links a:hover {
+    color: var(--pyto-green-dark);
+  }
+
+  .nav__actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .nav__cta {
+    padding: 10px 22px;
+    font-size: 15px;
+    min-height: 40px;
+  }
+
+  .nav__toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 44px;
+    height: 44px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .nav__toggle span {
+    display: block;
+    height: 3px;
+    border-radius: 3px;
+    background: var(--ink);
+    transition: transform 0.25s ease, opacity 0.2s ease;
+  }
+
+  .nav__mobile {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 24px 20px;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav__mobile a {
+    text-decoration: none;
+    color: var(--ink);
+    font-weight: 700;
+    padding: 12px 4px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav__mobile a:last-child {
+    border-bottom: none;
+    margin-top: 8px;
+    text-align: center;
+  }
+
+  .nav.is-open .nav__mobile {
+    display: flex;
+  }
+
+  .nav.is-open .nav__toggle span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+  }
+
+  .nav.is-open .nav__toggle span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .nav.is-open .nav__toggle span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+  }
+
+  @media (max-width: 860px) {
+    .nav__links {
+      display: none;
+    }
+
+    .nav__cta {
+      display: none;
+    }
+
+    .nav__toggle {
+      display: flex;
+    }
+  }
+</style>
+
+<script>
+  const nav = document.getElementById('site-nav');
+  const toggle = document.getElementById('nav-toggle');
+
+  toggle?.addEventListener('click', () => {
+    const isOpen = nav?.classList.toggle('is-open');
+    toggle.setAttribute('aria-expanded', String(Boolean(isOpen)));
+  });
+
+  // Tutup menu mobile saat sebuah link diklik.
+  document.querySelectorAll('.nav__mobile a').forEach((link) => {
+    link.addEventListener('click', () => {
+      nav?.classList.remove('is-open');
+      toggle?.setAttribute('aria-expanded', 'false');
+    });
+  });
+</script>

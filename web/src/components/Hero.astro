@@ -1,0 +1,285 @@
+---
+---
+
+<section class="hero" id="top">
+  <div class="hero__decor" aria-hidden="true">
+    <span class="hero__float hero__float--1">⭐</span>
+    <span class="hero__float hero__float--2">✨</span>
+    <span class="hero__float hero__float--3">🎈</span>
+    <span class="hero__float hero__float--4">⭐</span>
+  </div>
+
+  <div class="container hero__inner">
+    <div class="hero__copy">
+      <span class="badge">🐍 Untuk kamu yang baru mulai ngoding</span>
+      <h1>Ngoding itu <span class="text-green">seru</span>, kok! Yuk kenalan sama Python.</h1>
+      <p class="hero__desc">
+        Belajar bahasa pemrograman Python dengan cara yang santai dan menyenangkan —
+        tanpa istilah rumit, langsung praktik dari browser. Ditemani Pyto, si robot
+        ular yang selalu siap membantu.
+      </p>
+      <div class="hero__actions">
+        <a href="#bab-1" class="btn btn-primary">Mulai dari Bab 1 →</a>
+        <a href="#editor" class="btn btn-secondary">▶ Coba Editor</a>
+      </div>
+      <div class="hero__stats">
+        <div class="hero__stat">
+          <strong>100%</strong>
+          <span>Gratis</span>
+        </div>
+        <div class="hero__stat">
+          <strong>Langsung</strong>
+          <span>Coba di Browser</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero__art">
+      <div class="hero__circle" aria-hidden="true"></div>
+      <div class="hero__mascot-wrap">
+        <span class="hero__speech">print("Halo!")</span>
+        <span class="hero__mascot" role="img" aria-label="Pyto si robot ular melambai">🐍</span>
+        <span class="hero__ready-badge">Ayo mulai! 🎉</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    overflow: hidden;
+    padding-block: 64px var(--section-spacing);
+  }
+
+  .hero__decor {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .hero__float {
+    position: absolute;
+    font-size: 28px;
+    opacity: 0.7;
+    animation: floaty 6s ease-in-out infinite;
+  }
+
+  .hero__float--1 {
+    top: 12%;
+    left: 6%;
+    animation-delay: 0s;
+  }
+
+  .hero__float--2 {
+    top: 22%;
+    right: 10%;
+    animation-delay: 1.2s;
+    font-size: 24px;
+  }
+
+  .hero__float--3 {
+    bottom: 18%;
+    left: 12%;
+    animation-delay: 2.4s;
+    font-size: 32px;
+  }
+
+  .hero__float--4 {
+    bottom: 30%;
+    right: 6%;
+    animation-delay: 0.8s;
+    font-size: 20px;
+  }
+
+  @keyframes floaty {
+    0%,
+    100% {
+      transform: translateY(0) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-18px) rotate(8deg);
+    }
+  }
+
+  .hero__inner {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    align-items: center;
+    gap: 48px;
+  }
+
+  .hero__copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+  }
+
+  .hero h1 {
+    max-width: 560px;
+  }
+
+  .hero__desc {
+    color: var(--slate);
+    font-size: 18px;
+    max-width: 520px;
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .hero__stats {
+    display: flex;
+    gap: 32px;
+    margin-top: 8px;
+  }
+
+  .hero__stat {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hero__stat strong {
+    font-family: var(--font-heading);
+    color: var(--pyto-green-dark);
+    font-size: 20px;
+  }
+
+  .hero__stat span {
+    color: var(--slate);
+    font-size: 14px;
+  }
+
+  .hero__art {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 380px;
+  }
+
+  .hero__circle {
+    position: absolute;
+    width: 340px;
+    height: 340px;
+    border-radius: 50%;
+    background: linear-gradient(
+      135deg,
+      var(--pyto-green-soft) 0%,
+      #d8f2fb 45%,
+      #f4ecff 100%
+    );
+  }
+
+  .hero__mascot-wrap {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .hero__mascot {
+    font-size: 140px;
+    animation: bob 3.5s ease-in-out infinite;
+    filter: drop-shadow(0 12px 24px rgba(30, 42, 50, 0.15));
+  }
+
+  @keyframes bob {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-14px);
+    }
+  }
+
+  .hero__speech {
+    position: absolute;
+    top: 4px;
+    right: -20px;
+    background: var(--code-bg);
+    color: var(--code-green);
+    font-family: var(--font-code);
+    font-size: 14px;
+    padding: 10px 16px;
+    border-radius: var(--radius-code);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .hero__speech::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 24px;
+    width: 12px;
+    height: 12px;
+    background: var(--code-bg);
+    transform: rotate(45deg);
+  }
+
+  .hero__ready-badge {
+    background: var(--pyto-green);
+    color: var(--white);
+    font-weight: 700;
+    font-size: 15px;
+    padding: 8px 18px;
+    border-radius: 999px;
+    box-shadow: 0 6px 16px rgba(47, 191, 113, 0.3);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero__float,
+    .hero__mascot {
+      animation: none;
+    }
+  }
+
+  @media (max-width: 960px) {
+    .hero__inner {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+
+    .hero__copy {
+      align-items: center;
+    }
+
+    .hero__actions {
+      justify-content: center;
+    }
+
+    .hero__stats {
+      justify-content: center;
+    }
+
+    .hero__art {
+      min-height: 300px;
+      order: -1;
+    }
+
+    .hero__mascot {
+      font-size: 110px;
+    }
+
+    .hero__speech {
+      right: 10px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hero__speech {
+      font-size: 12px;
+      right: -6px;
+      padding: 8px 12px;
+    }
+  }
+</style>

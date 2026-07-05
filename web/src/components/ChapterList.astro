@@ -1,0 +1,176 @@
+---
+const chapters = [
+  {
+    title: 'Kenalan dengan Python',
+    desc: 'Apa itu ngoding, dan kenapa Python seru untuk dipelajari.',
+  },
+  {
+    title: 'Menampilkan Tulisan',
+    desc: 'Perintah print() dan cara komputer "berbicara".',
+  },
+  {
+    title: 'Menyimpan Data',
+    desc: 'Mengenal variabel, kotak ajaib penyimpan informasi.',
+  },
+  {
+    title: 'Angka & Berhitung',
+    desc: 'Menjadikan Python sebagai kalkulator super.',
+  },
+  {
+    title: 'Bertanya ke Pengguna',
+    desc: 'Perintah input() untuk membuat program interaktif.',
+  },
+  {
+    title: 'Pilihan & Perulangan',
+    desc: 'if dan for, membuat program berpikir dan mengulang.',
+  },
+];
+---
+
+<section class="chapters" id="bab">
+  <div class="container">
+    <div class="section-head">
+      <h2>Mulai Petualanganmu</h2>
+      <p>Enam langkah pertama untuk kenalan sama Python. Satu konsep tiap bab, pelan-pelan saja.</p>
+    </div>
+
+    <ol class="chapters__list">
+      {
+        chapters.map((chapter, index) => {
+          const number = index + 1;
+          const isFirst = index === 0;
+          const Tag = isFirst ? 'a' : 'div';
+          return (
+            <li>
+              <Tag
+                id={isFirst ? 'bab-1' : undefined}
+                href={isFirst ? '#' : undefined}
+                class={`chapter-card ${isFirst ? 'chapter-card--active' : ''}`}
+                data-reveal
+              >
+                <span class="chapter-card__number">{number}</span>
+                <span class="chapter-card__body">
+                  <span class="chapter-card__title">{chapter.title}</span>
+                  <span class="chapter-card__desc">{chapter.desc}</span>
+                </span>
+                <span class="chapter-card__tag">
+                  {isFirst ? 'Mulai di sini →' : 'Segera'}
+                </span>
+              </Tag>
+            </li>
+          );
+        })
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .chapters {
+    background: var(--cloud);
+    padding-block: var(--section-spacing);
+  }
+
+  .chapters__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 780px;
+    margin-inline: auto;
+  }
+
+  .chapter-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 22px 24px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+  }
+
+  a.chapter-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(30, 42, 50, 0.1);
+  }
+
+  .chapter-card--active {
+    background: var(--pyto-green-soft);
+    border-color: var(--pyto-green);
+  }
+
+  .chapter-card__number {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 18px;
+    background: var(--cloud);
+    color: var(--slate);
+  }
+
+  .chapter-card--active .chapter-card__number {
+    background: var(--pyto-green);
+    color: var(--white);
+  }
+
+  .chapter-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .chapter-card__title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 18px;
+  }
+
+  .chapter-card__desc {
+    color: var(--slate);
+    font-size: 15px;
+  }
+
+  .chapter-card__tag {
+    flex-shrink: 0;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: var(--cloud);
+    color: var(--slate);
+    white-space: nowrap;
+  }
+
+  .chapter-card--active .chapter-card__tag {
+    background: var(--pyto-green);
+    color: var(--white);
+  }
+
+  @media (max-width: 600px) {
+    .chapter-card {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 18px;
+    }
+
+    .chapter-card__desc {
+      max-width: none;
+    }
+  }
+</style>
