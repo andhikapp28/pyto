@@ -1,0 +1,36 @@
+# ─── Sistem Operasi ───
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── Editor / IDE ───
+.vscode/
+.idea/
+*.swp
+*~
+
+# ─── Python ───
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+
+# ─── Node / build web (kalau nanti dipakai) ───
+node_modules/
+dist/
+build/
+.cache/
+
+# ─── File sementara / draf ───
+*.tmp
+*.bak
+~$*            # file lock Office (.docx/.pptx sementara)
+
+# ─── Output besar yang di-generate ulang ───
+# (Aktifkan bila PDF tak ingin di-commit)
+# buku/*.pdf
+
+# ─── Naskah sumber (tidak diupload ke GitHub) ───
+naskah/
