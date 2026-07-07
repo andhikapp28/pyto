@@ -1,7 +1,14 @@
 ---
 // Animasi #3 (typewriter) + #4 (sorot warna kode) dari plan/bab-01-animasi.md,
-// untuk contoh pertama print("Halo, dunia!").
-const TEXT = 'Halo, dunia!';
+// untuk contoh pertama print("Halo, dunia!"). Dibuat menerima prop `text`
+// supaya bab lain (mis. Bab 2) bisa memakai ulang animasi yang sama dengan
+// kalimat print() yang berbeda.
+interface Props {
+  text?: string;
+}
+
+const { text = 'Halo, dunia!' } = Astro.props;
+const TEXT = text;
 ---
 
 <div class="halo-dunia" data-anim="codeglow">

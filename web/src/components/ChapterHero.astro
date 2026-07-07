@@ -12,7 +12,9 @@ const { number, title, tagline } = Astro.props;
 
 <div class="chapter-hero" id="top">
   <div class="chapter-hero__stage">
-    <PytoMascotWave size={172} />
+    <slot name="mascot">
+      <PytoMascotWave size={172} />
+    </slot>
   </div>
   <span class="badge chapter-hero__badge">BAB {number}</span>
   <h1>{title}</h1>
@@ -42,6 +44,11 @@ const { number, title, tagline } = Astro.props;
     color: var(--slate);
     max-width: 480px;
     font-size: 18px;
+  }
+
+  .chapter-hero__tagline :global(code) {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
   }
 
   @keyframes chapter-hero-in {

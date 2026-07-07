@@ -1,0 +1,267 @@
+---
+// Animasi #5 (plan/bab-02-animasi.md) — momen utama Bab 2: token {nama} di
+// dalam f-string bersinar, "terangkat" keluar dari baris kode, melayang
+// turun ke area hasil, lalu morph/cross-fade jadi nilai aslinya di posisi
+// yang tepat dalam kalimat hasil. Sekali jalan saat bagian ini terlihat
+// (lewat observeOnce), sama seperti HaloDuniaDemo/MultiPrintDemo.
+interface Props {
+  varName?: string;
+  varValue?: string;
+}
+
+const { varName = 'nama', varValue = 'Sarah' } = Astro.props;
+const token = `{${varName}}`;
+---
+
+<div class="fstring-magic" data-anim="fstring-magic">
+  <div class="fstring-magic__code card">
+    <pre class="fstring-magic__pre"><code
+      ><span class="fstring-magic__line">{varName} = <span class="tok-str">&quot;{varValue}&quot;</span></span
+      ><span class="fstring-magic__line"><span class="tok-fn">print</span>(<span class="tok-fstr-prefix">f</span><span class="tok-str">&quot;Halo, <span class="fstring-magic__token" data-token>{token}</span>! Senang ketemu kamu.&quot;</span>)</span
+    ></code></pre>
+    <span class="fstring-magic__flyer" data-flyer aria-hidden="true">{token}</span>
+  </div>
+
+  <div class="fstring-magic__result card">
+    <span class="fstring-magic__result-label">Hasil di layar:</span>
+    <p class="fstring-magic__line-result">
+      Halo, <span class="fstring-magic__value" data-value>{varValue}</span>! Senang ketemu kamu.
+    </p>
+  </div>
+
+  <p class="fstring-magic__caption">
+    Nilai <code>{varName}</code> sudah dipasang ke dalam kalimat sebelum <code>print</code> menampilkannya.
+  </p>
+</div>
+
+<style>
+  .fstring-magic {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .fstring-magic__code {
+    position: relative;
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 18px 22px;
+    overflow: hidden;
+  }
+
+  .fstring-magic__pre {
+    margin: 0;
+    font-family: var(--font-code);
+    font-size: 16px;
+    line-height: 1.9;
+    color: var(--code-text);
+    overflow-x: auto;
+  }
+
+  .fstring-magic__line {
+    display: block;
+    white-space: pre;
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .tok-fstr-prefix {
+    color: var(--sunny-yellow);
+    font-weight: 700;
+  }
+
+  .fstring-magic__token {
+    position: relative;
+    border-radius: 4px;
+  }
+
+  .fstring-magic__result {
+    padding: 16px 22px;
+    background: var(--white);
+  }
+
+  .fstring-magic__result-label {
+    display: block;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--slate);
+    margin-bottom: 6px;
+  }
+
+  .fstring-magic__line-result {
+    margin: 0;
+    font-family: var(--font-code);
+    font-size: 16px;
+    color: var(--ink);
+  }
+
+  .fstring-magic__value {
+    font-weight: 700;
+    color: var(--pyto-green-dark);
+    display: inline-block;
+  }
+
+  .fstring-magic__caption {
+    margin: 0;
+    font-size: 14px;
+    color: var(--slate);
+    text-align: center;
+  }
+
+  .fstring-magic__caption code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  /* Klon terbang: elemen dekoratif murni (duplikat token yang sudah tampil
+     di kode), jadi aman disembunyikan tanpa syarat js-reveal — tidak ada
+     materi inti yang hilang kalau JS gagal. */
+  .fstring-magic__flyer {
+    position: absolute;
+    top: 60px;
+    left: 50%;
+    opacity: 0;
+    transform: translate(-50%, 0) scale(0.7);
+    pointer-events: none;
+    z-index: 3;
+    background: var(--sunny-yellow);
+    color: #4a3200;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 15px;
+    padding: 3px 10px;
+    border-radius: 8px;
+    box-shadow: 0 8px 18px rgba(255, 201, 77, 0.45);
+    white-space: nowrap;
+  }
+
+  /* Token di kode: nilai aslinya (bagian dari materi) tetap terlihat selalu;
+     hanya efek glow-nya yang butuh JS. */
+  :global(.js-reveal) .fstring-magic__value {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.7);
+  }
+
+  :global(.js-reveal) .fstring-magic.is-in .fstring-magic__token {
+    animation: fstring-token-glow 2s ease 0s 1;
+  }
+
+  :global(.js-reveal) .fstring-magic.is-in .tok-fstr-prefix {
+    animation: fstring-fprefix-flash 2s ease 0s 1;
+  }
+
+  :global(.js-reveal) .fstring-magic.is-in .fstring-magic__flyer {
+    animation: fstring-flyer-travel 2s ease 0s 1;
+  }
+
+  :global(.js-reveal) .fstring-magic.is-in .fstring-magic__value {
+    animation: fstring-value-in 2s ease 0s 1 forwards;
+  }
+
+  @keyframes fstring-token-glow {
+    0%,
+    20% {
+      background: transparent;
+    }
+    8% {
+      background: rgba(255, 201, 77, 0.4);
+    }
+    30%,
+    100% {
+      background: transparent;
+    }
+  }
+
+  @keyframes fstring-fprefix-flash {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    10%,
+    20% {
+      opacity: 0.3;
+    }
+  }
+
+  @keyframes fstring-flyer-travel {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, 0) scale(0.7);
+    }
+    8% {
+      opacity: 1;
+      transform: translate(-50%, 0) scale(1.2);
+    }
+    20% {
+      opacity: 1;
+      transform: translate(-50%, 0) scale(1);
+    }
+    70% {
+      opacity: 1;
+      transform: translate(-50%, 100px) scale(1);
+    }
+    85% {
+      opacity: 1;
+      transform: translate(-50%, 100px) scale(0.85);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(-50%, 104px) scale(0.6);
+    }
+  }
+
+  @keyframes fstring-value-in {
+    0%,
+    62% {
+      opacity: 0;
+      transform: translateY(-6px) scale(0.7);
+    }
+    78% {
+      opacity: 1;
+      transform: translateY(0) scale(1.15);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fstring-magic__flyer {
+      display: none;
+    }
+
+    .fstring-magic__token,
+    .tok-fstr-prefix,
+    .fstring-magic__value {
+      animation: none !important;
+    }
+
+    .fstring-magic__value {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .fstring-magic__pre {
+      font-size: 14px;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce } from '../scripts/reveal-anim.js';
+
+  observeOnce(document.querySelectorAll('[data-anim="fstring-magic"]'), (el) => {
+    el.classList.add('is-in');
+  });
+</script>

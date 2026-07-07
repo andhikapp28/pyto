@@ -1,0 +1,240 @@
+---
+// Maskot Pyto versi "ngomong" (dipakai di hero Bab 2 dst.): mulut Pyto
+// membuka sekali sesaat setelah halaman terbuka, lalu gelembung bicara di
+// sampingnya "meletup" masuk (pop) sekali dan sejak itu bergoyang pelan
+// (sway) terus-menerus selama halaman terbuka — sama seperti mata berkedip
+// / badan mengambang pada PytoMascotWave, ini memang dibuat berulang terus,
+// bukan sekali putar. Isi gelembung diserahkan lewat slot supaya tiap bab
+// bisa menaruh contoh kode print()-nya sendiri.
+interface Props {
+  size?: number;
+}
+
+const { size = 188 } = Astro.props;
+const height = Math.round((size * 180) / 188);
+---
+
+<div class="pyto-talk" data-anim="pyto-talk">
+  <div class="pyto-float">
+    <svg
+      width={size}
+      height={height}
+      viewBox="0 0 188 180"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      class="pyto-svg"
+      role="img"
+      aria-label="Pyto, si robot ular, sedang berbicara"
+    >
+      <path
+        d="M56 150 C 20 150, 22 110, 60 112 C 104 114, 120 150, 150 140"
+        stroke="var(--pyto-green-dark)"
+        stroke-width="17"
+        stroke-linecap="round"
+        fill="none"
+      ></path>
+      <path
+        d="M56 150 C 20 150, 22 110, 60 112 C 104 114, 120 150, 150 140"
+        stroke="var(--pyto-green)"
+        stroke-width="9"
+        stroke-linecap="round"
+        fill="none"
+      ></path>
+      <rect x="128" y="52" width="12" height="40" rx="6" fill="var(--pyto-green)"></rect>
+      <circle cx="134" cy="46" r="12" fill="var(--sunny-yellow)" stroke="#F2B430" stroke-width="2"></circle>
+      <rect x="44" y="30" width="96" height="82" rx="30" fill="var(--pyto-green)"></rect>
+      <line x1="92" y1="30" x2="92" y2="12" stroke="var(--pyto-green-dark)" stroke-width="5" stroke-linecap="round"></line>
+      <circle cx="92" cy="9" r="6" fill="var(--sunny-yellow)"></circle>
+      <g class="pyto-eyes">
+        <circle cx="74" cy="62" r="14" fill="#FFFFFF"></circle>
+        <circle cx="112" cy="62" r="14" fill="#FFFFFF"></circle>
+        <circle cx="77" cy="64" r="6" fill="var(--ink)"></circle>
+        <circle cx="115" cy="64" r="6" fill="var(--ink)"></circle>
+        <circle cx="79" cy="61" r="2" fill="#FFFFFF"></circle>
+        <circle cx="117" cy="61" r="2" fill="#FFFFFF"></circle>
+      </g>
+      <circle cx="60" cy="86" r="7" fill="var(--coral)" opacity="0.55"></circle>
+      <circle cx="126" cy="86" r="7" fill="var(--coral)" opacity="0.55"></circle>
+      <!-- Senyum tertutup, selalu terlihat -->
+      <path d="M82 90 Q 92 99, 102 90" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" fill="none"></path>
+      <!-- Mulut terbuka, membuka sekali lalu balik jadi tak terlihat -->
+      <ellipse class="pyto-talk__mouth" cx="92" cy="94" rx="9" ry="8" fill="var(--ink)"></ellipse>
+      <ellipse class="pyto-talk__mouth" cx="92" cy="97" rx="4" ry="3" fill="var(--coral)"></ellipse>
+    </svg>
+  </div>
+
+  <div class="pyto-talk__bubble">
+    <div class="pyto-talk__bubble-inner">
+      <slot />
+    </div>
+  </div>
+</div>
+
+<style>
+  .pyto-talk {
+    position: relative;
+    display: inline-block;
+  }
+
+  .pyto-svg {
+    filter: drop-shadow(0 12px 18px rgba(30, 42, 50, 0.14));
+  }
+
+  .pyto-float {
+    animation: pyto-talk-bob 4s ease-in-out infinite;
+  }
+
+  @keyframes pyto-talk-bob {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  .pyto-eyes {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: pyto-talk-blink 4.5s infinite;
+  }
+
+  @keyframes pyto-talk-blink {
+    0%,
+    92%,
+    100% {
+      transform: scaleY(1);
+    }
+    96% {
+      transform: scaleY(0.1);
+    }
+  }
+
+  /* Mulut terbuka: tersembunyi dulu, HANYA kalau JS reveal pasti aktif. */
+  :global(.js-reveal) .pyto-talk__mouth {
+    opacity: 0;
+  }
+
+  :global(.js-reveal) .pyto-talk.is-in .pyto-talk__mouth {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: pyto-talk-mouth 1.2s ease 0.3s 1 forwards;
+  }
+
+  @keyframes pyto-talk-mouth {
+    0%,
+    100% {
+      transform: scaleY(0.05);
+      opacity: 0;
+    }
+    18%,
+    70% {
+      transform: scaleY(1);
+      opacity: 1;
+    }
+  }
+
+  .pyto-talk__bubble {
+    position: absolute;
+    top: -6px;
+    left: calc(100% - 12px);
+    white-space: nowrap;
+  }
+
+  .pyto-talk__bubble-inner {
+    position: relative;
+    background: var(--code-bg);
+    color: var(--code-text);
+    font-family: var(--font-code);
+    font-weight: 500;
+    font-size: 16px;
+    padding: 11px 16px;
+    border-radius: 16px 16px 16px 4px;
+    box-shadow: 0 8px 20px rgba(30, 42, 50, 0.22);
+  }
+
+  .pyto-talk__bubble-inner::after {
+    content: '';
+    position: absolute;
+    left: -8px;
+    bottom: 8px;
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-right: 10px solid var(--code-bg);
+  }
+
+  /* Gelembung meletup masuk sekali, lalu bergoyang pelan TERUS-MENERUS
+     selama halaman terbuka — ini memang disengaja berulang (bukan sekali
+     putar), sama seperti Pyto mengambang/berkedip di atas. */
+  :global(.js-reveal) .pyto-talk__bubble-inner {
+    opacity: 0;
+  }
+
+  :global(.js-reveal) .pyto-talk.is-in .pyto-talk__bubble-inner {
+    animation: pyto-talk-bubble-pop 1s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s forwards;
+  }
+
+  :global(.js-reveal) .pyto-talk.is-in .pyto-talk__bubble {
+    animation: pyto-talk-bubble-sway 4.5s ease-in-out 1.4s infinite;
+  }
+
+  @keyframes pyto-talk-bubble-pop {
+    0% {
+      opacity: 0;
+      transform: scale(0);
+    }
+    55% {
+      opacity: 1;
+      transform: scale(1.14);
+    }
+    78% {
+      transform: scale(0.95);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes pyto-talk-bubble-sway {
+    0%,
+    100% {
+      transform: translateY(0) rotate(0);
+    }
+    50% {
+      transform: translateY(-4px) rotate(-1.5deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pyto-float,
+    .pyto-eyes,
+    .pyto-talk__bubble {
+      animation: none;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .pyto-talk__bubble {
+      left: auto;
+      right: -8px;
+      top: calc(100% + 4px);
+    }
+
+    .pyto-talk__bubble-inner::after {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  // Sama seperti PytoMascotWave: hero selalu terlihat begitu halaman
+  // dibuka, jadi cukup dipicu langsung (tanpa menunggu scroll masuk layar).
+  // Penanganan prefers-reduced-motion sepenuhnya lewat CSS di atas.
+  document.querySelectorAll('[data-anim="pyto-talk"]').forEach((el) => {
+    el.classList.add('is-in');
+  });
+</script>

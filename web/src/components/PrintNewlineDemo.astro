@@ -1,0 +1,220 @@
+---
+// Animasi #7 (plan/bab-02-animasi.md) — dua print() terpisah (baris baru
+// tiap kali) dibandingkan dengan satu print(a, b) (satu baris, dipisah
+// spasi). Kursor kecil melompat turun tiap kali sebuah print() "selesai"
+// di kolom kiri; panah kecil (↓) menghubungkan tiap kode ke pola hasilnya.
+// Sekali jalan saat bagian ini terlihat.
+---
+
+<div class="print-newline" data-anim="print-newline">
+  <div class="print-newline__col">
+    <p class="print-newline__heading">Dua <code>print()</code> terpisah</p>
+    <div class="print-newline__code card">
+      <pre class="print-newline__pre"><code
+        ><span class="print-newline__line"><span class="tok-fn">print</span>(<span class="tok-str">&quot;Halo&quot;</span>)</span
+        ><span class="print-newline__line"><span class="tok-fn">print</span>(<span class="tok-str">&quot;dunia&quot;</span>)</span
+      ></code></pre>
+      <span class="print-newline__cursor" data-cursor aria-hidden="true">▾</span>
+    </div>
+    <span class="print-newline__arrow" aria-hidden="true">↓</span>
+    <div class="print-newline__result card">
+      <span class="print-newline__result-label">2 baris terpisah</span>
+      <p class="print-newline__result-line" data-line="0">Halo</p>
+      <p class="print-newline__result-line" data-line="1">dunia</p>
+    </div>
+  </div>
+
+  <div class="print-newline__col">
+    <p class="print-newline__heading">Satu <code>print(a, b)</code></p>
+    <div class="print-newline__code card">
+      <pre class="print-newline__pre"><code
+        ><span class="print-newline__line print-newline__line--single"><span class="tok-fn">print</span>(<span class="tok-str">&quot;Halo&quot;</span>, <span class="tok-str">&quot;dunia&quot;</span>)</span
+      ></code></pre>
+    </div>
+    <span class="print-newline__arrow" aria-hidden="true">↓</span>
+    <div class="print-newline__result card">
+      <span class="print-newline__result-label">1 baris, dipisah spasi</span>
+      <p class="print-newline__result-line print-newline__result-line--single" data-line="single">Halo dunia</p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .print-newline {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .print-newline__col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    text-align: center;
+  }
+
+  .print-newline__heading {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--slate);
+  }
+
+  .print-newline__heading code {
+    color: var(--pyto-green-dark);
+  }
+
+  .print-newline__code {
+    position: relative;
+    width: 100%;
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 14px 16px;
+    overflow: hidden;
+  }
+
+  .print-newline__pre {
+    margin: 0;
+    font-family: var(--font-code);
+    font-size: 14px;
+    line-height: 1.9;
+    color: var(--code-text);
+    text-align: left;
+  }
+
+  .print-newline__line {
+    display: block;
+  }
+
+  .print-newline__line--single {
+    line-height: 1.9;
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .print-newline__cursor {
+    position: absolute;
+    left: 6px;
+    top: 12px;
+    font-size: 13px;
+    color: var(--sunny-yellow);
+    opacity: 0;
+  }
+
+  .print-newline__arrow {
+    font-size: 18px;
+    color: var(--slate);
+  }
+
+  .print-newline__result {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--white);
+  }
+
+  .print-newline__result-label {
+    display: block;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--slate);
+    margin-bottom: 6px;
+  }
+
+  .print-newline__result-line {
+    margin: 0;
+    font-family: var(--font-code);
+    font-size: 15px;
+    color: var(--ink);
+  }
+
+  :global(.js-reveal) .print-newline__result-line {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  :global(.js-reveal) .print-newline.is-in .print-newline__cursor {
+    animation: pn-cursor-hop 1.4s ease 0s 1;
+  }
+
+  :global(.js-reveal) .print-newline.is-in .print-newline__result-line[data-line='0'] {
+    animation: pn-line-in 0.35s ease 0.55s forwards;
+  }
+
+  :global(.js-reveal) .print-newline.is-in .print-newline__result-line[data-line='1'] {
+    animation: pn-line-in 0.35s ease 1.05s forwards;
+  }
+
+  :global(.js-reveal) .print-newline.is-in .print-newline__result-line[data-line='single'] {
+    animation: pn-line-in 0.35s ease 0.55s forwards;
+  }
+
+  @keyframes pn-cursor-hop {
+    0% {
+      opacity: 0;
+      top: 12px;
+    }
+    10% {
+      opacity: 1;
+      top: 12px;
+    }
+    45% {
+      top: 12px;
+    }
+    55% {
+      top: 40px;
+    }
+    90% {
+      top: 40px;
+      opacity: 1;
+    }
+    100% {
+      top: 40px;
+      opacity: 0;
+    }
+  }
+
+  @keyframes pn-line-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .print-newline__cursor {
+      display: none;
+    }
+
+    .print-newline__result-line {
+      animation: none !important;
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .print-newline {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce } from '../scripts/reveal-anim.js';
+
+  observeOnce(document.querySelectorAll('[data-anim="print-newline"]'), (el) => {
+    el.classList.add('is-in');
+  });
+</script>

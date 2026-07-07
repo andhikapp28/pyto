@@ -1,0 +1,159 @@
+---
+// Animasi #3 (plan/bab-02-animasi.md) — tiga print() berturut-turut, contoh
+// persis seperti di naskah master. Tiap baris kode menyala sebentar, lalu
+// baris hasilnya muncul (geser naik + fade) tepat di bawah hasil
+// sebelumnya, satu per satu. Sekali jalan saat bagian ini terlihat.
+---
+
+<div class="multi-print" data-anim="multi-print">
+  <div class="multi-print__code card">
+    <pre class="multi-print__pre"><code
+      ><span class="multi-print__code-line"><span class="tok-fn">print</span>(<span class="tok-str">&quot;Namaku Pyto.&quot;</span>)</span
+      ><span class="multi-print__code-line"><span class="tok-fn">print</span>(<span class="tok-str">&quot;Aku suka membantu kamu belajar.&quot;</span>)</span
+      ><span class="multi-print__code-line"><span class="tok-fn">print</span>(<span class="tok-str">&quot;Ayo lanjut!&quot;</span>)</span
+    ></code></pre>
+  </div>
+
+  <div class="multi-print__result card">
+    <span class="multi-print__result-label">Hasil di layar:</span>
+    <p class="multi-print__result-line">Namaku Pyto.</p>
+    <p class="multi-print__result-line">Aku suka membantu kamu belajar.</p>
+    <p class="multi-print__result-line">Ayo lanjut!</p>
+  </div>
+</div>
+
+<style>
+  .multi-print {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .multi-print__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 18px 22px;
+    overflow-x: auto;
+  }
+
+  .multi-print__pre {
+    margin: 0;
+    font-family: var(--font-code);
+    font-size: 16px;
+    line-height: 1.9;
+    color: var(--code-text);
+  }
+
+  .multi-print__code-line {
+    display: block;
+    border-radius: 4px;
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .multi-print__result {
+    padding: 16px 22px;
+    background: var(--white);
+  }
+
+  .multi-print__result-label {
+    display: block;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--slate);
+    margin-bottom: 6px;
+  }
+
+  .multi-print__result-line {
+    margin: 0;
+    font-family: var(--font-code);
+    font-size: 16px;
+    color: var(--ink);
+    line-height: 1.7;
+  }
+
+  :global(.js-reveal) .multi-print__result-line {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  :global(.js-reveal) .multi-print.is-in .multi-print__code-line:nth-child(1) {
+    animation: multi-print-code-glow 0.5s ease 0s 1;
+  }
+
+  :global(.js-reveal) .multi-print.is-in .multi-print__code-line:nth-child(2) {
+    animation: multi-print-code-glow 0.5s ease 0.5s 1;
+  }
+
+  :global(.js-reveal) .multi-print.is-in .multi-print__code-line:nth-child(3) {
+    animation: multi-print-code-glow 0.5s ease 1s 1;
+  }
+
+  :global(.js-reveal) .multi-print.is-in .multi-print__result-line:nth-of-type(1) {
+    animation: multi-print-line-in 0.4s ease 0.25s forwards;
+  }
+
+  :global(.js-reveal) .multi-print.is-in .multi-print__result-line:nth-of-type(2) {
+    animation: multi-print-line-in 0.4s ease 0.75s forwards;
+  }
+
+  :global(.js-reveal) .multi-print.is-in .multi-print__result-line:nth-of-type(3) {
+    animation: multi-print-line-in 0.4s ease 1.25s forwards;
+  }
+
+  @keyframes multi-print-code-glow {
+    0% {
+      background: transparent;
+    }
+    40% {
+      background: rgba(97, 175, 239, 0.22);
+    }
+    100% {
+      background: transparent;
+    }
+  }
+
+  @keyframes multi-print-line-in {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .multi-print__code-line,
+    .multi-print__result-line {
+      animation: none !important;
+    }
+
+    .multi-print__result-line {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .multi-print__pre {
+      font-size: 14px;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce } from '../scripts/reveal-anim.js';
+
+  observeOnce(document.querySelectorAll('[data-anim="multi-print"]'), (el) => {
+    el.classList.add('is-in');
+  });
+</script>

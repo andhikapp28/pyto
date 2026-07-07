@@ -1,0 +1,71 @@
+---
+// Animasi #8 (plan/bab-02-animasi.md) — ledakan konfeti kecil warna Pyto
+// (hijau, kuning, biru, coral), sekali, saat bagian "Coba Sendiri" selesai
+// dibaca dan terlihat di layar. Memakai ulang util launchConfetti() dari
+// src/scripts/confetti.js (dipakai juga oleh PracticeEditor di Bab 1),
+// tapi dipicu lewat observeOnce (scroll-into-view) alih-alih klik tombol.
+// launchConfetti() sendiri sudah menghormati prefers-reduced-motion (lewati
+// efeknya kalau aktif) — badge statis di bawah tetap tampil sebagai
+// pengganti yang ramah gerak.
+interface Props {
+  label?: string;
+}
+
+const { label = 'Selamat, kamu berhasil!' } = Astro.props;
+---
+
+<div class="confetti-burst" data-anim="confetti-burst">
+  <div class="confetti-burst__stage">
+    <span class="confetti-burst__badge" aria-hidden="true">🎉</span>
+    <div class="confetti-burst__container" aria-hidden="true"></div>
+  </div>
+  <span class="confetti-burst__sr">{label}</span>
+</div>
+
+<style>
+  .confetti-burst {
+    display: flex;
+    justify-content: center;
+  }
+
+  .confetti-burst__stage {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 320px;
+    height: 96px;
+    overflow: hidden;
+  }
+
+  .confetti-burst__badge {
+    font-size: 40px;
+    line-height: 1;
+  }
+
+  .confetti-burst__container {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .confetti-burst__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+</style>
+
+<script>
+  import { observeOnce } from '../scripts/reveal-anim.js';
+  import { launchConfetti } from '../scripts/confetti.js';
+
+  observeOnce(document.querySelectorAll('[data-anim="confetti-burst"]'), (el) => {
+    const container = el.querySelector('.confetti-burst__container');
+    launchConfetti(container, { pieces: 30 });
+  });
+</script>

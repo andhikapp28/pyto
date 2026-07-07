@@ -1,0 +1,288 @@
+---
+// Bab 2 — Menyapa Dunia (print).
+// Sumber teks: plan/naskah/bab-02-menyapa-dunia-print.md (naskah master).
+// Sumber animasi: plan/bab-02-animasi.md.
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import ChapterHero from '../../components/ChapterHero.astro';
+import PytoMascotTalk from '../../components/PytoMascotTalk.astro';
+import HaloDuniaDemo from '../../components/HaloDuniaDemo.astro';
+import MultiPrintDemo from '../../components/MultiPrintDemo.astro';
+import FStringMagicDemo from '../../components/FStringMagicDemo.astro';
+import KotakMainYuk from '../../components/KotakMainYuk.astro';
+import KotakTahuLebih from '../../components/KotakTahuLebih.astro';
+import PrintNewlineDemo from '../../components/PrintNewlineDemo.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import ConfettiBurst from '../../components/ConfettiBurst.astro';
+import RangkumanList from '../../components/RangkumanList.astro';
+import Glossary from '../../components/Glossary.astro';
+import ChapterFooterNav from '../../components/ChapterFooterNav.astro';
+
+const base = import.meta.env.BASE_URL;
+
+const rangkuman = [
+  '<code>print("...")</code> menyuruh komputer menampilkan tulisan persis seperti yang ditulis di dalam tanda kutip.',
+  'Setiap <code>print()</code> baru selalu menampilkan hasilnya di <strong>baris baru</strong>.',
+  '<strong>f-string</strong> (<code>f"..."</code>) adalah cara utama menggabungkan tulisan dengan nilai — tulis <code>{nama_variabel}</code> di dalam tanda kutip untuk menyisipkan nilainya.',
+  'Penggantian <code>{nama}</code> menjadi nilai aslinya terjadi <strong>sebelum</strong> <code>print</code> menampilkan hasilnya — bukan <code>print</code> yang melakukan penggantian itu.',
+  '<code>print(a, b)</code> bisa menampilkan dua nilai sekaligus dalam satu baris, dipisah spasi otomatis.',
+];
+
+const glossaryTerms = [
+  { term: 'print', def: 'Perintah untuk menampilkan tulisan di layar.' },
+  {
+    term: 'f-string',
+    def: 'Bentuk tulisan spesial (f"...") yang bisa menyisipkan nilai variabel lewat {nama_variabel}.',
+  },
+  {
+    term: 'Variabel',
+    def: 'Kotak penyimpanan untuk menyimpan nilai seperti nama atau angka (dibahas lebih dalam di Bab 3).',
+  },
+  {
+    term: 'Baris baru',
+    def: 'Setiap print() baru menampilkan hasilnya di baris berikutnya, bukan menyambung di baris yang sama.',
+  },
+];
+---
+
+<ChapterLayout
+  currentChapter={2}
+  description="Bab 2: Menyapa Dunia (print) — belajar menampilkan tulisan di layar dan menggabungkan teks dengan variabel lewat f-string, ditemani Pyto si robot ular."
+>
+  <ChapterHero
+    number={2}
+    title="Menyapa Dunia (print)"
+    tagline="Ayo bikin komputer <strong>ngomong</strong> lewat layar, pakai <code>print</code>"
+  >
+    <PytoMascotTalk slot="mascot" size={172}>
+      <code>print("Halo, aku Pyto!")</code>
+    </PytoMascotTalk>
+  </ChapterHero>
+
+  <section data-reveal>
+    <h2>Komputer Juga Bisa "Ngomong", Lho</h2>
+    <p>
+      Manusia bicara pakai mulut. Komputer bicara pakai layar. Dan cara paling dasar untuk membuat
+      komputer "ngomong" ke layar adalah lewat satu perintah ajaib: <strong>print</strong>.
+    </p>
+    <p>
+      Setiap kali kamu menulis <code>print(...)</code>, kamu sedang menyuruh komputer menampilkan
+      tulisan apa pun yang kamu taruh di dalam tanda kurungnya. Sesederhana itu.
+    </p>
+  </section>
+
+  <section class="pyto-quote-box" data-reveal>
+    <span class="pyto-quote-box__mascot" role="img" aria-label="Pyto">🐍</span>
+    <p class="pyto-quote-box__text">
+      "Kalau aku mau bilang sesuatu ke kamu lewat layar, aku pakai <code>print</code>. Coba lihat
+      ini!"
+    </p>
+  </section>
+
+  <section data-reveal>
+    <div class="chapter-media">
+      <HaloDuniaDemo text="Halo, aku Pyto! Sekarang aku bisa ngomong lewat layar." />
+    </div>
+    <p>
+      Lihat kan? Apa pun yang Pyto tulis di dalam tanda kutip, itulah yang muncul di layar. Persis
+      sama, tidak dikurangi atau ditambahi.
+    </p>
+  </section>
+
+  <section data-reveal>
+    <h2>Satu <code>print()</code>, Satu Baris Baru</h2>
+    <p>
+      Kalau kamu menulis beberapa <code>print()</code> berturut-turut, komputer akan menampilkannya
+      satu per satu, dan <strong
+        >setiap <code>print()</code> baru selalu pindah ke baris baru</strong
+      >. Coba perhatikan contoh ini:
+    </p>
+    <div class="chapter-media">
+      <MultiPrintDemo />
+    </div>
+    <p>
+      Jadi kalau kamu ingin tulisanmu tampil di baris-baris yang berbeda, tinggal pakai
+      <code>print()</code> sebanyak yang kamu butuhkan.
+    </p>
+  </section>
+
+  <section data-reveal>
+    <h2>Menggabung Tulisan dengan Nilai: Kenalan dengan f-string</h2>
+    <p>
+      Sekarang, bagaimana kalau kamu ingin menyapa seseorang <strong
+        >pakai namanya sendiri</strong
+      >? Misalnya, komputer sudah tahu nama seseorang disimpan begini:
+    </p>
+    <CodeBlock code={'nama = "Sarah"'} />
+    <p>
+      Baris itu menyimpan tulisan <code>"Sarah"</code> ke dalam sebuah kotak bernama <code
+        >nama</code
+      > (kita akan belajar lebih dalam soal kotak penyimpanan ini — namanya <strong
+        >variabel</strong
+      > — di Bab 3). Sekarang, bagaimana caranya menyapa "Sarah" memakai <code>print</code>?
+    </p>
+    <p>
+      Caranya, kita pakai bentuk <code>print</code> yang sedikit spesial, namanya <strong
+        >f-string</strong
+      >. Begini bentuknya, dan lihat apa yang terjadi pada <code>{'{nama}'}</code>:
+    </p>
+    <div class="chapter-media">
+      <FStringMagicDemo />
+    </div>
+    <p>Perhatikan dua hal penting:</p>
+    <ol>
+      <li>
+        Ada huruf <strong><code>f</code></strong> tepat sebelum tanda kutip pembuka — <code
+          >f"..."</code
+        >. Huruf ini yang memberi tahu Python: "tulisan ini bukan tulisan biasa, di dalamnya ada
+        bagian yang harus diganti dulu."
+      </li>
+      <li>
+        Di dalam tanda kutip, ada <code>{'{nama}'}</code> — dikurung dengan kurung kurawal. Ini
+        bukan tulisan biasa juga. Python akan <strong>mengganti</strong> <code>{'{nama}'}</code>
+        dengan isi kotak <code>nama</code>, yaitu <code>"Sarah"</code>.
+      </li>
+    </ol>
+    <p>
+      Ini bagian paling penting untuk dipahami betul-betul: <strong
+        >penggantian <code>{'{nama}'}</code> menjadi <code>"Sarah"</code> terjadi lebih dulu</strong
+      >, sebelum kalimatnya ditampilkan. Jadi urutannya begini —
+    </p>
+    <ol>
+      <li>
+        Python melihat <code>f"Halo, {'{nama}'}! Senang ketemu kamu."</code> dan membuat kalimat
+        yang sudah lengkap: <code>"Halo, Sarah! Senang ketemu kamu."</code>.
+      </li>
+      <li>
+        <strong>Baru setelah itu</strong>, <code>print</code> menampilkan kalimat yang sudah lengkap
+        tadi ke layar.
+      </li>
+    </ol>
+    <p>
+      Jadi <code>print</code> bukan yang melakukan "penggantian nama" — <code>print</code> cuma
+      menampilkan apa pun yang sudah jadi, sama seperti biasa. Yang melakukan penggantian adalah
+      f-string itu sendiri, sebelum sempat sampai ke <code>print</code>.
+    </p>
+    <p>
+      Kenapa ini keren? Karena sekarang kamu bisa membuat satu kalimat sapaan yang bisa dipakai
+      untuk siapa saja, tinggal ganti isi <code>nama</code>-nya — kalimatnya sama persis, tapi
+      hasilnya otomatis menyesuaikan siapa yang disapa.
+    </p>
+  </section>
+
+  <KotakMainYuk title="Lengkapi Sapaan" icon="🎮" wiggleIcon>
+    <p>
+      Coba lengkapi baris kode ini dengan namamu sendiri, lalu bayangkan (atau coba langsung di
+      editor) apa hasilnya:
+    </p>
+    <CodeBlock code={'nama = "..."\nprint(f"Halo, {nama}! Senang ketemu kamu.")'} />
+    <details class="jawaban">
+      <summary>Lihat contoh jawabannya</summary>
+      <p>
+        Kalau namamu, misalnya, "Dika", maka layar akan menampilkan:
+        <code>Halo, Dika! Senang ketemu kamu.</code>
+      </p>
+    </details>
+  </KotakMainYuk>
+
+  <KotakTahuLebih title="print Selalu Pindah Baris">
+    <p>
+      <code>print()</code> selalu pindah baris baru setiap kali dipanggil. Tapi kalau kamu
+      memasukkan <strong>dua nilai sekaligus</strong> ke dalam satu <code>print()</code>, dipisah
+      koma, hasilnya tetap satu baris — Python otomatis menaruh spasi di antara keduanya.
+    </p>
+    <PrintNewlineDemo />
+    <p>
+      Sebelum ada f-string, banyak orang menggabung tulisan pakai tanda <code>+</code>, misalnya
+      <code>print("Halo, " + nama + "!")</code>. Cara ini jalan, tapi gampang salah taruh spasi
+      atau lupa tanda <code>+</code>. f-string jauh lebih rapi dan mudah dibaca, jadi mulai sekarang
+      kita akan lebih sering pakai f-string untuk menggabungkan tulisan dan nilai.
+    </p>
+  </KotakTahuLebih>
+
+  <section data-reveal>
+    <h2>Coba Sendiri Yuk (Latihan Sapaan Pertamamu!)</h2>
+    <p>
+      Buka editor Python, lalu tulis kode seperti ini — ganti bagian titik-titik dengan namamu
+      sendiri:
+    </p>
+    <CodeBlock code={'nama = "..."\nprint(f"Halo, aku {nama}! Aku baru belajar print dan f-string.")'} />
+    <p>
+      Tekan <strong>Run</strong>. Kalau layar menampilkan sapaan dengan namamu — <strong
+        >selamat, kamu baru saja bikin komputer ngomong pakai namamu sendiri!</strong
+      > 🎉
+    </p>
+    <ConfettiBurst />
+  </section>
+
+  <section data-reveal>
+    <h2>Rangkuman Bab 2</h2>
+    <RangkumanList items={rangkuman} />
+  </section>
+
+  <section data-reveal>
+    <h2>📖 Kamus Kata</h2>
+    <Glossary terms={glossaryTerms} />
+  </section>
+
+  <ChapterFooterNav
+    prevHref={`${base}/bab/1/`}
+    prevLabel="← Bab 1: Kenalan dengan Python"
+    nextLabel="Bab 3: Kotak Ajaib (Variabel)"
+    nextDisabled
+  />
+</ChapterLayout>
+
+<style>
+  .pyto-quote-box {
+    background: var(--pyto-green-soft);
+    border-radius: var(--radius-card);
+    padding: 32px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .pyto-quote-box__mascot {
+    font-size: 64px;
+    flex-shrink: 0;
+  }
+
+  .pyto-quote-box__text {
+    font-family: var(--font-heading);
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--pyto-green-dark);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .chapter-media {
+    margin: 8px 0;
+  }
+
+  .jawaban {
+    margin-top: 8px;
+  }
+
+  .jawaban summary {
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--pyto-green-dark);
+  }
+
+  .jawaban[open] summary {
+    margin-bottom: 8px;
+  }
+
+  .jawaban p {
+    margin: 0;
+  }
+
+  @media (max-width: 600px) {
+    .pyto-quote-box {
+      flex-direction: column;
+      text-align: center;
+      padding: 24px;
+    }
+  }
+</style>

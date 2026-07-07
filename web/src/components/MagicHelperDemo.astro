@@ -1,7 +1,12 @@
 ---
 // Animasi #2 (plan/bab-01-animasi.md): analogi "pembantu ajaib" — gelembung
 // perintah melayang dari anak ke robot, robot "berpikir", lalu hasil muncul.
-// Berjalan sekali saat bagian ini ~30% terlihat di layar.
+// Urutan ini dipicu sekali saat bagian ini ~30% terlihat di layar (lewat
+// observeOnce), tapi begitu terpicu, ketiga animasinya lalu BERULANG TERUS
+// (infinite) selama komponen ini terpasang di halaman — bukan main sekali
+// lalu berhenti. Ketiganya berbagi satu siklus 4 detik yang sudah disusun
+// selaras (lihat keyframe di bawah): gelembung melayang → robot berpikir →
+// hasil muncul → diam sejenak (~1,2 detik) → lalu mengulang dari awal.
 ---
 
 <div class="magic-helper" data-anim="magic" data-reveal>
@@ -131,16 +136,20 @@
     opacity: 0;
   }
 
+  /* Satu siklus 4 detik dipakai bersama oleh ketiga animasi supaya urutannya
+     tetap selaras di setiap putaran: melayang (0-40%) → robot berpikir
+     (32-48%) → hasil muncul (48-64%) → diam ~1,2 detik (64-94%) → memudar
+     balik ke awal (94-100%) sebelum mengulang. */
   :global(.js-reveal) .magic-helper.is-in .magic-helper__bubble {
-    animation: magic-bubble-travel 2.1s ease forwards;
+    animation: magic-bubble-travel 4s ease infinite;
   }
 
   :global(.js-reveal) .magic-helper.is-in .magic-helper__result {
-    animation: magic-result-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 1.7s forwards;
+    animation: magic-result-pop 4s ease infinite;
   }
 
   :global(.js-reveal) .magic-helper.is-in .magic-helper__robot {
-    animation: magic-robot-think 2.2s ease;
+    animation: magic-robot-think 4s ease infinite;
   }
 
   @keyframes magic-bubble-travel {
@@ -148,48 +157,80 @@
       transform: translateX(0) scale(0.6);
       opacity: 0;
     }
-    15% {
+    7% {
       opacity: 1;
       transform: translateX(0) scale(1);
     }
-    70% {
+    35% {
       opacity: 1;
       transform: translateX(calc(100% - 20px)) scale(1);
     }
-    85% {
-      opacity: 0;
-      transform: translateX(calc(100% - 20px)) scale(0.7);
-    }
+    40%,
     100% {
       opacity: 0;
+      transform: translateX(calc(100% - 20px)) scale(0.7);
     }
   }
 
   @keyframes magic-result-pop {
-    0% {
+    0%,
+    48% {
       transform: scale(0);
       opacity: 0;
     }
-    100% {
+    56% {
+      transform: scale(1.15);
+      opacity: 1;
+    }
+    60% {
+      transform: scale(0.95);
+      opacity: 1;
+    }
+    64%,
+    94% {
       transform: scale(1);
       opacity: 1;
+    }
+    99% {
+      transform: scale(0.85);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(0);
+      opacity: 0;
     }
   }
 
   @keyframes magic-robot-think {
     0%,
-    60%,
+    32%,
+    48%,
     100% {
       transform: rotate(0);
     }
-    70% {
+    38% {
       transform: rotate(-5deg);
     }
-    80% {
+    44% {
       transform: rotate(5deg);
     }
-    90% {
-      transform: rotate(0);
+  }
+
+  /* Pengaman tambahan: kalau prefers-reduced-motion aktif, jangan biarkan
+     animasi "infinite" ini berputar (walau global.css sudah memaksa durasi
+     ~0 dan iterasi 1x, itu tetap bisa membuat urutan sempat "berkedip" ke
+     status tersembunyi di batas siklus). Tampilkan langsung status akhir
+     yang statis: gelembung sudah terkirim (sembunyi), hasil "4" tampil. */
+  @media (prefers-reduced-motion: reduce) {
+    .magic-helper__bubble,
+    .magic-helper__result,
+    .magic-helper__robot {
+      animation: none !important;
+    }
+
+    .magic-helper__result {
+      opacity: 1;
+      transform: scale(1);
     }
   }
 
