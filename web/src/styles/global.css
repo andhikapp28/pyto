@@ -296,6 +296,28 @@ pre,
 }
 
 /* --------------------------------------------------------------------
+   Konfeti (dipicu lewat src/scripts/confetti.js, mis. di PracticeEditor)
+   -------------------------------------------------------------------- */
+.confetti-piece {
+  position: absolute;
+  top: -10px;
+  border-radius: 2px;
+  animation: confetti-fall linear forwards;
+  pointer-events: none;
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-10px) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(160px) rotate(540deg);
+    opacity: 0;
+  }
+}
+
+/* --------------------------------------------------------------------
    Responsif — dasar
    -------------------------------------------------------------------- */
 @media (max-width: 860px) {

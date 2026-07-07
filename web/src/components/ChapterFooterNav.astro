@@ -1,0 +1,99 @@
+---
+// Animasi #10 — panah "Bab Selanjutnya" mengedip pelan, mengundang pembaca
+// lanjut. Dipakai di akhir tiap halaman bab.
+interface Props {
+  prevHref?: string;
+  prevLabel?: string;
+  nextHref?: string;
+  nextLabel?: string;
+  nextDisabled?: boolean;
+}
+
+const {
+  prevHref,
+  prevLabel = '← Kembali ke Beranda',
+  nextHref,
+  nextLabel,
+  nextDisabled = false,
+} = Astro.props;
+---
+
+<nav class="chapter-footer-nav" data-reveal aria-label="Navigasi bab">
+  {
+    prevHref && (
+      <a href={prevHref} class="btn btn-secondary chapter-footer-nav__prev">
+        {prevLabel}
+      </a>
+    )
+  }
+
+  {
+    nextDisabled ? (
+      <span
+        class="btn btn-primary chapter-footer-nav__next chapter-footer-nav__next--disabled"
+        aria-disabled="true"
+      >
+        {nextLabel}
+        <span class="chapter-footer-nav__arrow" aria-hidden="true">
+          →
+        </span>
+      </span>
+    ) : (
+      <a href={nextHref} class="btn btn-primary chapter-footer-nav__next">
+        {nextLabel}
+        <span class="chapter-footer-nav__arrow" aria-hidden="true">
+          →
+        </span>
+      </a>
+    )
+  }
+</nav>
+
+<style>
+  .chapter-footer-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 24px;
+  }
+
+  .chapter-footer-nav__next--disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .chapter-footer-nav__arrow {
+    display: inline-block;
+    animation: chapter-footer-nav-nudge 1.3s ease-in-out infinite;
+  }
+
+  @keyframes chapter-footer-nav-nudge {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(7px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .chapter-footer-nav__arrow {
+      animation: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .chapter-footer-nav {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .chapter-footer-nav .btn {
+      justify-content: center;
+    }
+  }
+</style>

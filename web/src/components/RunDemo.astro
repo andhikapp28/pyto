@@ -1,0 +1,205 @@
+---
+// Animasi #6 (plan/bab-01-animasi.md) — ilustrasi menekan tombol Run: kursor
+// bergerak ke tombol, tombol tertekan, lalu hasil muncul. Ini murni ilustrasi
+// konsep (bukan editor sungguhan) — editor Pyodide asli ada di bagian
+// "Coba Sendiri" (lihat PracticeEditor.astro).
+import CodeBlock from './CodeBlock.astro';
+
+const CODE = `print("Halo, dunia!")`;
+const RESULT = 'Halo, dunia!';
+---
+
+<div class="rundemo" data-anim="rundemo">
+  <div class="rundemo__frame card">
+    <div class="rundemo__header">
+      <span class="rundemo__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="rundemo__filename">editor.py</span>
+      <button type="button" class="rundemo__runbtn" tabindex="-1" aria-hidden="true">▶ Run</button>
+      <span class="rundemo__cursor" aria-hidden="true">👆</span>
+    </div>
+    <CodeBlock code={CODE} showLineNumbers />
+  </div>
+
+  <div class="rundemo__result card">
+    <span class="rundemo__result-label">Hasil:</span>
+    <pre class="rundemo__result-body">{RESULT}</pre>
+  </div>
+</div>
+
+<style>
+  .rundemo {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .rundemo__frame {
+    overflow: hidden;
+  }
+
+  .rundemo__header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    background: var(--cloud);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .rundemo__dots {
+    display: inline-flex;
+    gap: 6px;
+  }
+
+  .rundemo__dots i {
+    width: 9px;
+    height: 9px;
+    border-radius: 999px;
+    background: var(--border);
+    display: inline-block;
+  }
+
+  .rundemo__filename {
+    font-family: var(--font-code);
+    font-size: 13px;
+    color: var(--slate);
+    flex: 1;
+  }
+
+  .rundemo__runbtn {
+    border: none;
+    background: var(--pyto-green);
+    color: var(--white);
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 13px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    cursor: default;
+  }
+
+  .rundemo__cursor {
+    position: absolute;
+    top: 6px;
+    right: 24px;
+    font-size: 22px;
+    transform: translate(0, 0);
+    filter: drop-shadow(0 2px 3px rgba(30, 42, 50, 0.25));
+  }
+
+  .rundemo.play .rundemo__cursor {
+    animation: rundemo-cursor-move 1.6s ease;
+  }
+
+  @keyframes rundemo-cursor-move {
+    0% {
+      transform: translate(-160px, 54px);
+      opacity: 0;
+    }
+    15% {
+      opacity: 1;
+    }
+    55%,
+    100% {
+      transform: translate(0, 0);
+      opacity: 1;
+    }
+  }
+
+  .rundemo.play .rundemo__runbtn {
+    animation: rundemo-press 1.6s ease;
+  }
+
+  @keyframes rundemo-press {
+    0%,
+    52% {
+      transform: scale(1);
+    }
+    58% {
+      transform: scale(0.86);
+    }
+    66%,
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .rundemo__result {
+    padding: 16px 22px;
+    background: var(--white);
+  }
+
+  .rundemo__result-label {
+    display: block;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--slate);
+    margin-bottom: 6px;
+  }
+
+  .rundemo__result-body {
+    margin: 0;
+    font-family: var(--font-code);
+    font-size: 15px;
+    color: var(--ink);
+  }
+
+  :global(.js-reveal) .rundemo__result {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  .rundemo.play .rundemo__result {
+    animation: rundemo-result-up 0.5s ease 1.1s forwards;
+  }
+
+  @keyframes rundemo-result-up {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rundemo__cursor,
+    .rundemo__runbtn,
+    .rundemo__result {
+      animation: none !important;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .rundemo__filename {
+      display: none;
+    }
+
+    .rundemo__cursor {
+      right: 16px;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce } from '../scripts/reveal-anim.js';
+
+  const demos = document.querySelectorAll('[data-anim="rundemo"]');
+
+  function replay(demo) {
+    demo.classList.remove('play');
+    // Paksa reflow supaya animasi CSS bisa diulang dari awal.
+    void demo.offsetWidth;
+    demo.classList.add('play');
+  }
+
+  observeOnce(demos, (demo) => replay(demo));
+
+  demos.forEach((demo) => {
+    demo.addEventListener('mouseenter', () => replay(demo));
+  });
+</script>

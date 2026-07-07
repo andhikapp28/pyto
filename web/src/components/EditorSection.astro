@@ -160,9 +160,7 @@ print("Aku sedang belajar Python!")
 </style>
 
 <script>
-  const PYODIDE_VERSION = '0.26.4';
-  const PYODIDE_CDN = `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`;
-  const LOADING_MESSAGE = '🐍 Pyto sedang bangun... sebentar ya';
+  import { LOADING_MESSAGE, isFirstPyodideLoad, runPython, friendlyError } from '../scripts/pyodide-runner.js';
 
   const codeEl = document.getElementById('editor-code');
   const runBtn = document.getElementById('editor-run');
@@ -173,30 +171,6 @@ print("Aku sedang belajar Python!")
 
   const STARTER_CODE = codeEl ? codeEl.value : '';
 
-  let pyodideReadyPromise = null;
-
-  function loadScript(src) {
-    return new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = src;
-      script.onload = () => resolve();
-      script.onerror = () => reject(new Error('Gagal memuat Pyodide. Cek koneksi internetmu, ya.'));
-      document.head.appendChild(script);
-    });
-  }
-
-  function getPyodide() {
-    if (!pyodideReadyPromise) {
-      pyodideReadyPromise = (async () => {
-        if (typeof window.loadPyodide !== 'function') {
-          await loadScript(`${PYODIDE_CDN}pyodide.js`);
-        }
-        return window.loadPyodide({ indexURL: PYODIDE_CDN });
-      })();
-    }
-    return pyodideReadyPromise;
-  }
-
   function showResult(text, isError) {
     if (!resultWrap || !resultBody || !resultLabel) return;
     resultWrap.classList.toggle('is-error', isError);
@@ -204,41 +178,20 @@ print("Aku sedang belajar Python!")
     resultBody.textContent = text || '(Tidak ada tulisan yang ditampilkan)';
   }
 
-  function friendlyError(err) {
-    const message = err instanceof Error ? err.message : String(err);
-    // Ambil baris terakhir yang biasanya berisi jenis error Python (mis. "NameError: ...")
-    const lines = message.trim().split('\n');
-    return lines[lines.length - 1] || message;
-  }
-
   runBtn?.addEventListener('click', async () => {
     if (!codeEl || !runBtn) return;
     const code = codeEl.value;
 
     runBtn.disabled = true;
-    const isFirstLoad = !pyodideReadyPromise;
-    if (isFirstLoad) {
+    if (isFirstPyodideLoad()) {
       showResult(LOADING_MESSAGE, false);
     } else {
       showResult('Menjalankan...', false);
     }
 
     try {
-      const pyodide = await getPyodide();
-      let output = '';
-      pyodide.setStdout({
-        batched: (s: string) => {
-          output += s + '\n';
-        },
-      });
-      pyodide.setStderr({
-        batched: (s: string) => {
-          output += s + '\n';
-        },
-      });
-
-      await pyodide.runPythonAsync(code);
-      showResult(output.replace(/\n$/, ''), false);
+      const output = await runPython(code);
+      showResult(output, false);
     } catch (err) {
       showResult(friendlyError(err), true);
     } finally {

@@ -1,0 +1,82 @@
+---
+// Kotak "Main Yuk" — aktivitas untuk anak, sesuai plan/design-system.md.
+// Latar kuning muda, garis kiri tebal Sunny Yellow.
+interface Props {
+  title?: string;
+  icon?: string;
+  wiggleIcon?: boolean;
+}
+
+const { title = 'Main Yuk!', icon = '🎮', wiggleIcon = false } = Astro.props;
+---
+
+<div class="kotak-main-yuk" data-reveal>
+  <span class:list={['kotak-main-yuk__icon', { 'kotak-main-yuk__icon--wiggle': wiggleIcon }]} aria-hidden="true">{icon}</span>
+  <div class="kotak-main-yuk__body">
+    <span class="kotak-main-yuk__title">{title}</span>
+    <div class="kotak-main-yuk__content">
+      <slot />
+    </div>
+  </div>
+</div>
+
+<style>
+  .kotak-main-yuk {
+    display: flex;
+    gap: 16px;
+    background: var(--box-main-yuk-bg);
+    border-left: 6px solid var(--sunny-yellow);
+    border-radius: var(--radius-card);
+    padding: 24px 28px;
+  }
+
+  .kotak-main-yuk__icon {
+    flex-shrink: 0;
+    font-size: 28px;
+    display: inline-block;
+  }
+
+  .kotak-main-yuk__icon--wiggle {
+    animation: kotak-main-yuk-wiggle 1.6s ease-in-out infinite;
+  }
+
+  @keyframes kotak-main-yuk-wiggle {
+    0%,
+    100% {
+      transform: rotate(-8deg);
+    }
+    50% {
+      transform: rotate(8deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .kotak-main-yuk__icon--wiggle {
+      animation: none;
+    }
+  }
+
+  .kotak-main-yuk__body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .kotak-main-yuk__title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--ink);
+  }
+
+  .kotak-main-yuk__content {
+    color: var(--ink);
+  }
+
+  @media (max-width: 600px) {
+    .kotak-main-yuk {
+      padding: 20px;
+    }
+  }
+</style>

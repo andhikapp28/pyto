@@ -1,0 +1,147 @@
+---
+// Maskot Pyto (badan melingkar + tangan melambai + mata berkedip), dipakai di
+// hero halaman bab. Dibuat jadi komponen sendiri supaya bab-bab berikutnya
+// bisa memakai maskot yang sama tanpa menyalin SVG-nya.
+interface Props {
+  size?: number;
+}
+
+const { size = 188 } = Astro.props;
+const height = Math.round((size * 180) / 188);
+---
+
+<div class="pyto-float">
+  <svg
+    width={size}
+    height={height}
+    viewBox="0 0 188 180"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    class="pyto-svg"
+    role="img"
+    aria-label="Pyto, si robot ular, melambai ramah"
+  >
+    <path
+      d="M56 150 C 20 150, 22 110, 60 112 C 104 114, 120 150, 150 140"
+      stroke="var(--pyto-green-dark)"
+      stroke-width="17"
+      stroke-linecap="round"
+      fill="none"
+    ></path>
+    <path
+      d="M56 150 C 20 150, 22 110, 60 112 C 104 114, 120 150, 150 140"
+      stroke="var(--pyto-green)"
+      stroke-width="9"
+      stroke-linecap="round"
+      fill="none"
+    ></path>
+    <g class="pyto-arm" data-pyto-arm>
+      <rect x="128" y="52" width="12" height="40" rx="6" fill="var(--pyto-green)"></rect>
+      <circle cx="134" cy="46" r="12" fill="var(--sunny-yellow)" stroke="#F2B430" stroke-width="2"></circle>
+    </g>
+    <rect x="44" y="30" width="96" height="82" rx="30" fill="var(--pyto-green)"></rect>
+    <line x1="92" y1="30" x2="92" y2="12" stroke="var(--pyto-green-dark)" stroke-width="5" stroke-linecap="round"></line>
+    <circle cx="92" cy="9" r="6" fill="var(--sunny-yellow)"></circle>
+    <g class="pyto-eyes">
+      <circle cx="74" cy="66" r="14" fill="#FFFFFF"></circle>
+      <circle cx="112" cy="66" r="14" fill="#FFFFFF"></circle>
+      <circle cx="77" cy="68" r="6" fill="var(--ink)"></circle>
+      <circle cx="115" cy="68" r="6" fill="var(--ink)"></circle>
+      <circle cx="79" cy="65" r="2" fill="#FFFFFF"></circle>
+      <circle cx="117" cy="65" r="2" fill="#FFFFFF"></circle>
+    </g>
+    <circle cx="60" cy="88" r="7" fill="var(--coral)" opacity="0.55"></circle>
+    <circle cx="126" cy="88" r="7" fill="var(--coral)" opacity="0.55"></circle>
+    <path d="M80 90 Q 92 100, 104 90" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" fill="none"></path>
+  </svg>
+</div>
+
+<style>
+  .pyto-svg {
+    filter: drop-shadow(0 12px 18px rgba(30, 42, 50, 0.14));
+  }
+
+  .pyto-float {
+    animation: pyto-bob 4s ease-in-out infinite;
+  }
+
+  @keyframes pyto-bob {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  .pyto-arm {
+    transform-box: fill-box;
+    transform-origin: 60% 8%;
+    transform: rotate(6deg);
+  }
+
+  .pyto-arm.is-waving {
+    animation: pyto-wave 0.55s ease-in-out 3;
+  }
+
+  @keyframes pyto-wave {
+    0%,
+    100% {
+      transform: rotate(6deg);
+    }
+    25%,
+    75% {
+      transform: rotate(-22deg);
+    }
+    50% {
+      transform: rotate(8deg);
+    }
+  }
+
+  .pyto-eyes {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: pyto-blink 4.5s infinite;
+  }
+
+  @keyframes pyto-blink {
+    0%,
+    92%,
+    100% {
+      transform: scaleY(1);
+    }
+    96% {
+      transform: scaleY(0.1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pyto-float,
+    .pyto-eyes,
+    .pyto-arm.is-waving {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  // Lambaian tangan: 3x saat halaman dibuka, lalu diulang tiap 8 detik supaya
+  // Pyto terasa hidup tanpa mengganggu. Dimatikan total untuk pengguna yang
+  // memilih "kurangi gerak".
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!prefersReducedMotion) {
+    const arms = document.querySelectorAll('[data-pyto-arm]');
+
+    const waveOnce = () => {
+      arms.forEach((arm) => {
+        arm.classList.add('is-waving');
+        setTimeout(() => arm.classList.remove('is-waving'), 900);
+      });
+    };
+
+    setTimeout(waveOnce, 700);
+    setInterval(waveOnce, 8000);
+  }
+</script>

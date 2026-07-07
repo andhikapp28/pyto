@@ -1,0 +1,159 @@
+---
+// Animasi #3 (typewriter) + #4 (sorot warna kode) dari plan/bab-01-animasi.md,
+// untuk contoh pertama print("Halo, dunia!").
+const TEXT = 'Halo, dunia!';
+---
+
+<div class="halo-dunia" data-anim="codeglow">
+  <div class="halo-dunia__code card">
+    <pre class="halo-dunia__pre"><code><span class="tok-fn">print</span>(<span class="tok-str">"Halo, dunia!"</span>)</code></pre>
+  </div>
+
+  <div class="halo-dunia__result card">
+    <span class="halo-dunia__result-label">Hasil di layar:</span>
+    <p class="halo-dunia__line">
+      <span class="halo-dunia__text" data-typewriter={TEXT}>{TEXT}</span><span
+        class="halo-dunia__cursor"
+        aria-hidden="true"></span>
+    </p>
+  </div>
+</div>
+
+<style>
+  .halo-dunia {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .halo-dunia__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 18px 22px;
+    overflow-x: auto;
+  }
+
+  .halo-dunia__pre {
+    margin: 0;
+    font-family: var(--font-code);
+    font-size: 16px;
+    color: var(--code-text);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+    border-radius: 4px;
+  }
+
+  .tok-str {
+    color: var(--code-green);
+    border-radius: 4px;
+  }
+
+  .halo-dunia.is-in .tok-fn {
+    animation: tok-glow-blue 0.9s ease 0.15s 1;
+  }
+
+  .halo-dunia.is-in .tok-str {
+    animation: tok-glow-green 0.9s ease 0.5s 1;
+  }
+
+  @keyframes tok-glow-blue {
+    0% {
+      background: transparent;
+    }
+    30% {
+      background: rgba(97, 175, 239, 0.28);
+    }
+    100% {
+      background: transparent;
+    }
+  }
+
+  @keyframes tok-glow-green {
+    0% {
+      background: transparent;
+    }
+    30% {
+      background: rgba(152, 195, 121, 0.28);
+    }
+    100% {
+      background: transparent;
+    }
+  }
+
+  .halo-dunia__result {
+    padding: 16px 22px;
+    background: var(--white);
+  }
+
+  .halo-dunia__result-label {
+    display: block;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--slate);
+    margin-bottom: 6px;
+  }
+
+  .halo-dunia__line {
+    margin: 0;
+    font-family: var(--font-code);
+    font-size: 16px;
+    color: var(--ink);
+  }
+
+  .halo-dunia__cursor {
+    display: inline-block;
+    width: 2px;
+    height: 16px;
+    margin-left: 2px;
+    background: var(--pyto-green-dark);
+    vertical-align: -2px;
+    animation: cursor-blink 1s step-end infinite;
+  }
+
+  @keyframes cursor-blink {
+    0%,
+    50% {
+      opacity: 1;
+    }
+    51%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .halo-dunia__cursor {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce } from '../scripts/reveal-anim.js';
+
+  const blocks = document.querySelectorAll('[data-anim="codeglow"]');
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  observeOnce(blocks, (block) => {
+    block.classList.add('is-in');
+
+    const textEl = block.querySelector('[data-typewriter]');
+    if (!textEl || prefersReducedMotion) return;
+
+    const fullText = textEl.getAttribute('data-typewriter') || textEl.textContent || '';
+    textEl.textContent = '';
+
+    let i = 0;
+    setTimeout(function typeNext() {
+      textEl.textContent = fullText.slice(0, i + 1);
+      i += 1;
+      if (i < fullText.length) {
+        setTimeout(typeNext, 60);
+      }
+    }, 250);
+  });
+</script>

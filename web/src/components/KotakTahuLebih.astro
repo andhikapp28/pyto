@@ -1,0 +1,61 @@
+---
+// Kotak "Tahu Lebih" — bonus untuk yang penasaran, sesuai plan/design-system.md.
+// Latar biru muda, garis kiri tebal Sky Blue.
+interface Props {
+  title?: string;
+  icon?: string;
+}
+
+const { title = 'Tahu Lebih', icon = '🔎' } = Astro.props;
+---
+
+<div class="kotak-tahu-lebih" data-reveal>
+  <span class="kotak-tahu-lebih__icon" aria-hidden="true">{icon}</span>
+  <div class="kotak-tahu-lebih__body">
+    <span class="kotak-tahu-lebih__title">{title}</span>
+    <div class="kotak-tahu-lebih__content">
+      <slot />
+    </div>
+  </div>
+</div>
+
+<style>
+  .kotak-tahu-lebih {
+    display: flex;
+    gap: 16px;
+    background: var(--box-tahu-lebih-bg);
+    border-left: 6px solid var(--sky-blue);
+    border-radius: var(--radius-card);
+    padding: 24px 28px;
+  }
+
+  .kotak-tahu-lebih__icon {
+    flex-shrink: 0;
+    font-size: 28px;
+    display: inline-block;
+  }
+
+  .kotak-tahu-lebih__body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .kotak-tahu-lebih__title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--ink);
+  }
+
+  .kotak-tahu-lebih__content {
+    color: var(--ink);
+  }
+
+  @media (max-width: 600px) {
+    .kotak-tahu-lebih {
+      padding: 20px;
+    }
+  }
+</style>

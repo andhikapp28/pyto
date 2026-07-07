@@ -1,0 +1,141 @@
+---
+// Animasi #7 (plan/bab-01-animasi.md) — garis sorot + jari 👉 menelusuri kode
+// baris demi baris, menggambarkan cara kerja interpreter: dari atas ke bawah.
+---
+
+<div class="interpreter-scan" data-anim="interpreter">
+  <div class="interpreter-scan__code">
+    <span class="interpreter-scan__bar" aria-hidden="true"></span>
+    <span class="interpreter-scan__finger" aria-hidden="true">👉</span>
+    <pre class="interpreter-scan__pre"><code
+      ><span class="interpreter-scan__line"><span class="tok-fn">print</span>(<span class="tok-str">"Namaku adalah ..."</span>)</span
+      ><span class="interpreter-scan__line"><span class="tok-fn">print</span>(<span class="tok-str">"Aku berumur ... tahun"</span>)</span
+      ><span class="interpreter-scan__line"><span class="tok-fn">print</span>(<span class="tok-str">"Dan aku sedang belajar Python!"</span>)</span
+    ></code></pre>
+  </div>
+</div>
+
+<style>
+  .interpreter-scan__code {
+    position: relative;
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 16px 20px 16px 46px;
+  }
+
+  .interpreter-scan__pre {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    font-family: var(--font-code);
+    font-size: 15px;
+    line-height: 32px;
+    color: var(--code-text);
+  }
+
+  .interpreter-scan__line {
+    display: block;
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .interpreter-scan__bar {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    top: 16px;
+    height: 32px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .interpreter-scan__finger {
+    position: absolute;
+    left: 8px;
+    top: 12px;
+    font-size: 18px;
+  }
+
+  :global(.js-reveal) .interpreter-scan__bar,
+  :global(.js-reveal) .interpreter-scan__finger {
+    opacity: 0;
+  }
+
+  :global(.js-reveal) .interpreter-scan.is-in .interpreter-scan__bar {
+    animation: interpreter-bar-scan 2.6s ease forwards;
+  }
+
+  :global(.js-reveal) .interpreter-scan.is-in .interpreter-scan__finger {
+    animation: interpreter-finger-scan 2.6s ease forwards;
+  }
+
+  @keyframes interpreter-bar-scan {
+    0% {
+      top: 16px;
+      opacity: 0;
+    }
+    8% {
+      opacity: 1;
+    }
+    33% {
+      top: 16px;
+    }
+    40% {
+      top: 48px;
+    }
+    66% {
+      top: 48px;
+    }
+    73% {
+      top: 80px;
+    }
+    96% {
+      top: 80px;
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes interpreter-finger-scan {
+    0% {
+      top: 12px;
+      opacity: 0;
+    }
+    8% {
+      opacity: 1;
+    }
+    40% {
+      top: 44px;
+    }
+    73% {
+      top: 76px;
+    }
+    100% {
+      top: 76px;
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .interpreter-scan__bar,
+    .interpreter-scan__finger {
+      animation: none !important;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce } from '../scripts/reveal-anim.js';
+
+  observeOnce(document.querySelectorAll('[data-anim="interpreter"]'), (el) => {
+    el.classList.add('is-in');
+  });
+</script>

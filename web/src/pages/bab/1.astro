@@ -1,0 +1,215 @@
+---
+// Bab 1 — Kenalan dengan Python.
+// Sumber teks: plan/naskah/bab-01-kenalan-dengan-python.md (naskah master).
+// Sumber animasi: plan/bab-01-animasi.md.
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import ChapterHero from '../../components/ChapterHero.astro';
+import MagicHelperDemo from '../../components/MagicHelperDemo.astro';
+import HaloDuniaDemo from '../../components/HaloDuniaDemo.astro';
+import KotakMainYuk from '../../components/KotakMainYuk.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import RunDemo from '../../components/RunDemo.astro';
+import KotakTahuLebih from '../../components/KotakTahuLebih.astro';
+import InterpreterScan from '../../components/InterpreterScan.astro';
+import PracticeEditor from '../../components/PracticeEditor.astro';
+import RangkumanList from '../../components/RangkumanList.astro';
+import Glossary from '../../components/Glossary.astro';
+import ChapterFooterNav from '../../components/ChapterFooterNav.astro';
+
+const base = import.meta.env.BASE_URL;
+
+const rangkuman = [
+  '<strong>Coding</strong> artinya memberi perintah ke komputer.',
+  '<strong>Python</strong> adalah bahasa untuk ngoding yang mudah dan menyenangkan.',
+  'Namanya diambil dari acara komedi <em>Monty Python</em> — jadi memang dibuat untuk seru.',
+  'Perintah <code>print("...")</code> menampilkan tulisan di layar.',
+  'Cara termudah memulai: pakai editor Python lewat internet, tanpa instal apa pun.',
+];
+
+const glossaryTerms = [
+  { term: 'Coding / Ngoding', def: 'Kegiatan memberi perintah ke komputer.' },
+  { term: 'Python', def: 'Bahasa pemrograman yang kita pelajari.' },
+  { term: 'print', def: 'Perintah untuk menampilkan tulisan di layar.' },
+  { term: 'Run', def: 'Tombol untuk menjalankan kode.' },
+  { term: 'Interpreter', def: 'Program yang membaca dan menjalankan kode Python.' },
+];
+---
+
+<ChapterLayout
+  currentChapter={1}
+  description="Bab 1: Kenalan dengan Python — apa itu ngoding, kenapa Python seru untuk dipelajari, dan cara menjalankan kode pertamamu, ditemani Pyto si robot ular."
+>
+  <ChapterHero
+    number={1}
+    title="Kenalan dengan Python"
+    tagline="Ditemani <strong>Pyto</strong>, si robot ular yang ramah 🐍🤖"
+  />
+
+  <section data-reveal>
+    <h2>Halo! Kita Mau Belajar Apa, Sih?</h2>
+    <p>
+      Bayangkan kamu punya seorang pembantu ajaib. Dia sangat cepat, tidak pernah capek, dan mau
+      mengerjakan apa pun yang kamu perintahkan — menghitung, menulis, main tebak-tebakan, bahkan
+      menggambar. Tapi ada satu syarat: dia hanya mengerti kalau kamu bicara pakai <strong>bahasanya</strong>.
+    </p>
+    <p>Nah, bahasa itulah yang akan kita pelajari. Namanya <strong>Python</strong>.</p>
+    <p>
+      Belajar Python berarti belajar cara <strong>memberi perintah ke komputer</strong>. Kegiatan ini
+      disebut <strong>coding</strong> atau <strong>ngoding</strong>. Dan tenang — ini jauh lebih mudah
+      dan seru daripada yang kamu bayangkan.
+    </p>
+  </section>
+
+  <section data-reveal>
+    <MagicHelperDemo />
+  </section>
+
+  <section class="pyto-quote-box" data-reveal>
+    <span class="pyto-quote-box__mascot" role="img" aria-label="Pyto">🐍</span>
+    <p class="pyto-quote-box__text">
+      "Halo! Aku Pyto. Namaku diambil dari <em>Python</em>. Aku akan menemanimu di setiap bab. Kalau
+      ada kata sulit, aku yang jelaskan. Ayo mulai!"
+    </p>
+  </section>
+
+  <section data-reveal>
+    <h2>Kenapa Namanya "Python"?</h2>
+    <p>
+      Kamu mungkin membayangkan ular. Tapi sebenarnya, pembuat Python — seorang bernama <strong
+        >Guido van Rossum</strong
+      > — memberi nama ini karena ia suka acara komedi lucu berjudul <em>Monty Python</em>. Jadi
+      sejak awal, Python memang dibuat untuk jadi <strong>menyenangkan</strong>, bukan menakutkan.
+    </p>
+  </section>
+
+  <section data-reveal>
+    <h2>Kenapa Python Cocok untuk Pemula?</h2>
+    <p>Python itu seperti bahasa yang paling dekat dengan bahasa manusia. Coba lihat perintah ini:</p>
+    <div class="chapter-media">
+      <HaloDuniaDemo />
+    </div>
+    <p>
+      Walaupun belum belajar apa-apa, kamu mungkin sudah bisa menebak: ini menyuruh komputer <strong
+        >mencetak</strong
+      > (menampilkan) tulisan "Halo, dunia!". Betul sekali! Itulah kenapa banyak orang — dari anak
+      SD sampai ilmuwan — memilih Python.
+    </p>
+    <p>
+      Python dipakai untuk membuat banyak hal keren: <strong>game</strong>, <strong>aplikasi HP</strong>, <strong>website</strong>, robot, bahkan dipakai NASA dan para pembuat film animasi.
+    </p>
+  </section>
+
+  <KotakMainYuk title="Tebak Perintah" icon="🎮" wiggleIcon>
+    <p>Coba tebak, kira-kira perintah ini menyuruh komputer melakukan apa?</p>
+    <CodeBlock code={'print("Aku sedang belajar Python!")'} />
+    <details class="jawaban">
+      <summary>Lihat jawabannya</summary>
+      <p>
+        Jawaban: menampilkan tulisan "Aku sedang belajar Python!" di layar. Gampang, kan?
+      </p>
+    </details>
+  </KotakMainYuk>
+
+  <section data-reveal>
+    <h2>Bagaimana Cara Menjalankan Kode Python?</h2>
+    <p>
+      Untuk memberi perintah ke Python, kita butuh tempat menuliskannya. Ada dua cara termudah, dan <strong>keduanya gratis, tanpa perlu menginstal apa pun</strong>:
+    </p>
+    <p>
+      <strong>1. Lewat internet (paling mudah untuk memulai).</strong> Buka situs seperti <strong>trinket.io</strong> atau editor Python di web belajar kita. Kamu tinggal mengetik kode di kotak, lalu klik tombol <strong>Run</strong> (Jalankan). Hasilnya langsung muncul. Cocok banget untuk pemula karena tidak ribet.
+    </p>
+    <div class="chapter-media">
+      <RunDemo />
+    </div>
+    <p>
+      <strong>2. Menginstal Python di komputer.</strong> Kalau nanti sudah mahir, kamu bisa mengunduh
+      Python gratis dari <strong>python.org</strong> dan menuliskannya di aplikasi bernama editor
+      kode. Ini untuk nanti — sekarang kita santai dulu lewat cara pertama.
+    </p>
+  </section>
+
+  <KotakTahuLebih title="Interpreter Membaca Baris demi Baris">
+    <p>
+      Saat kamu klik <strong>Run</strong>, di balik layar ada program bernama <strong>interpreter</strong> yang membaca kodemu baris demi baris, dari atas ke bawah, lalu menerjemahkannya menjadi perintah yang dimengerti komputer. Jadi urutan penulisan itu penting — komputer mengerjakannya sesuai urutan, seperti membaca resep masakan.
+    </p>
+    <InterpreterScan />
+  </KotakTahuLebih>
+
+  <section data-reveal>
+    <h2>Coba Sendiri Yuk (Latihan Pertamamu!)</h2>
+    <p>Buka editor Python (lewat internet), lalu ketik persis seperti ini dan tekan <strong>Run</strong>:</p>
+    <PracticeEditor />
+  </section>
+
+  <section data-reveal>
+    <h2>Rangkuman Bab 1</h2>
+    <RangkumanList items={rangkuman} />
+  </section>
+
+  <section data-reveal>
+    <h2>📖 Kamus Kata</h2>
+    <Glossary terms={glossaryTerms} />
+  </section>
+
+  <ChapterFooterNav
+    prevHref={`${base}/`}
+    prevLabel="← Kembali ke Beranda"
+    nextLabel="Bab 2: Menyapa Dunia (print)"
+    nextDisabled
+  />
+</ChapterLayout>
+
+<style>
+  .pyto-quote-box {
+    background: var(--pyto-green-soft);
+    border-radius: var(--radius-card);
+    padding: 32px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .pyto-quote-box__mascot {
+    font-size: 64px;
+    flex-shrink: 0;
+  }
+
+  .pyto-quote-box__text {
+    font-family: var(--font-heading);
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--pyto-green-dark);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .chapter-media {
+    margin: 8px 0;
+  }
+
+  .jawaban {
+    margin-top: 8px;
+  }
+
+  .jawaban summary {
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--pyto-green-dark);
+  }
+
+  .jawaban[open] summary {
+    margin-bottom: 8px;
+  }
+
+  .jawaban p {
+    margin: 0;
+  }
+
+  @media (max-width: 600px) {
+    .pyto-quote-box {
+      flex-direction: column;
+      text-align: center;
+      padding: 24px;
+    }
+  }
+</style>

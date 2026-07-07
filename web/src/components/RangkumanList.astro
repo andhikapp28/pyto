@@ -1,0 +1,53 @@
+---
+// Animasi #9 — daftar rangkuman muncul bertahap (fade + geser naik), memakai
+// mekanisme [data-reveal] yang sudah ada, dengan transition-delay berjenjang
+// ~90ms per butir untuk efek stagger.
+interface Props {
+  items: string[];
+}
+
+const { items } = Astro.props;
+---
+
+<ul class="rangkuman">
+  {
+    items.map((item, i) => (
+      <li class="rangkuman__item" data-reveal style={`transition-delay:${i * 90}ms`}>
+        <span class="rangkuman__check" aria-hidden="true">✓</span>
+        <span set:html={item} />
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .rangkuman {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .rangkuman__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .rangkuman__check {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: 999px;
+    background: var(--pyto-green-soft);
+    color: var(--pyto-green-dark);
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    margin-top: 2px;
+  }
+</style>

@@ -1,0 +1,64 @@
+---
+// "Kamus Kata" — daftar istilah penting di akhir bab.
+interface Term {
+  term: string;
+  def: string;
+}
+
+interface Props {
+  terms: Term[];
+}
+
+const { terms } = Astro.props;
+---
+
+<dl class="glossary">
+  {
+    terms.map((t) => (
+      <div class="glossary__entry" data-reveal>
+        <dt class="glossary__term">{t.term}</dt>
+        <dd class="glossary__def">{t.def}</dd>
+      </div>
+    ))
+  }
+</dl>
+
+<style>
+  .glossary {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .glossary__entry {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 16px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .glossary__entry:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .glossary__term {
+    font-family: var(--font-code);
+    font-weight: 700;
+    color: var(--pyto-green-dark);
+  }
+
+  .glossary__def {
+    margin: 0;
+    color: var(--ink);
+  }
+
+  @media (max-width: 640px) {
+    .glossary__entry {
+      grid-template-columns: 1fr;
+      gap: 4px;
+    }
+  }
+</style>

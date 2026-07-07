@@ -1,0 +1,214 @@
+---
+// Animasi #2 (plan/bab-01-animasi.md): analogi "pembantu ajaib" — gelembung
+// perintah melayang dari anak ke robot, robot "berpikir", lalu hasil muncul.
+// Berjalan sekali saat bagian ini ~30% terlihat di layar.
+---
+
+<div class="magic-helper" data-anim="magic" data-reveal>
+  <p class="magic-helper__caption">Coding = memberi perintah, lalu dapat hasil</p>
+
+  <div class="magic-helper__stage">
+    <div class="magic-helper__person">
+      <span class="magic-helper__emoji" aria-hidden="true">🧒</span>
+      <span class="magic-helper__label">Kamu</span>
+    </div>
+
+    <div class="magic-helper__track" aria-hidden="true">
+      <span class="magic-helper__bubble">🧒 "Hitung 2 + 2"</span>
+    </div>
+
+    <div class="magic-helper__person">
+      <span class="magic-helper__emoji magic-helper__robot" aria-hidden="true">🤖</span>
+      <span class="magic-helper__label">Komputer</span>
+      <span class="magic-helper__result" aria-hidden="true">4</span>
+    </div>
+  </div>
+
+  <p class="magic-helper__sr">
+    Kamu memberi perintah "Hitung 2 + 2" ke komputer, lalu komputer menjawab "4".
+  </p>
+</div>
+
+<style>
+  .magic-helper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    text-align: center;
+  }
+
+  .magic-helper__caption {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--pyto-green-dark);
+  }
+
+  .magic-helper__stage {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    width: 100%;
+    max-width: 460px;
+  }
+
+  .magic-helper__person {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .magic-helper__emoji {
+    font-size: 48px;
+  }
+
+  .magic-helper__label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--slate);
+  }
+
+  .magic-helper__track {
+    position: relative;
+    flex: 1;
+    height: 2px;
+    background: repeating-linear-gradient(
+      to right,
+      var(--border) 0 8px,
+      transparent 8px 14px
+    );
+  }
+
+  .magic-helper__bubble {
+    position: absolute;
+    top: -20px;
+    left: 0;
+    white-space: nowrap;
+    background: var(--white);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-soft);
+    font-family: var(--font-code);
+    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: 999px;
+  }
+
+  .magic-helper__result {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    background: var(--pyto-green);
+    color: var(--white);
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 14px rgba(47, 191, 113, 0.35);
+  }
+
+  .magic-helper__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  /* Sembunyikan lebih dulu HANYA kalau JS reveal sudah pasti aktif (lihat
+     global.css .js-reveal). Kalau JS gagal, semuanya tetap terlihat. */
+  :global(.js-reveal) .magic-helper__bubble,
+  :global(.js-reveal) .magic-helper__result {
+    opacity: 0;
+  }
+
+  :global(.js-reveal) .magic-helper.is-in .magic-helper__bubble {
+    animation: magic-bubble-travel 2.1s ease forwards;
+  }
+
+  :global(.js-reveal) .magic-helper.is-in .magic-helper__result {
+    animation: magic-result-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 1.7s forwards;
+  }
+
+  :global(.js-reveal) .magic-helper.is-in .magic-helper__robot {
+    animation: magic-robot-think 2.2s ease;
+  }
+
+  @keyframes magic-bubble-travel {
+    0% {
+      transform: translateX(0) scale(0.6);
+      opacity: 0;
+    }
+    15% {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+    70% {
+      opacity: 1;
+      transform: translateX(calc(100% - 20px)) scale(1);
+    }
+    85% {
+      opacity: 0;
+      transform: translateX(calc(100% - 20px)) scale(0.7);
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes magic-result-pop {
+    0% {
+      transform: scale(0);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes magic-robot-think {
+    0%,
+    60%,
+    100% {
+      transform: rotate(0);
+    }
+    70% {
+      transform: rotate(-5deg);
+    }
+    80% {
+      transform: rotate(5deg);
+    }
+    90% {
+      transform: rotate(0);
+    }
+  }
+
+  @media (max-width: 560px) {
+    .magic-helper__stage {
+      gap: 12px;
+    }
+
+    .magic-helper__bubble {
+      font-size: 12px;
+      padding: 5px 10px;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce } from '../scripts/reveal-anim.js';
+
+  observeOnce(document.querySelectorAll('[data-anim="magic"]'), (el) => {
+    el.classList.add('is-in');
+  });
+</script>

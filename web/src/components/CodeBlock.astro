@@ -1,0 +1,140 @@
+---
+// Blok kode generik dipakai di seluruh halaman bab. Menyorot kata kunci
+// print/input, string berkutip dua, dan komentar # ... , sesuai palet
+// "Warna Kode" di plan/design-system.md. Tidak menyembunyikan apa pun —
+// ini murni tampilan statis, aman tanpa JS.
+interface Props {
+  code: string;
+  filename?: string;
+  showLineNumbers?: boolean;
+}
+
+const { code, filename, showLineNumbers = false } = Astro.props;
+
+function highlight(rawLine: string) {
+  let escaped = rawLine.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  let comment = '';
+  const commentIndex = escaped.indexOf('#');
+  if (commentIndex !== -1) {
+    comment = escaped.slice(commentIndex);
+    escaped = escaped.slice(0, commentIndex);
+  }
+
+  escaped = escaped.replace(/"([^"]*)"/g, '<span class="tok-str">&quot;$1&quot;</span>');
+  escaped = escaped.replace(/\b(print|input)(?=\()/g, '<span class="tok-fn">$1</span>');
+
+  return escaped + (comment ? `<span class="tok-comment">${comment}</span>` : '');
+}
+
+const lines = code.replace(/\n$/, '').split('\n');
+const linesHtml = lines
+  .map((line, i) => {
+    const numberHtml = showLineNumbers
+      ? `<span class="codeblock__lineno">${i + 1}</span>`
+      : '';
+    const text = highlight(line);
+    return `<span class="codeblock__line">${numberHtml}<span class="codeblock__linetext">${
+      text || '&nbsp;'
+    }</span></span>`;
+  })
+  .join('\n');
+---
+
+<div class="codeblock">
+  {
+    filename && (
+      <div class="codeblock__header">
+        <span class="codeblock__dots" aria-hidden="true">
+          <i></i><i></i><i></i>
+        </span>
+        <span class="codeblock__filename">{filename}</span>
+      </div>
+    )
+  }
+  <pre class="codeblock__pre"><code class="codeblock__code" set:html={linesHtml} /></pre>
+</div>
+
+<style>
+  .codeblock {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    overflow: hidden;
+  }
+
+  .codeblock__header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .codeblock__dots {
+    display: inline-flex;
+    gap: 6px;
+  }
+
+  .codeblock__dots i {
+    width: 9px;
+    height: 9px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.25);
+    display: inline-block;
+  }
+
+  .codeblock__filename {
+    font-family: var(--font-code);
+    font-size: 13px;
+    color: var(--code-comment);
+  }
+
+  .codeblock__pre {
+    margin: 0;
+    padding: 18px 22px;
+    overflow-x: auto;
+  }
+
+  .codeblock__code {
+    font-family: var(--font-code);
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--code-text);
+  }
+
+  :global(.codeblock__line) {
+    display: block;
+  }
+
+  :global(.codeblock__lineno) {
+    display: inline-block;
+    width: 20px;
+    margin-right: 14px;
+    text-align: right;
+    color: var(--code-comment);
+    user-select: none;
+  }
+
+  :global(.tok-fn) {
+    color: var(--code-blue);
+  }
+
+  :global(.tok-str) {
+    color: var(--code-green);
+  }
+
+  :global(.tok-comment) {
+    color: var(--code-comment);
+  }
+
+  @media (max-width: 600px) {
+    .codeblock__pre {
+      padding: 16px;
+    }
+
+    .codeblock__code {
+      font-size: 14px;
+    }
+  }
+</style>
