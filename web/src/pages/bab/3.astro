@@ -1,0 +1,238 @@
+---
+// Bab 3 — Kotak Ajaib (Variabel).
+// Sumber teks: plan/naskah/bab-03-kotak-ajaib-variabel.md (naskah master).
+// Sumber animasi: plan/bab-03-animasi.md.
+// Sumber desain: plan/design/bab-03-kotak-ajaib-variabel.dc.html.
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import ChapterHero from '../../components/ChapterHero.astro';
+import VariableBoxHero from '../../components/VariableBoxHero.astro';
+import AssignmentFlyDemo from '../../components/AssignmentFlyDemo.astro';
+import VariableReuseDemo from '../../components/VariableReuseDemo.astro';
+import ReassignmentDemo from '../../components/ReassignmentDemo.astro';
+import FStringLinkDemo from '../../components/FStringLinkDemo.astro';
+import NamingRulesDemo from '../../components/NamingRulesDemo.astro';
+import KotakMainYuk from '../../components/KotakMainYuk.astro';
+import KotakTahuLebih from '../../components/KotakTahuLebih.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import ConfettiBurst from '../../components/ConfettiBurst.astro';
+import RangkumanList from '../../components/RangkumanList.astro';
+import Glossary from '../../components/Glossary.astro';
+import ChapterFooterNav from '../../components/ChapterFooterNav.astro';
+
+const base = import.meta.env.BASE_URL;
+
+const rangkuman = [
+  'Variabel itu seperti kotak berlabel: tempat menyimpan sebuah nilai.',
+  'Cara membuat: <code>nama = nilai</code>. Tanda <code>=</code> artinya "taruh nilai ke dalam kotak", bukan "sama dengan".',
+  'Sekali disimpan, nilai bisa dipakai berkali-kali cukup dengan menyebut nama kotaknya.',
+  'Isi kotak bisa diganti: beri nilai baru, nilai lama hilang — nama kotaknya tetap.',
+  'Nama kotak tidak boleh diawali angka, dan huruf besar/kecil dianggap berbeda.',
+];
+
+const glossaryTerms = [
+  { term: 'Variabel', def: 'Kotak berlabel tempat menyimpan sebuah nilai.' },
+  { term: '=', def: 'Perintah "taruh nilai ini ke dalam kotak" (assignment), bukan tanda sama dengan.' },
+  { term: 'Assignment', def: 'Proses menaruh/mengganti nilai di dalam variabel.' },
+  { term: 'Reassignment', def: 'Memberi nilai baru ke variabel yang sama; isi lama tergantikan.' },
+];
+---
+
+<ChapterLayout
+  currentChapter={3}
+  description="Bab 3: Kotak Ajaib (Variabel) — belajar menyimpan angka, nama, dan nilai apa saja ke dalam variabel lewat analogi kotak berlabel, ditemani Pyto si robot ular."
+>
+  <ChapterHero
+    number={3}
+    title="Kotak Ajaib 📦"
+    tagline="Bayangkan <strong>variabel</strong> seperti kotak berlabel: kamu taruh sebuah nilai di dalamnya, beri nama, lalu bisa dipakai kapan saja. Yuk kenalan!"
+  >
+    <VariableBoxHero slot="mascot" value="10" label="umur" />
+  </ChapterHero>
+
+  <section data-reveal>
+    <h2>Apa Itu Variabel?</h2>
+    <p>
+      Kadang kita ingin komputer <strong>mengingat</strong> sesuatu — misalnya umurmu, namamu, atau
+      skor permainan. Untuk itu kita pakai <strong>variabel</strong>: sebuah <strong
+        >kotak berlabel</strong
+      > tempat kita menyimpan nilai supaya bisa dipakai lagi nanti.
+    </p>
+    <p>
+      Cara membuatnya cukup satu baris: tulis <strong>nama kotak</strong>, lalu tanda <code
+        >=</code
+      >, lalu <strong>nilai</strong> yang mau disimpan.
+    </p>
+  </section>
+
+  <section data-reveal>
+    <div class="chapter-media">
+      <AssignmentFlyDemo varName="umur" value="10" />
+    </div>
+    <p>
+      💡 Tanda <code>=</code> di sini bukan "sama dengan" seperti matematika — artinya <strong
+        >"taruh nilai ini ke dalam kotak"</strong
+      >.
+    </p>
+  </section>
+
+  <section data-reveal>
+    <h2>Sekali Simpan, Dipakai Berkali-kali</h2>
+    <p>
+      Inilah gunanya variabel: setelah nilai tersimpan di kotak, kamu tinggal menyebut <strong
+        >nama kotaknya</strong
+      > — tak perlu menulis ulang isinya.
+    </p>
+    <div class="chapter-media">
+      <VariableReuseDemo varName="nama" value="Kirana" />
+    </div>
+  </section>
+
+  <section class="pyto-quote-box" data-reveal>
+    <span class="pyto-quote-box__mascot" role="img" aria-label="Pyto">🐍</span>
+    <p class="pyto-quote-box__text">
+      "Yang paling seru dari kotak ajaib: <em>isinya bisa diganti kapan saja!</em> Nama kotaknya
+      tetap, tapi apa yang ada di dalamnya bisa berubah. Lihat baik-baik ya…"
+    </p>
+  </section>
+
+  <section data-reveal>
+    <h2>🔁 Isi Kotak Bisa Berganti</h2>
+    <p>
+      Kalau kamu memberi nilai baru ke kotak yang sama, isi lamanya <strong>diganti</strong> —
+      bukan ditambah. Nama kotaknya tetap, tapi yang di dalam sekarang nilai baru.
+    </p>
+    <div class="chapter-media">
+      <ReassignmentDemo varName="umur" oldValue="10" newValue="11" />
+    </div>
+    <p>
+      💡 Nama kotaknya tetap <code>umur</code>, tapi isinya sekarang <strong>11</strong> — yang
+      lama sudah tidak ada. <em>(Klik / hover untuk ulangi.)</em>
+    </p>
+  </section>
+
+  <section data-reveal>
+    <h2>Ingat <code>f-string</code> dari Bab 2?</h2>
+    <p>
+      Sekarang jadi masuk akal: <code>{'{umur}'}</code> di dalam f-string sebenarnya mengambil isi
+      dari <strong>kotak</strong> bernama <code>umur</code>. Itulah kenapa dulu <code
+        >{'{nama}'}</code
+      > bisa "berubah jadi Sarah".
+    </p>
+    <div class="chapter-media">
+      <FStringLinkDemo varName="umur" value="10" template="Umurku " suffix=" tahun" />
+    </div>
+  </section>
+
+  <KotakMainYuk title="Main Yuk! — Isi Kotaknya Sendiri" icon="🎮" wiggleIcon>
+    <p>
+      Buat kotak bernama <code>hewan</code> berisi hewan kesukaanmu, lalu tampilkan. Apa yang harus
+      ditulis di bagian kosong?
+    </p>
+    <CodeBlock code={'hewan = ____\nprint(hewan)'} />
+    <details class="jawaban">
+      <summary>🔎 Lihat contoh jawaban</summary>
+      <p>
+        Misal <code>"kucing"</code> (pakai tanda kutip karena teks). Hasil di layar: <strong
+          >kucing</strong
+        >. Kamu bisa isi apa saja — coba ganti-ganti isinya!
+      </p>
+    </details>
+  </KotakMainYuk>
+
+  <KotakTahuLebih title="Nama Kotak Ada Aturannya">
+    <p>
+      Nama kotak boleh huruf, angka, dan garis bawah — <strong
+        >tapi tidak boleh diawali angka</strong
+      >, dan huruf besar/kecil dianggap berbeda.
+    </p>
+    <NamingRulesDemo />
+  </KotakTahuLebih>
+
+  <section data-reveal>
+    <h2>Coba Sendiri, Yuk!</h2>
+    <p>
+      Buka editor Python, buat kotak, tampilkan isinya, lalu <strong>ganti isinya</strong> dan
+      tampilkan lagi — persis seperti tadi:
+    </p>
+    <CodeBlock
+      code={'skor = 0\nprint(f"Skor: {skor}")\nskor = 100\nprint(f"Skor sekarang: {skor}")'}
+    />
+    <p>
+      🎉 Kalau skornya berubah dari 0 jadi 100 — kamu baru saja bikin dan mengganti isi kotak
+      ajaibmu sendiri!
+    </p>
+    <ConfettiBurst label="Kamu berhasil bikin dan mengganti isi kotak ajaibmu sendiri!" />
+  </section>
+
+  <section data-reveal>
+    <h2>Rangkuman Bab 3</h2>
+    <RangkumanList items={rangkuman} />
+  </section>
+
+  <section data-reveal>
+    <h2>📖 Kamus Kata</h2>
+    <Glossary terms={glossaryTerms} />
+  </section>
+
+  <ChapterFooterNav
+    prevHref={`${base}/bab/2/`}
+    prevLabel="← Bab 2: Menyapa Dunia (print)"
+    nextLabel="Bab 4: Ngobrol dengan Komputer (input)"
+    nextDisabled
+  />
+</ChapterLayout>
+
+<style>
+  .pyto-quote-box {
+    background: var(--pyto-green-soft);
+    border-radius: var(--radius-card);
+    padding: 32px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .pyto-quote-box__mascot {
+    font-size: 64px;
+    flex-shrink: 0;
+  }
+
+  .pyto-quote-box__text {
+    font-family: var(--font-heading);
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--pyto-green-dark);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .chapter-media {
+    margin: 8px 0;
+  }
+
+  .jawaban {
+    margin-top: 8px;
+  }
+
+  .jawaban summary {
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--pyto-green-dark);
+  }
+
+  .jawaban[open] summary {
+    margin-bottom: 8px;
+  }
+
+  .jawaban p {
+    margin: 0;
+  }
+
+  @media (max-width: 600px) {
+    .pyto-quote-box {
+      flex-direction: column;
+      text-align: center;
+      padding: 24px;
+    }
+  }
+</style>

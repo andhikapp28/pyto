@@ -35,6 +35,23 @@
   --box-tahu-lebih-bg: #eaf3ff;
   --box-awas-bg: #ffedea;
 
+  /* Warna kode tambahan (Bab 3): nama variabel & nilai angka */
+  --code-red: #e06c75;
+  --code-orange: #d19a66;
+
+  /* Ilustrasi "kotak kayu" variabel (Bab 3) */
+  --wood: #c98a4b;
+  --wood-dark: #b07636;
+  --wood-border: #9a6329;
+  --wood-label-border: #e0b24d;
+  --wood-label-text: #8a5a1b;
+
+  /* Console interaktif & error di layar gelap (Bab 4: input()) */
+  --console-bg: #0f1720;
+  --code-error-bg: #3a1618;
+  --code-error-border: #7a2a2a;
+  --code-error-text: #ff8a7a;
+
   /* Bentuk */
   --radius-card: 16px;
   --radius-btn: 12px;

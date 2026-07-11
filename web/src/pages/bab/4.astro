@@ -1,0 +1,290 @@
+---
+// Bab 4 — Ngobrol dengan Komputer (input).
+// Sumber teks: plan/naskah/bab-04-ngobrol-dengan-komputer.md (naskah master).
+// Sumber animasi: plan/bab-04-animasi.md.
+// Sumber desain: plan/design/bab-04-ngobrol-dengan-komputer.dc.html.
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import ChapterHero from '../../components/ChapterHero.astro';
+import PytoQuestionHero from '../../components/PytoQuestionHero.astro';
+import InputWaitDemo from '../../components/InputWaitDemo.astro';
+import InputFlowDemo from '../../components/InputFlowDemo.astro';
+import StringNumberTrapDemo from '../../components/StringNumberTrapDemo.astro';
+import KotakAwas from '../../components/KotakAwas.astro';
+import KotakMainYuk from '../../components/KotakMainYuk.astro';
+import KotakTahuLebih from '../../components/KotakTahuLebih.astro';
+import SequentialInputDemo from '../../components/SequentialInputDemo.astro';
+import InteractivePracticeEditor from '../../components/InteractivePracticeEditor.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import RangkumanList from '../../components/RangkumanList.astro';
+import Glossary from '../../components/Glossary.astro';
+import ChapterFooterNav from '../../components/ChapterFooterNav.astro';
+
+const base = import.meta.env.BASE_URL;
+
+const rangkuman = [
+  '<code>input()</code> membuat komputer bertanya, lalu menunggu jawaban dari kita.',
+  'Saat sampai di <code>input()</code>, program berhenti total sampai kita mengetik dan menekan Enter.',
+  'Jawaban dari <code>input()</code> biasanya langsung disimpan ke variabel (kotak dari Bab 3).',
+  'PENTING: <code>input()</code> selalu memberi teks (str) — walaupun kamu mengetik angka, hasilnya <code>"10"</code>, bukan <code>10</code>.',
+  'Karena itu, <code>"10" + 5</code> menimbulkan error. Cara mengubah teks jadi angka dipelajari di Bab 5.',
+];
+
+const glossaryTerms = [
+  { term: 'input', def: 'Perintah untuk bertanya ke pengguna dan menunggu jawaban.' },
+  { term: 'Prompt', def: 'Teks pertanyaan di dalam input("...") yang ditampilkan sebelum menunggu.' },
+  { term: 'str', def: 'Tipe teks. Hasil input() selalu str, walau isinya angka.' },
+  {
+    term: 'TypeError',
+    def: 'Error saat mencampur tipe yang tidak cocok, misal teks "10" dijumlah dengan angka 5.',
+  },
+];
+---
+
+<ChapterLayout
+  currentChapter={4}
+  description="Bab 4: Ngobrol dengan Komputer (input) — belajar membuat komputer bertanya dan menunggu jawaban lewat input(), lalu mengenal jebakan input() yang selalu menghasilkan teks, ditemani Pyto si robot ular."
+>
+  <ChapterHero
+    number={4}
+    title="Ngobrol dengan Komputer 💬"
+    tagline={'Di Bab 2 komputer yang <strong>"ngomong"</strong>. Sekarang giliran dia <strong>bertanya</strong> — lalu menunggu jawaban darimu. Kenalan dengan <code>input</code>.'}
+  >
+    <PytoQuestionHero slot="mascot" size={172} />
+  </ChapterHero>
+
+  <section data-reveal>
+    <h2>Komputer Gantian Bertanya</h2>
+    <p>
+      Sampai sekarang, program kita cuma jalan sendiri dari atas ke bawah. Tapi program yang seru bisa
+      <strong>mengajak kita mengobrol</strong>: menanyakan sesuatu, lalu memakai jawaban kita. Perintahnya
+      adalah <code>input</code>.
+    </p>
+    <p>
+      Yang unik: begitu sampai di <code>input()</code>, program <strong>berhenti total</strong> dan sabar
+      menunggu — tidak lanjut sedikit pun sampai kamu mengetik jawaban dan menekan Enter.
+    </p>
+  </section>
+
+  <section data-reveal>
+    <div class="chapter-media">
+      <InputWaitDemo />
+    </div>
+    <p>
+      Beda dari <code>print()</code> yang langsung lewat, <code>input()</code> menahan program sampai ada
+      jawaban.
+    </p>
+  </section>
+
+  <section data-reveal>
+    <h2>Tanya → Jawab → Tersimpan</h2>
+    <p>
+      Jawaban dari <code>input()</code> bisa langsung <strong>disimpan ke kotak</strong> (variabel dari Bab
+      3), lalu dipakai lagi lewat <code>f-string</code> (Bab 2). Lihat semuanya nyambung:
+    </p>
+    <div class="chapter-media">
+      <InputFlowDemo />
+    </div>
+  </section>
+
+  <section class="pyto-quote-box" data-reveal>
+    <span class="pyto-quote-box__mascot" role="img" aria-label="Pyto">🐍</span>
+    <p class="pyto-quote-box__text">
+      "Ada satu hal yang bikin banyak pemula bingung. Apa pun yang kamu ketik ke <code>input()</code> —
+      bahkan angka — komputer selalu menganggapnya <em>teks</em>. Ayo aku tunjukkan jebakannya…"
+    </p>
+  </section>
+
+  <section data-reveal>
+    <h2>⚠️ Jebakan: Angka yang Sebenarnya Teks</h2>
+    <p>
+      Kamu ketik <strong>10</strong>, tapi <code>input()</code> menyimpannya sebagai teks
+      <code>"10"</code> — bukan angka. Coba jumlahkan dengan angka, dan… lihat apa yang terjadi:
+    </p>
+    <div class="chapter-media">
+      <StringNumberTrapDemo />
+    </div>
+  </section>
+
+  <KotakAwas title="Awas — Angka yang Bukan Angka">
+    <p>
+      <code>input()</code> <strong>selalu</strong> memberi teks — walau kamu ketik angka! Kelihatan sama,
+      tapi buat Python keduanya beda.
+    </p>
+    <div class="awas-compare">
+      <div class="awas-compare__chip awas-compare__chip--str">
+        <span class="awas-compare__value">"10"</span>
+        <span class="awas-compare__caption">teks (str)</span>
+      </div>
+      <span class="awas-compare__x" aria-hidden="true">✗</span>
+      <div class="awas-compare__chip awas-compare__chip--num">
+        <span class="awas-compare__value">10</span>
+        <span class="awas-compare__caption">angka (int)</span>
+      </div>
+    </div>
+    <p><code>"10"</code> ✗ <code>10</code> — keduanya tidak bisa langsung dijumlahkan begitu saja.</p>
+  </KotakAwas>
+
+  <KotakMainYuk title="Main Yuk! — Tanya Balik Pyto" icon="🎮" wiggleIcon>
+    <p>
+      Buat program yang menanyakan <strong>makanan kesukaan</strong>, lalu membalas dengan menyebut
+      jawabannya. Apa yang harus diisi di bagian kosong?
+    </p>
+    <CodeBlock code={'makanan = ____("Makanan favoritmu? ")\nprint(f"Wah, {makanan} enak juga!")'} />
+    <details class="jawaban">
+      <summary>🔎 Lihat jawaban</summary>
+      <p>
+        Isi dengan <code>input</code>. Kalau kamu jawab "bakso", layar menampilkan:
+        <strong>Wah, bakso enak juga!</strong>
+      </p>
+    </details>
+  </KotakMainYuk>
+
+  <KotakTahuLebih title="Tahu Lebih — Tiap Pertanyaan Menunggu Sendiri">
+    <p>
+      Kalau ada dua <code>input()</code>, mereka <strong>tidak menunggu bersamaan</strong>. Yang pertama
+      tunggu jawabannya dulu, baru yang kedua mulai menunggu.
+    </p>
+    <CodeBlock code={'nama = input("Siapa namamu? ")\numur = input("Umurmu berapa? ")'} />
+    <SequentialInputDemo />
+    <p class="tahu-lebih-caption">
+      Kursor berkedip di baris 1 dulu — baru pindah ke baris 2 setelah dijawab. Satu per satu, dari atas ke
+      bawah.
+    </p>
+  </KotakTahuLebih>
+
+  <section data-reveal>
+    <h2>Coba Sendiri, Yuk!</h2>
+    <p>
+      Coba langsung di kolom editor — tulis kodemu, klik <strong>Run</strong>, lalu jawab pertanyaan yang
+      muncul di console:
+    </p>
+    <InteractivePracticeEditor />
+  </section>
+
+  <section data-reveal>
+    <h2>Rangkuman Bab 4</h2>
+    <RangkumanList items={rangkuman} />
+  </section>
+
+  <section data-reveal>
+    <h2>📖 Kamus Kata</h2>
+    <Glossary terms={glossaryTerms} />
+  </section>
+
+  <ChapterFooterNav
+    prevHref={`${base}/bab/3/`}
+    prevLabel="← Bab 3: Kotak Ajaib"
+    nextLabel="Bab 5: Angka & Hitung-hitungan"
+    nextDisabled
+  />
+</ChapterLayout>
+
+<style>
+  .pyto-quote-box {
+    background: var(--pyto-green-soft);
+    border-radius: var(--radius-card);
+    padding: 32px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .pyto-quote-box__mascot {
+    font-size: 64px;
+    flex-shrink: 0;
+  }
+
+  .pyto-quote-box__text {
+    font-family: var(--font-heading);
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--pyto-green-dark);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .chapter-media {
+    margin: 8px 0;
+  }
+
+  .jawaban {
+    margin-top: 8px;
+  }
+
+  .jawaban summary {
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--pyto-green-dark);
+  }
+
+  .jawaban[open] summary {
+    margin-bottom: 8px;
+  }
+
+  .jawaban p {
+    margin: 0;
+  }
+
+  .tahu-lebih-caption {
+    margin-top: 4px;
+  }
+
+  .awas-compare {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin: 4px 0;
+  }
+
+  .awas-compare__chip {
+    text-align: center;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 18px;
+  }
+
+  .awas-compare__value {
+    display: block;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 20px;
+    border-radius: 8px;
+    padding: 6px 14px;
+  }
+
+  .awas-compare__chip--str .awas-compare__value {
+    color: var(--pyto-green-dark);
+    background: var(--pyto-green-soft);
+    border: 2px solid var(--pyto-green);
+  }
+
+  .awas-compare__chip--num .awas-compare__value {
+    color: var(--wood-label-text);
+    background: var(--box-main-yuk-bg);
+    border: 2px solid var(--wood-label-border);
+  }
+
+  .awas-compare__caption {
+    display: block;
+    font-size: 12px;
+    color: var(--slate);
+    margin-top: 6px;
+    font-weight: 700;
+  }
+
+  .awas-compare__x {
+    font-size: 22px;
+    font-weight: 800;
+    color: #c0392b;
+  }
+
+  @media (max-width: 600px) {
+    .pyto-quote-box {
+      flex-direction: column;
+      text-align: center;
+      padding: 24px;
+    }
+  }
+</style>
