@@ -1,0 +1,435 @@
+---
+// Latihan interaktif Bab 4 ("Coba Sendiri, Yuk!") — beda dari
+// PracticeEditor.astro (Bab 1/2, non-interaktif): editor ini memakai
+// runPythonInteractive() dari pyodide-runner.js, sehingga input() di kode
+// pembaca benar-benar SUNGGUHAN berhenti dan menunggu jawaban lewat sebuah
+// kotak isian yang muncul langsung di console, persis di titik program
+// berhenti — bukan simulasi/prompt() browser. Konfeti (beat #9) meletus
+// sekali, saat kode yang dijalankan pembaca betul-betul mencetak sesuatu.
+const starterCode = `nama = input("Siapa namamu? ")
+hobi = input("Apa hobimu? ")
+print(f"Halo {nama}, hobi {hobi} itu keren!")
+`;
+---
+
+<div class="ipe-wrap">
+  <div class="ipe card">
+    <div class="ipe__header">
+      <span class="ipe__title">🐍 editor.py</span>
+      <div class="ipe__buttons">
+        <button type="button" class="btn btn-secondary ipe__reset" id="ipe-reset"> ↺ Reset </button>
+        <button type="button" class="btn btn-primary ipe__run" id="ipe-run"> ▶ Run </button>
+      </div>
+    </div>
+
+    <textarea
+      id="ipe-code"
+      class="ipe__code"
+      spellcheck="false"
+      autocomplete="off"
+      autocapitalize="off"
+      rows="4"
+      aria-label="Kotak kode latihan interaktif">{starterCode}</textarea
+    >
+
+    <div class="ipe__console">
+      <div class="ipe__console-label">Console:</div>
+      <div class="ipe__console-body" id="ipe-console-body" aria-live="polite">
+        <div class="ipe__placeholder" id="ipe-placeholder">Klik ▶ Run untuk menjalankan kode di atas.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ipe__confetti" id="ipe-confetti" aria-hidden="true"></div>
+</div>
+
+<p class="ipe__note">
+  ✏️ Kode di atas bisa kamu ubah bebas — ganti pertanyaannya, atau coba tulis
+  <code>print(umur + 5)</code> untuk melihat sendiri jebakan dari bagian sebelumnya!
+</p>
+<p class="ipe__note">
+  🎉 Kalau layar menampilkan sapaan dengan nama dan hobimu — kamu baru saja bikin komputer bertanya dan
+  mendengarkan jawabanmu!
+</p>
+
+<style>
+  .ipe-wrap {
+    position: relative;
+  }
+
+  .ipe {
+    overflow: hidden;
+  }
+
+  .ipe__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 16px 20px;
+    background: var(--cloud);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ipe__title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 16px;
+  }
+
+  .ipe__buttons {
+    display: flex;
+    gap: 10px;
+  }
+
+  .ipe__buttons .btn {
+    padding: 10px 18px;
+    font-size: 14px;
+    min-height: 40px;
+  }
+
+  .ipe__code {
+    display: block;
+    width: 100%;
+    min-height: 100px;
+    resize: vertical;
+    border: none;
+    outline: none;
+    background: var(--code-bg);
+    color: var(--code-text);
+    font-family: var(--font-code);
+    font-size: 15px;
+    line-height: 1.7;
+    padding: 20px;
+    tab-size: 4;
+  }
+
+  .ipe__console {
+    padding: 16px 20px 20px;
+    background: var(--console-bg);
+  }
+
+  .ipe__console-label {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: var(--code-comment);
+    margin-bottom: 8px;
+  }
+
+  .ipe__console-body {
+    font-family: var(--font-code);
+    font-size: 15px;
+    color: var(--code-text);
+    line-height: 1.9;
+    min-height: 90px;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+
+  .ipe__placeholder {
+    color: var(--code-comment);
+  }
+
+  .ipe__console-body :global(.ipe__line) {
+    margin: 2px 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .ipe__console-body :global(.ipe__line--loading) {
+    color: var(--sunny-yellow);
+    font-weight: 700;
+  }
+
+  .ipe__console-body :global(.ipe__final) {
+    margin-top: 4px;
+    color: var(--code-green);
+    font-weight: 800;
+  }
+
+  .ipe__console-body :global(.ipe__error) {
+    margin: 4px 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--code-error-bg);
+    border: 1px solid var(--code-error-border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    color: var(--code-error-text);
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  .ipe__console-body :global(.ipe__answer) {
+    color: var(--code-green);
+    font-weight: 700;
+  }
+
+  .ipe__console-body :global(.ipe__input-row) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 4px 0;
+  }
+
+  .ipe__console-body :global(.ipe__input) {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 6px;
+    color: var(--code-green);
+    font-family: var(--font-code);
+    font-size: 15px;
+    padding: 5px 9px;
+    outline: none;
+    min-width: 130px;
+  }
+
+  .ipe__console-body :global(.ipe__input:focus) {
+    border-color: var(--pyto-green);
+  }
+
+  .ipe__console-body :global(.ipe__submit) {
+    padding: 6px 13px;
+    border-radius: 8px;
+    background: var(--pyto-green);
+    color: #fff;
+    font-weight: 800;
+    font-size: 12px;
+    border: none;
+    cursor: pointer;
+  }
+
+  .ipe__console-body :global(.ipe__submit:hover) {
+    background: var(--pyto-green-dark);
+  }
+
+  .ipe__run:disabled,
+  .ipe__reset:disabled {
+    opacity: 0.6;
+    cursor: wait;
+    transform: none;
+  }
+
+  .ipe__confetti {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .ipe__note {
+    margin-top: 16px;
+    color: var(--slate);
+  }
+
+  .ipe__note code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (max-width: 600px) {
+    .ipe__header {
+      justify-content: center;
+      text-align: center;
+    }
+
+    .ipe__code {
+      font-size: 14px;
+    }
+  }
+</style>
+
+<script>
+  import {
+    LOADING_MESSAGE,
+    isFirstPyodideLoad,
+    runPythonInteractive,
+    friendlyError,
+  } from '../scripts/pyodide-runner.js';
+  import { launchConfetti } from '../scripts/confetti.js';
+
+  const codeEl = document.getElementById('ipe-code');
+  const runBtn = document.getElementById('ipe-run');
+  const resetBtn = document.getElementById('ipe-reset');
+  const consoleBody = document.getElementById('ipe-console-body');
+  const confettiEl = document.getElementById('ipe-confetti');
+
+  const STARTER_CODE = codeEl ? codeEl.value : '';
+  let confettiFired = false;
+  let hasOutput = false;
+
+  function scrollToEnd() {
+    if (consoleBody) consoleBody.scrollTop = consoleBody.scrollHeight;
+  }
+
+  function clearPlaceholder() {
+    const placeholder = consoleBody?.querySelector('#ipe-placeholder');
+    if (placeholder) placeholder.remove();
+  }
+
+  function resetConsole() {
+    if (!consoleBody) return;
+    consoleBody.innerHTML = '';
+    const placeholder = document.createElement('div');
+    placeholder.className = 'ipe__placeholder';
+    placeholder.id = 'ipe-placeholder';
+    placeholder.textContent = 'Klik ▶ Run untuk menjalankan kode di atas.';
+    consoleBody.appendChild(placeholder);
+  }
+
+  function appendOutputLine(text) {
+    if (!consoleBody) return;
+    clearPlaceholder();
+    const line = document.createElement('div');
+    line.className = 'ipe__line';
+    line.textContent = text;
+    consoleBody.appendChild(line);
+    scrollToEnd();
+    hasOutput = true;
+  }
+
+  function appendErrorLine(message) {
+    if (!consoleBody) return;
+    clearPlaceholder();
+    const line = document.createElement('div');
+    line.className = 'ipe__error';
+    line.textContent = `💥 ${message}`;
+    consoleBody.appendChild(line);
+    scrollToEnd();
+  }
+
+  function appendFinalLine() {
+    if (!consoleBody) return;
+    clearPlaceholder();
+    const line = document.createElement('div');
+    line.className = 'ipe__final';
+    line.textContent = '✅ Program selesai dijalankan.';
+    consoleBody.appendChild(line);
+    scrollToEnd();
+  }
+
+  function requestInput(promptText) {
+    return new Promise((resolve) => {
+      if (!consoleBody) {
+        resolve('');
+        return;
+      }
+      clearPlaceholder();
+
+      const row = document.createElement('div');
+      row.className = 'ipe__input-row';
+
+      const promptSpan = document.createElement('span');
+      promptSpan.textContent = promptText;
+
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'ipe__input';
+      input.setAttribute('aria-label', promptText || 'Jawaban');
+
+      const submitBtn = document.createElement('button');
+      submitBtn.type = 'button';
+      submitBtn.className = 'ipe__submit';
+      submitBtn.textContent = 'Kirim ⏎';
+
+      row.append(promptSpan, input, submitBtn);
+      consoleBody.appendChild(row);
+      scrollToEnd();
+      input.focus();
+
+      let done = false;
+      const submit = () => {
+        if (done) return;
+        done = true;
+        const value = input.value;
+
+        const doneLine = document.createElement('div');
+        doneLine.className = 'ipe__line';
+        doneLine.append(document.createTextNode(promptText));
+        const answerSpan = document.createElement('span');
+        answerSpan.className = 'ipe__answer';
+        answerSpan.textContent = value;
+        doneLine.append(answerSpan);
+
+        row.replaceWith(doneLine);
+        scrollToEnd();
+        resolve(value);
+      };
+
+      submitBtn.addEventListener('click', submit);
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          submit();
+        }
+      });
+    });
+  }
+
+  async function run() {
+    if (!codeEl || !runBtn) return;
+    const code = codeEl.value;
+
+    runBtn.disabled = true;
+    if (resetBtn) resetBtn.disabled = true;
+    hasOutput = false;
+    resetConsole();
+    clearPlaceholder();
+
+    let loadingLine = null;
+    if (isFirstPyodideLoad()) {
+      loadingLine = document.createElement('div');
+      loadingLine.className = 'ipe__line ipe__line--loading';
+      loadingLine.textContent = LOADING_MESSAGE;
+      consoleBody?.appendChild(loadingLine);
+    }
+
+    const clearLoading = () => {
+      if (loadingLine) {
+        loadingLine.remove();
+        loadingLine = null;
+      }
+    };
+
+    try {
+      await runPythonInteractive(code, {
+        onOutput: (text) => {
+          clearLoading();
+          appendOutputLine(text);
+        },
+        onInputRequest: (promptText) => {
+          clearLoading();
+          clearPlaceholder();
+          return requestInput(promptText);
+        },
+      });
+      clearLoading();
+      appendFinalLine();
+
+      if (!confettiFired && hasOutput) {
+        confettiFired = true;
+        launchConfetti(confettiEl);
+      }
+    } catch (err) {
+      clearLoading();
+      appendErrorLine(friendlyError(err));
+    } finally {
+      runBtn.disabled = false;
+      if (resetBtn) resetBtn.disabled = false;
+    }
+  }
+
+  runBtn?.addEventListener('click', run);
+
+  resetBtn?.addEventListener('click', () => {
+    if (!codeEl) return;
+    codeEl.value = STARTER_CODE;
+    resetConsole();
+  });
+</script>

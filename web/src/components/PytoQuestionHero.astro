@@ -1,0 +1,327 @@
+---
+// Animasi #1 (plan/bab-04-animasi.md): Pyto melontarkan pertanyaan — dipakai
+// di hero Bab 4. Pyto memiringkan kepala dan mengangkat alis, sebuah
+// gelembung tanya "?" mengembang dari mulutnya lalu bertukar rupa (morph)
+// menjadi gelembung berisi kata "input()", ekor bergoyang pelan seolah
+// menanti jawaban. Main langsung begitu halaman terbuka (tidak menunggu
+// scroll) — sama seperti VariableBoxHero di Bab 3. Idle: gelembung berkedip
+// halus tiap beberapa detik, seperti masih menunggu.
+interface Props {
+  size?: number;
+}
+
+const { size = 172 } = Astro.props;
+const height = Math.round((size * 182) / 188);
+---
+
+<div class="pyto-q-hero" data-anim="pyto-q-hero">
+  <div class="pyto-q-hero__stage">
+    <svg
+      width={size}
+      height={height}
+      viewBox="0 0 188 182"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      class="pyto-q-hero__svg"
+      role="img"
+      aria-label="Pyto memiringkan kepala sambil bertanya"
+    >
+      <g class="pyto-q-hero__tail">
+        <path
+          d="M56 150 C 20 150, 22 110, 60 112 C 104 114, 120 150, 150 140"
+          stroke="var(--pyto-green-dark)"
+          stroke-width="17"
+          stroke-linecap="round"
+          fill="none"></path>
+        <path
+          d="M56 150 C 20 150, 22 110, 60 112 C 104 114, 120 150, 150 140"
+          stroke="var(--pyto-green)"
+          stroke-width="9"
+          stroke-linecap="round"
+          fill="none"></path>
+      </g>
+      <g class="pyto-q-hero__head">
+        <rect x="44" y="30" width="96" height="82" rx="30" fill="var(--pyto-green)"></rect>
+        <line x1="92" y1="30" x2="92" y2="12" stroke="var(--pyto-green-dark)" stroke-width="5" stroke-linecap="round"
+        ></line>
+        <circle cx="92" cy="9" r="6" fill="var(--sunny-yellow)"></circle>
+        <g class="pyto-q-hero__brows">
+          <path d="M64 46 Q 74 40, 84 45" stroke="var(--pyto-green-dark)" stroke-width="4" stroke-linecap="round" fill="none"
+          ></path>
+          <path d="M102 45 Q 112 40, 122 46" stroke="var(--pyto-green-dark)" stroke-width="4" stroke-linecap="round" fill="none"
+          ></path>
+        </g>
+        <g class="pyto-q-hero__eyes">
+          <circle cx="74" cy="62" r="14" fill="#FFFFFF"></circle>
+          <circle cx="112" cy="62" r="14" fill="#FFFFFF"></circle>
+          <circle cx="77" cy="64" r="6" fill="var(--ink)"></circle>
+          <circle cx="115" cy="64" r="6" fill="var(--ink)"></circle>
+          <circle cx="79" cy="61" r="2" fill="#FFFFFF"></circle>
+          <circle cx="117" cy="61" r="2" fill="#FFFFFF"></circle>
+        </g>
+        <circle cx="60" cy="86" r="7" fill="var(--coral)" opacity="0.55"></circle>
+        <circle cx="126" cy="86" r="7" fill="var(--coral)" opacity="0.55"></circle>
+        <path d="M84 92 Q 92 97, 100 92" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" fill="none"></path>
+      </g>
+    </svg>
+
+    <div class="pyto-q-hero__bubble" aria-hidden="true">
+      <span class="pyto-q-hero__q">?</span>
+      <span class="pyto-q-hero__in">input()</span>
+      <span class="pyto-q-hero__tri"></span>
+    </div>
+  </div>
+
+  <span class="pyto-q-hero__sr">
+    Pyto memiringkan kepala dan mengangkat alis, gelembung tanya berubah jadi kata input(), menanti jawabanmu.
+  </span>
+</div>
+
+<style>
+  .pyto-q-hero {
+    display: flex;
+    justify-content: center;
+  }
+
+  .pyto-q-hero__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .pyto-q-hero__stage {
+    position: relative;
+  }
+
+  .pyto-q-hero__svg {
+    filter: drop-shadow(0 12px 18px rgba(30, 42, 50, 0.14));
+    animation: pyto-q-hero-bob 4s ease-in-out infinite;
+    overflow: visible;
+  }
+
+  @keyframes pyto-q-hero-bob {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  .pyto-q-hero__eyes {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: pyto-q-hero-blink 4.5s infinite;
+  }
+
+  @keyframes pyto-q-hero-blink {
+    0%,
+    92%,
+    100% {
+      transform: scaleY(1);
+    }
+    96% {
+      transform: scaleY(0.1);
+    }
+  }
+
+  .pyto-q-hero__tail {
+    transform-box: fill-box;
+    transform-origin: 60px 130px;
+    animation: pyto-q-hero-tail-wag 1.8s ease-in-out infinite;
+  }
+
+  @keyframes pyto-q-hero-tail-wag {
+    0%,
+    100% {
+      transform: rotate(-3deg);
+    }
+    50% {
+      transform: rotate(3deg);
+    }
+  }
+
+  .pyto-q-hero.is-in .pyto-q-hero__head {
+    transform-box: fill-box;
+    transform-origin: 92px 108px;
+    animation: pyto-q-hero-head-tilt 1s ease 0.2s forwards;
+  }
+
+  @keyframes pyto-q-hero-head-tilt {
+    0% {
+      transform: rotate(0);
+    }
+    30%,
+    100% {
+      transform: rotate(-7deg);
+    }
+  }
+
+  .pyto-q-hero.is-in .pyto-q-hero__brows {
+    transform-box: fill-box;
+    animation: pyto-q-hero-brow-raise 1s ease 0.2s forwards;
+  }
+
+  @keyframes pyto-q-hero-brow-raise {
+    0% {
+      transform: translateY(0);
+    }
+    30%,
+    100% {
+      transform: translateY(-4px);
+    }
+  }
+
+  .pyto-q-hero__bubble {
+    position: absolute;
+    top: -2px;
+    left: calc(100% - 6px);
+    background: var(--code-bg);
+    color: #fff;
+    padding: 11px 18px;
+    border-radius: 16px 16px 16px 4px;
+    box-shadow: 0 8px 20px rgba(30, 42, 50, 0.22);
+    min-width: 56px;
+    min-height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  .pyto-q-hero.is-in .pyto-q-hero__bubble {
+    animation: pyto-q-hero-bub-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s forwards;
+  }
+
+  .pyto-q-hero__tri {
+    position: absolute;
+    left: -8px;
+    bottom: 8px;
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-right: 10px solid var(--code-bg);
+  }
+
+  .pyto-q-hero__q {
+    position: absolute;
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 22px;
+    color: var(--sunny-yellow);
+    opacity: 0;
+  }
+
+  .pyto-q-hero.is-in .pyto-q-hero__q {
+    animation: pyto-q-hero-q-out 1.6s ease 0.9s forwards;
+  }
+
+  .pyto-q-hero__in {
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--code-blue);
+    opacity: 0;
+  }
+
+  .pyto-q-hero.is-in .pyto-q-hero__in {
+    animation: pyto-q-hero-in-in 1.6s ease 0.9s forwards, pyto-q-hero-bub-blink 3.5s ease 2.6s infinite;
+  }
+
+  @keyframes pyto-q-hero-bub-pop {
+    0% {
+      opacity: 0;
+      transform: scale(0);
+    }
+    60% {
+      opacity: 1;
+      transform: scale(1.15);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes pyto-q-hero-q-out {
+    0%,
+    60% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes pyto-q-hero-in-in {
+    0%,
+    60% {
+      opacity: 0;
+    }
+    78% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes pyto-q-hero-bub-blink {
+    0%,
+    90%,
+    100% {
+      opacity: 1;
+    }
+    95% {
+      opacity: 0.45;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pyto-q-hero__svg,
+    .pyto-q-hero__eyes,
+    .pyto-q-hero__tail,
+    .pyto-q-hero__head,
+    .pyto-q-hero__brows,
+    .pyto-q-hero__bubble,
+    .pyto-q-hero__q,
+    .pyto-q-hero__in {
+      animation: none !important;
+    }
+
+    .pyto-q-hero__bubble {
+      opacity: 1;
+      transform: none;
+    }
+
+    .pyto-q-hero__q {
+      opacity: 0;
+    }
+
+    .pyto-q-hero__in {
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .pyto-q-hero__bubble {
+      left: auto;
+      right: -10px;
+    }
+  }
+</style>
+
+<script>
+  // Hero selalu terlihat begitu halaman dibuka, jadi langsung dipicu (tidak
+  // menunggu scroll masuk layar) — sama seperti VariableBoxHero di Bab 3.
+  document.querySelectorAll('[data-anim="pyto-q-hero"]').forEach((el) => {
+    setTimeout(() => el.classList.add('is-in'), 200);
+  });
+</script>

@@ -1,0 +1,215 @@
+---
+// Animasi #1 (plan/bab-03-animasi.md): Pyto menaruh nilai ke dalam kotak
+// ajaib — dipakai di hero Bab 3. Pyto (maskot yang sudah ada) berdiri di
+// samping kotak kayu; sebuah bola nilai jatuh ke dalam kotak, lalu label
+// nama kotaknya "meletup" muncul, dan kotaknya berkedip hijau sekali
+// menandakan "tersimpan". Sesudah itu kotak bergoyang halus terus-menerus
+// (idle), seperti Pyto yang mengambang pelan di sebelahnya. Main langsung
+// begitu halaman terbuka (tidak menunggu scroll) — sama seperti
+// PytoMascotTalk di hero Bab 2.
+import PytoMascotWave from './PytoMascotWave.astro';
+
+interface Props {
+  value?: string;
+  label?: string;
+}
+
+const { value = '10', label = 'umur' } = Astro.props;
+---
+
+<div class="var-hero" data-anim="var-hero">
+  <PytoMascotWave size={150} />
+
+  <div class="var-hero__box">
+    <span class="var-hero__ball" aria-hidden="true">{value}</span>
+    <div class="var-hero__rim"></div>
+    <div class="var-hero__band"></div>
+    <span class="var-hero__label" aria-hidden="true">{label}</span>
+  </div>
+
+  <span class="var-hero__sr">
+    Pyto menaruh nilai {value} ke dalam kotak berlabel {label}.
+  </span>
+</div>
+
+<style>
+  .var-hero {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    gap: 22px;
+  }
+
+  .var-hero__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .var-hero__box {
+    position: relative;
+    width: 118px;
+    height: 104px;
+    animation: var-hero-sway 5s ease-in-out infinite;
+  }
+
+  .var-hero__rim {
+    position: absolute;
+    bottom: 0;
+    width: 118px;
+    height: 78px;
+    border-radius: 10px;
+    background: linear-gradient(var(--wood), var(--wood-dark));
+    border: 3px solid var(--wood-border);
+    box-shadow: 0 6px 14px rgba(154, 99, 41, 0.28);
+  }
+
+  .var-hero__band {
+    position: absolute;
+    top: 24px;
+    left: 9px;
+    width: 100px;
+    height: 14px;
+    border-radius: 8px;
+    background: var(--wood-label-text);
+  }
+
+  .var-hero__ball {
+    position: absolute;
+    left: 50%;
+    top: -6px;
+    transform: translateX(-50%);
+    z-index: 3;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 34% 30%, #ffe08a, var(--sunny-yellow));
+    border: 2px solid #f2b430;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--wood-label-text);
+    box-shadow: 0 4px 8px rgba(242, 180, 48, 0.5);
+    opacity: 0;
+  }
+
+  .var-hero__label {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 4;
+    background: var(--box-main-yuk-bg);
+    border: 2px solid var(--wood-label-border);
+    color: var(--wood-label-text);
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 14px;
+    padding: 3px 12px;
+    border-radius: 7px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+    opacity: 0;
+  }
+
+  @keyframes var-hero-sway {
+    0%, 100% {
+      transform: rotate(0);
+    }
+    25% {
+      transform: rotate(-1.4deg);
+    }
+    75% {
+      transform: rotate(1.4deg);
+    }
+  }
+
+  .var-hero.is-in .var-hero__ball {
+    animation: var-hero-ball-drop 1s cubic-bezier(0.5, 0, 0.4, 1) 0.3s forwards;
+  }
+
+  .var-hero.is-in .var-hero__label {
+    animation: var-hero-label-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 1.25s forwards;
+  }
+
+  .var-hero.is-in .var-hero__rim {
+    animation: var-hero-flash 0.7s ease 1.35s 1;
+  }
+
+  @keyframes var-hero-ball-drop {
+    0% {
+      transform: translate(-50%, -64px);
+      opacity: 0;
+    }
+    40% {
+      opacity: 1;
+    }
+    70% {
+      transform: translate(-50%, 4px);
+    }
+    85% {
+      transform: translate(-50%, -6px);
+    }
+    100% {
+      transform: translate(-50%, 0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes var-hero-label-in {
+    0% {
+      opacity: 0;
+      transform: translateX(-50%) translateY(8px) scale(0.7);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0) scale(1);
+    }
+  }
+
+  @keyframes var-hero-flash {
+    0%, 100% {
+      box-shadow: 0 6px 14px rgba(154, 99, 41, 0.28);
+    }
+    45% {
+      box-shadow: 0 0 0 5px rgba(47, 191, 113, 0.45), 0 6px 14px rgba(154, 99, 41, 0.28);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .var-hero__box {
+      animation: none;
+    }
+
+    .var-hero__ball,
+    .var-hero__label,
+    .var-hero__rim {
+      animation: none !important;
+    }
+
+    .var-hero__ball,
+    .var-hero__label {
+      opacity: 1;
+      transform: translateX(-50%);
+    }
+  }
+
+  @media (max-width: 560px) {
+    .var-hero {
+      gap: 14px;
+    }
+  }
+</style>
+
+<script>
+  // Hero selalu terlihat begitu halaman dibuka, jadi langsung dipicu (tidak
+  // menunggu scroll masuk layar) — sama seperti PytoMascotTalk.
+  document.querySelectorAll('[data-anim="var-hero"]').forEach((el) => {
+    el.classList.add('is-in');
+  });
+</script>
