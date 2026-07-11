@@ -1,0 +1,266 @@
+---
+// Animasi #2 (plan/bab-04-animasi.md): "kursor berkedip sabar". Baris kode
+// sebelum input() menyala terjalankan seperti biasa, lalu tepat di baris
+// input() semuanya berhenti — kursor tegak berkedip berulang di area
+// console, tidak ada yang terjadi selanjutnya. Setelah beberapa kedipan,
+// muncul ikon tangan kecil mengetik, teks terisi, baru animasi lanjut ke
+// baris berikutnya. Sekali jalan saat bagian ini terlihat (tidak diulang;
+// mockup tidak memberi replay untuk beat ini).
+interface Props {
+  typed?: string;
+}
+
+const { typed = 'Halo' } = Astro.props;
+---
+
+<div class="input-wait" data-anim="input-wait">
+  <div class="input-wait__code">
+    <pre class="input-wait__pre"><code
+      ><span class="input-wait__line input-wait__run"><span class="tok-fn">print</span>(<span class="tok-str">&quot;Selamat datang!&quot;</span>)</span
+      ><span class="input-wait__line"><span class="tok-var">jawab</span> <span class="tok-eq">=</span> <span class="tok-fn">input</span>(<span class="tok-str">&quot;Ketik sesuatu: &quot;</span>)&nbsp;&nbsp;<span class="tok-comment"># ⏸ berhenti di sini</span></span
+      ><span class="input-wait__line input-wait__next"><span class="tok-fn">print</span>(<span class="tok-str">&quot;Terima kasih!&quot;</span>)</span
+    ></code></pre>
+  </div>
+
+  <div class="input-wait__console">
+    <span class="input-wait__console-label">Layar / Console:</span>
+    <div class="input-wait__console-body">
+      <div>Selamat datang!</div>
+      <div class="input-wait__typing">
+        <span>Ketik sesuatu: </span><span class="input-wait__typed">{typed}</span><span
+          class="input-wait__caret"
+          aria-hidden="true"></span><span class="input-wait__hand" aria-hidden="true">🖐️</span>
+      </div>
+      <div class="input-wait__next">Terima kasih!</div>
+    </div>
+    <div class="input-wait__hint">⏳ program berhenti… menunggu kamu mengetik.</div>
+  </div>
+</div>
+
+<style>
+  .input-wait {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    overflow: hidden;
+  }
+
+  .input-wait__code {
+    background: var(--code-bg);
+    padding: 16px 18px;
+  }
+
+  .input-wait__pre {
+    margin: 0;
+    font-family: var(--font-code);
+    font-size: 15px;
+    line-height: 1.95;
+    color: var(--code-text);
+  }
+
+  .input-wait__line {
+    display: block;
+    border-radius: 4px;
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-eq {
+    color: var(--code-text);
+  }
+
+  .tok-comment {
+    color: var(--code-comment);
+  }
+
+  .input-wait__console {
+    padding: 14px 18px;
+    background: var(--console-bg);
+  }
+
+  .input-wait__console-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: var(--code-comment);
+    margin-bottom: 8px;
+  }
+
+  .input-wait__console-body {
+    font-family: var(--font-code);
+    font-size: 15px;
+    color: var(--code-text);
+    line-height: 1.9;
+    min-height: 74px;
+  }
+
+  .input-wait__typing {
+    position: relative;
+  }
+
+  .input-wait__typed {
+    color: var(--code-green);
+    opacity: 0;
+  }
+
+  .input-wait__caret {
+    display: inline-block;
+    width: 9px;
+    height: 16px;
+    background: var(--code-green);
+    vertical-align: -2px;
+    margin-left: 1px;
+    opacity: 0;
+  }
+
+  .input-wait__hand {
+    position: absolute;
+    margin-left: 6px;
+    font-size: 17px;
+    opacity: 0;
+  }
+
+  .input-wait__next {
+    opacity: 0;
+  }
+
+  .input-wait__hint {
+    font-size: 13px;
+    color: var(--sunny-yellow);
+    margin-top: 8px;
+    font-weight: 700;
+  }
+
+  /* ---- animasi (sekali jalan) ---- */
+  .input-wait.is-in .input-wait__run {
+    animation: input-wait-run 0.5s ease 0.2s 1;
+  }
+
+  .input-wait.is-in .input-wait__caret {
+    animation: input-wait-blink 0.5s step-end 0.8s 5, input-wait-caret-stop 0.1s linear 3.3s forwards;
+  }
+
+  .input-wait.is-in .input-wait__typed {
+    animation: input-wait-in 0.05s linear 2.8s forwards;
+  }
+
+  .input-wait.is-in .input-wait__hand {
+    animation: input-wait-hand-in 0.3s ease 2.7s forwards, input-wait-hand-out 0.3s ease 3.1s forwards;
+  }
+
+  .input-wait.is-in .input-wait__hint {
+    animation: input-wait-hint-out 0.3s ease 3.4s forwards;
+  }
+
+  .input-wait.is-in .input-wait__next {
+    animation: input-wait-in 0.3s ease 3.6s forwards;
+  }
+
+  @keyframes input-wait-run {
+    0%,
+    100% {
+      background: transparent;
+    }
+    40% {
+      background: rgba(97, 175, 239, 0.2);
+    }
+  }
+
+  @keyframes input-wait-blink {
+    0%,
+    49% {
+      opacity: 1;
+    }
+    50%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes input-wait-caret-stop {
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes input-wait-in {
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes input-wait-hand-in {
+    from {
+      opacity: 0;
+      transform: translate(6px, 6px) rotate(8deg);
+    }
+    to {
+      opacity: 1;
+      transform: translate(0, 0) rotate(0);
+    }
+  }
+
+  @keyframes input-wait-hand-out {
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes input-wait-hint-out {
+    to {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .input-wait__run,
+    .input-wait__caret,
+    .input-wait__typed,
+    .input-wait__hand,
+    .input-wait__hint,
+    .input-wait__next {
+      animation: none !important;
+    }
+
+    .input-wait__typed,
+    .input-wait__next {
+      opacity: 1;
+    }
+
+    .input-wait__caret,
+    .input-wait__hand {
+      opacity: 0;
+    }
+
+    .input-wait__hint {
+      opacity: 0;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .input-wait__pre {
+      font-size: 14px;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce } from '../scripts/reveal-anim.js';
+
+  observeOnce(document.querySelectorAll('[data-anim="input-wait"]'), (el) => {
+    el.classList.add('is-in');
+  });
+</script>

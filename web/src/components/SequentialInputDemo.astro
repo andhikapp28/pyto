@@ -1,0 +1,156 @@
+---
+// Animasi #8 (plan/bab-04-animasi.md): dua input() berturut-turut menunggu
+// sendiri-sendiri, tidak bersamaan — kursor pertama berkedip lalu terisi,
+// baru kursor kedua mulai berkedip menunggu jawabannya sendiri. Dipakai di
+// kotak "Tahu Lebih". Sekali jalan saat bagian ini terlihat.
+---
+
+<div class="seq-input" data-anim="seq-input">
+  <div class="seq-input__line">
+    <span class="seq-input__no" aria-hidden="true">1</span>
+    <span
+      >Siapa namamu? <span class="seq-input__fill seq-input__fill--a">Kirana</span><span
+        class="seq-input__caret seq-input__caret--a"
+        aria-hidden="true"></span></span
+    >
+  </div>
+  <div class="seq-input__line">
+    <span class="seq-input__no" aria-hidden="true">2</span>
+    <span
+      >Umurmu berapa? <span class="seq-input__fill seq-input__fill--b">10</span><span
+        class="seq-input__caret seq-input__caret--b"
+        aria-hidden="true"></span></span
+    >
+  </div>
+</div>
+
+<style>
+  .seq-input {
+    background: var(--console-bg);
+    border-radius: var(--radius-code);
+    padding: 14px 18px;
+    font-family: var(--font-code);
+    font-size: 14px;
+    line-height: 2;
+    color: var(--code-text);
+  }
+
+  .seq-input__line {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .seq-input__no {
+    color: var(--code-comment);
+  }
+
+  .seq-input__fill {
+    color: var(--code-green);
+    opacity: 0;
+  }
+
+  .seq-input__caret {
+    display: inline-block;
+    width: 8px;
+    height: 15px;
+    background: var(--code-green);
+    vertical-align: -2px;
+    opacity: 0;
+  }
+
+  .seq-input.is-in .seq-input__caret--a {
+    animation: seq-input-blink-a 4s ease 0.3s 1 forwards;
+  }
+
+  .seq-input.is-in .seq-input__fill--a {
+    animation: seq-input-fill-a 4s ease 0.3s 1 forwards;
+  }
+
+  .seq-input.is-in .seq-input__caret--b {
+    animation: seq-input-blink-b 4s ease 0.3s 1 forwards;
+  }
+
+  .seq-input.is-in .seq-input__fill--b {
+    animation: seq-input-fill-b 4s ease 0.3s 1 forwards;
+  }
+
+  @keyframes seq-input-blink-a {
+    0%,
+    40% {
+      opacity: 1;
+    }
+    12%,
+    52% {
+      opacity: 0;
+    }
+    45%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes seq-input-fill-a {
+    0%,
+    42% {
+      opacity: 0;
+    }
+    46%,
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes seq-input-blink-b {
+    0%,
+    48% {
+      opacity: 0;
+    }
+    52%,
+    88% {
+      opacity: 1;
+    }
+    64% {
+      opacity: 0;
+    }
+    92%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes seq-input-fill-b {
+    0%,
+    90% {
+      opacity: 0;
+    }
+    94%,
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .seq-input__caret,
+    .seq-input__fill {
+      animation: none !important;
+    }
+
+    .seq-input__fill {
+      opacity: 1;
+    }
+
+    .seq-input__caret {
+      opacity: 0;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce } from '../scripts/reveal-anim.js';
+
+  observeOnce(document.querySelectorAll('[data-anim="seq-input"]'), (el) => {
+    el.classList.add('is-in');
+  });
+</script>

@@ -1,0 +1,223 @@
+---
+// Animasi #3 (plan/bab-03-animasi.md): satu kotak, dipakai berkali-kali.
+// Tiap kali baris print() yang memuat nama variabel menyala di kode, kotak
+// di samping "berdenyut" kecil — seolah nilai yang sama "dipinjam" berulang
+// tanpa perlu ditulis ulang. Sekali jalan saat bagian ini terlihat.
+interface Props {
+  varName?: string;
+  value?: string;
+}
+
+const { varName = 'nama', value = 'Kirana' } = Astro.props;
+---
+
+<div class="reuse" data-anim="reuse">
+  <div class="reuse__code card">
+    <pre class="reuse__pre"><code
+      ><span class="reuse__line"><span class="tok-var">{varName}</span> <span class="tok-eq">=</span> <span class="tok-str">&quot;{value}&quot;</span></span
+      ><span class="reuse__line"><span class="tok-fn">print</span>(<span class="tok-var reuse__ru1">{varName}</span>)</span
+      ><span class="reuse__line"><span class="tok-fn">print</span>(<span class="tok-str">&quot;Halo,&quot;</span>, <span class="tok-var reuse__ru2">{varName}</span>)</span
+      ><span class="reuse__line"><span class="tok-fn">print</span>(<span class="tok-var reuse__ru3">{varName}</span>, <span class="tok-str">&quot;sedang belajar.&quot;</span>)</span
+    ></code></pre>
+  </div>
+
+  <div class="reuse__col">
+    <div class="reuse__box">
+      <span class="reuse__ball" aria-hidden="true">&quot;{value}&quot;</span>
+      <div class="reuse__rim"></div>
+      <div class="reuse__band"></div>
+      <span class="reuse__label" aria-hidden="true">{varName}</span>
+    </div>
+    <p class="reuse__caption">dipinjam 3×</p>
+  </div>
+</div>
+
+<style>
+  .reuse {
+    display: flex;
+    gap: 22px;
+    align-items: center;
+    flex-wrap: wrap;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 22px 24px;
+  }
+
+  .reuse__code {
+    flex: 1;
+    min-width: 240px;
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 16px 18px;
+    overflow-x: auto;
+  }
+
+  .reuse__pre {
+    margin: 0;
+    font-family: var(--font-code);
+    font-size: 15px;
+    line-height: 2;
+    color: var(--code-text);
+  }
+
+  .reuse__line {
+    display: block;
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-eq {
+    color: var(--code-text);
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .reuse__ru1,
+  .reuse__ru2,
+  .reuse__ru3 {
+    border-radius: 4px;
+  }
+
+  /* ---- kolom kotak ---- */
+  .reuse__col {
+    flex-shrink: 0;
+    width: 130px;
+    text-align: center;
+  }
+
+  .reuse__box {
+    position: relative;
+    width: 118px;
+    height: 96px;
+    margin: 0 auto;
+  }
+
+  .reuse__rim {
+    position: absolute;
+    bottom: 0;
+    width: 118px;
+    height: 78px;
+    border-radius: 10px;
+    background: linear-gradient(var(--wood), var(--wood-dark));
+    border: 3px solid var(--wood-border);
+    box-shadow: 0 6px 14px rgba(154, 99, 41, 0.28);
+  }
+
+  .reuse__band {
+    position: absolute;
+    top: 0;
+    left: 9px;
+    width: 100px;
+    height: 14px;
+    border-radius: 8px;
+    background: var(--wood-label-text);
+  }
+
+  .reuse__ball {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    z-index: 3;
+    background: var(--code-green);
+    color: #1e3a16;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 13px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+    white-space: nowrap;
+  }
+
+  .reuse__label {
+    position: absolute;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 4;
+    background: var(--box-main-yuk-bg);
+    border: 2px solid var(--wood-label-border);
+    color: var(--wood-label-text);
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 14px;
+    padding: 3px 12px;
+    border-radius: 7px;
+  }
+
+  .reuse__caption {
+    font-size: 13px;
+    color: var(--slate);
+    margin: 8px 0 0;
+    font-weight: 600;
+  }
+
+  /* ---- animasi ---- */
+  .reuse.is-in .reuse__ru1 {
+    animation: reuse-glow 0.5s ease 0.3s 1;
+  }
+
+  .reuse.is-in .reuse__ru2 {
+    animation: reuse-glow 0.5s ease 0.8s 1;
+  }
+
+  .reuse.is-in .reuse__ru3 {
+    animation: reuse-glow 0.5s ease 1.3s 1;
+  }
+
+  .reuse.is-in .reuse__box {
+    animation: reuse-pulse 0.5s ease 0.3s 3;
+  }
+
+  @keyframes reuse-glow {
+    0%, 100% {
+      background: transparent;
+    }
+    45% {
+      background: rgba(255, 201, 77, 0.4);
+    }
+  }
+
+  @keyframes reuse-pulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.06);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reuse__ru1,
+    .reuse__ru2,
+    .reuse__ru3,
+    .reuse__box {
+      animation: none !important;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .reuse__pre {
+      font-size: 14px;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce } from '../scripts/reveal-anim.js';
+
+  observeOnce(document.querySelectorAll('[data-anim="reuse"]'), (el) => {
+    el.classList.add('is-in');
+  });
+</script>

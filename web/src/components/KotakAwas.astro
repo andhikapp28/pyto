@@ -1,0 +1,114 @@
+---
+// Kotak "Awas" — mengingatkan kesalahan umum, dibuat ramah bukan menakutkan,
+// sesuai plan/design-system.md (latar coral muda, garis kiri tebal Coral).
+// Belum pernah dipakai di chapter manapun sebelum Bab 4 — pola CSS mengikuti
+// persis KotakTahuLebih.astro/KotakMainYuk.astro, tapi pakai --box-awas-bg.
+//
+// Animasi #7 (plan/bab-04-animasi.md): kartu meluncur masuk dari kiri dengan
+// getar halus di garis tepi (bukan berkedip merah menyala) — tetap ramah.
+// Visibilitasnya sendiri tetap memakai mekanisme [data-reveal] standar
+// (aman tanpa JS, lihat global.css); animasi geser-dari-kiri hanya mengganti
+// arah transform default (translateY → translateX) lewat selector yang lebih
+// spesifik, dan getar tepi ditambahkan secara aditif lewat data-anim terpisah
+// (observeOnce, seperti pola "seq" pada mockup desain) sehingga tidak pernah
+// menyembunyikan konten kalau JS gagal jalan.
+interface Props {
+  title?: string;
+  icon?: string;
+}
+
+const { title = 'Awas', icon = '⚠️' } = Astro.props;
+---
+
+<div class="kotak-awas" data-anim="kotak-awas" data-reveal>
+  <span class="kotak-awas__icon" aria-hidden="true">{icon}</span>
+  <div class="kotak-awas__body">
+    <span class="kotak-awas__title">{title}</span>
+    <div class="kotak-awas__content">
+      <slot />
+    </div>
+  </div>
+</div>
+
+<style>
+  .kotak-awas {
+    display: flex;
+    gap: 16px;
+    background: var(--box-awas-bg);
+    border-left: 6px solid var(--coral);
+    border-radius: var(--radius-card);
+    padding: 24px 28px;
+    box-shadow: var(--shadow-soft);
+  }
+
+  /* Beat #7: masuk dari kiri (bukan naik dari bawah seperti default global). */
+  :global(.js-reveal) .kotak-awas[data-reveal] {
+    transform: translateX(-26px);
+  }
+
+  :global(.js-reveal) .kotak-awas[data-reveal].is-visible {
+    transform: none;
+  }
+
+  /* Getar halus di garis tepi, aditif — tidak memengaruhi opacity/visibility. */
+  .kotak-awas.is-in {
+    animation: kotak-awas-jitter 0.5s ease 0.5s 2;
+  }
+
+  @keyframes kotak-awas-jitter {
+    0%,
+    100% {
+      box-shadow: var(--shadow-soft);
+    }
+    25% {
+      box-shadow: -3px 0 0 rgba(255, 122, 107, 0.5), var(--shadow-soft);
+    }
+    75% {
+      box-shadow: 3px 0 0 rgba(255, 122, 107, 0.5), var(--shadow-soft);
+    }
+  }
+
+  .kotak-awas__icon {
+    flex-shrink: 0;
+    font-size: 28px;
+    display: inline-block;
+  }
+
+  .kotak-awas__body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .kotak-awas__title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 18px;
+    color: #c0392b;
+  }
+
+  .kotak-awas__content {
+    color: var(--ink);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .kotak-awas.is-in {
+      animation: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .kotak-awas {
+      padding: 20px;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce } from '../scripts/reveal-anim.js';
+
+  observeOnce(document.querySelectorAll('[data-anim="kotak-awas"]'), (el) => {
+    el.classList.add('is-in');
+  });
+</script>

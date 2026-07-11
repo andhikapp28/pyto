@@ -1,0 +1,480 @@
+---
+// Animasi #5 (plan/bab-04-animasi.md): Momen utama Bab 4 — input() selalu
+// menghasilkan teks. Tangan kecil mengetik angka, tapi yang jatuh ke kotak
+// bukan bola angka polos (seperti Bab 3) melainkan sebuah keping bertuliskan
+// "10" lengkap dengan tanda kutip, warna string (hijau) — jelas beda rupa
+// dari angka biasa. Lalu print(umur + 5) dicoba: tanda + berkedip merah lalu
+// "patah", dan muncul gelembung TypeError. Sekali jalan saat terlihat, boleh
+// diulang lewat hover/klik/fokus (sesuai spesifikasi mockup, seperti
+// InputFlowDemo).
+interface Props {
+  varName?: string;
+  promptText?: string;
+  typed?: string;
+}
+
+const { varName = 'umur', promptText = 'Umurmu berapa? ', typed = '10' } = Astro.props;
+---
+
+<div
+  class="str-trap"
+  data-anim="str-trap"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi jebakan angka yang sebenarnya teks"
+>
+  <div class="str-trap__left">
+    <div class="str-trap__code">
+      <pre class="str-trap__pre"><code
+        ><span class="str-trap__line"><span class="tok-var">{varName}</span> <span class="tok-eq">=</span> <span class="tok-fn">input</span>(<span class="tok-str">&quot;{promptText}&quot;</span>)</span
+        ><span class="str-trap__line"><span class="tok-fn">print</span>(<span class="tok-var">{varName}</span> <span class="str-trap__plus" aria-hidden="true">+</span> <span class="tok-num">5</span>)</span
+      ></code></pre>
+    </div>
+
+    <div class="str-trap__console">
+      <div class="str-trap__typing">
+        <span>{promptText}</span><span class="str-trap__typed">{typed}</span><span
+          class="str-trap__caret"
+          aria-hidden="true"></span><span class="str-trap__hand" aria-hidden="true">🖐️</span>
+      </div>
+      <div class="str-trap__err" aria-hidden="true">
+        💥 TypeError: can only concatenate str (not "int") to str
+      </div>
+    </div>
+  </div>
+
+  <div class="str-trap__right">
+    <div class="str-trap__box">
+      <span class="str-trap__chip" aria-hidden="true">&quot;{typed}&quot;</span>
+      <div class="str-trap__rim"></div>
+      <div class="str-trap__band"></div>
+      <span class="str-trap__label" aria-hidden="true">{varName}</span>
+    </div>
+    <p class="str-trap__cap1">
+      yang jatuh: <strong>&quot;{typed}&quot;</strong> (teks)<br />bukan <strong>{typed}</strong> (angka)
+    </p>
+  </div>
+</div>
+
+<p class="str-trap__cap2">
+  Yang jatuh ke kotak <code>{varName}</code> adalah <strong>&quot;{typed}&quot;</strong> (teks, lengkap
+  dengan tanda kutip), bukan <strong>{typed}</strong> (angka) — dua hal yang kelihatan sama tapi beda buat
+  Python. Karena beda tipe, <code>+</code> antara teks dan angka <strong>selalu ditolak</strong> — Python
+  <strong>tidak pernah</strong> diam-diam menyambungnya jadi <code>&quot;105&quot;</code>. Cara mengubah
+  teks jadi angka bakal kita pelajari di <strong>Bab 5</strong>. 😉
+</p>
+
+<style>
+  .str-trap {
+    position: relative;
+    display: flex;
+    gap: 22px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 22px 24px;
+    cursor: pointer;
+  }
+
+  .str-trap__left {
+    flex: 1;
+    min-width: 260px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .str-trap__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 16px 18px;
+    overflow-x: auto;
+  }
+
+  .str-trap__pre {
+    margin: 0;
+    font-family: var(--font-code);
+    font-size: 15px;
+    line-height: 1.95;
+    color: var(--code-text);
+  }
+
+  .str-trap__line {
+    display: block;
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-eq {
+    color: var(--code-text);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .tok-num {
+    color: var(--code-orange);
+  }
+
+  .str-trap__plus {
+    display: inline-block;
+    color: var(--code-text);
+  }
+
+  .str-trap__console {
+    background: var(--console-bg);
+    border-radius: var(--radius-code);
+    padding: 12px 16px;
+    font-family: var(--font-code);
+    font-size: 14px;
+    line-height: 1.9;
+    color: var(--code-text);
+    min-height: 52px;
+  }
+
+  .str-trap__typing {
+    position: relative;
+  }
+
+  .str-trap__typed {
+    color: var(--code-green);
+    opacity: 0;
+  }
+
+  .str-trap__caret {
+    display: inline-block;
+    width: 8px;
+    height: 15px;
+    background: var(--code-green);
+    vertical-align: -2px;
+    margin-left: 1px;
+    opacity: 0;
+  }
+
+  .str-trap__hand {
+    position: absolute;
+    margin-left: 6px;
+    font-size: 16px;
+    opacity: 0;
+  }
+
+  .str-trap__err {
+    margin-top: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--code-error-bg);
+    border: 1px solid var(--code-error-border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    color: var(--code-error-text);
+    font-weight: 700;
+    font-size: 13px;
+    opacity: 0;
+  }
+
+  /* ---- kolom kanan: kotak kayu ---- */
+  .str-trap__right {
+    position: relative;
+    width: 150px;
+    flex-shrink: 0;
+    text-align: center;
+    padding-top: 6px;
+  }
+
+  .str-trap__box {
+    position: relative;
+    width: 118px;
+    height: 100px;
+    margin: 0 auto;
+  }
+
+  .str-trap__rim {
+    position: absolute;
+    bottom: 0;
+    width: 118px;
+    height: 78px;
+    border-radius: 10px;
+    background: linear-gradient(var(--wood), var(--wood-dark));
+    border: 3px solid var(--wood-border);
+    box-shadow: 0 6px 14px rgba(154, 99, 41, 0.28);
+  }
+
+  .str-trap__band {
+    position: absolute;
+    top: 0;
+    left: 9px;
+    width: 100px;
+    height: 14px;
+    border-radius: 8px;
+    background: var(--wood-label-text);
+  }
+
+  .str-trap__chip {
+    position: absolute;
+    left: 50%;
+    top: -6px;
+    transform: translate(-50%, -28px) scale(0.7) rotate(-8deg);
+    z-index: 3;
+    background: var(--code-green);
+    color: #1e3a16;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 16px;
+    padding: 6px 12px;
+    border-radius: 7px;
+    box-shadow: 0 4px 8px rgba(152, 195, 121, 0.5);
+    border: 2px solid #7bae58;
+    opacity: 0;
+  }
+
+  .str-trap__label {
+    position: absolute;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 4;
+    background: var(--box-main-yuk-bg);
+    border: 2px solid var(--wood-label-border);
+    color: var(--wood-label-text);
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 14px;
+    padding: 3px 12px;
+    border-radius: 7px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+  }
+
+  .str-trap__cap1 {
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--slate);
+    margin: 12px 0 0;
+    font-weight: 600;
+    opacity: 0;
+  }
+
+  .str-trap__cap1 strong {
+    color: var(--wood-label-text);
+  }
+
+  .str-trap__cap2 {
+    font-size: 15px;
+    line-height: 1.6;
+    margin: 14px 0 0;
+    color: var(--wood-label-text);
+    font-weight: 600;
+    background: var(--box-main-yuk-bg);
+    border-radius: var(--radius-code);
+    padding: 14px 18px;
+  }
+
+  .str-trap__cap2 code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  /* ---- animasi (sekali jalan setelah .is-in) ---- */
+  .str-trap.is-in .str-trap__caret {
+    animation: str-trap-in 0.05s linear 0.6s forwards, str-trap-blink 0.55s step-end 0.8s 3,
+      str-trap-caret-stop 0.1s linear 2.45s forwards;
+  }
+
+  .str-trap.is-in .str-trap__typed {
+    animation: str-trap-in 0.05s linear 2.45s forwards;
+  }
+
+  .str-trap.is-in .str-trap__hand {
+    animation: str-trap-hand-in 0.35s ease 0.7s forwards, str-trap-hand-out 0.35s ease 2.5s forwards;
+  }
+
+  .str-trap.is-in .str-trap__chip {
+    animation: str-trap-chip-fall 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 2.6s forwards;
+  }
+
+  .str-trap.is-in .str-trap__cap1 {
+    animation: str-trap-in 0.4s ease 3.5s forwards;
+  }
+
+  .str-trap.is-in .str-trap__plus {
+    animation: str-trap-plus-break 1s ease 4.2s 1;
+  }
+
+  .str-trap.is-in .str-trap__err {
+    animation: str-trap-err-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 4.9s forwards,
+      str-trap-err-wobble 1.4s ease 5.4s 3;
+  }
+
+  @keyframes str-trap-in {
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes str-trap-blink {
+    0%,
+    49% {
+      opacity: 1;
+    }
+    50%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes str-trap-caret-stop {
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes str-trap-hand-in {
+    from {
+      opacity: 0;
+      transform: translate(6px, 6px) rotate(8deg);
+    }
+    to {
+      opacity: 1;
+      transform: translate(0, 0) rotate(0);
+    }
+  }
+
+  @keyframes str-trap-hand-out {
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes str-trap-chip-fall {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -28px) scale(0.7) rotate(-8deg);
+    }
+    45% {
+      opacity: 1;
+    }
+    72% {
+      transform: translate(-50%, 4px) scale(1) rotate(2deg);
+    }
+    88% {
+      transform: translate(-50%, -3px) scale(1) rotate(0);
+    }
+    100% {
+      opacity: 1;
+      transform: translate(-50%, 0) scale(1) rotate(0);
+    }
+  }
+
+  @keyframes str-trap-plus-break {
+    0%,
+    100% {
+      color: var(--code-text);
+      transform: none;
+    }
+    20%,
+    60% {
+      color: var(--coral);
+    }
+    70% {
+      transform: translateX(-2px) rotate(-8deg);
+    }
+    85% {
+      transform: translateX(2px) rotate(8deg);
+    }
+  }
+
+  @keyframes str-trap-err-pop {
+    0% {
+      opacity: 0;
+      transform: scale(0.6);
+    }
+    60% {
+      opacity: 1;
+      transform: scale(1.08);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes str-trap-err-wobble {
+    0%,
+    100% {
+      transform: rotate(-1.5deg);
+    }
+    50% {
+      transform: rotate(1.5deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .str-trap__caret,
+    .str-trap__typed,
+    .str-trap__hand,
+    .str-trap__chip,
+    .str-trap__cap1,
+    .str-trap__plus,
+    .str-trap__err {
+      animation: none !important;
+    }
+
+    .str-trap__typed,
+    .str-trap__chip,
+    .str-trap__cap1,
+    .str-trap__err {
+      opacity: 1;
+    }
+
+    .str-trap__chip {
+      transform: translateX(-50%);
+    }
+
+    .str-trap__caret,
+    .str-trap__hand {
+      opacity: 0;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .str-trap__pre {
+      font-size: 14px;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="str-trap"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => {
+    const replay = () => {
+      el.classList.remove('is-in');
+      void el.offsetWidth;
+      el.classList.add('is-in');
+    };
+    el.addEventListener('mouseenter', replay);
+    el.addEventListener('click', replay);
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        replay();
+      }
+    });
+  });
+</script>
