@@ -1,0 +1,509 @@
+---
+// Animasi #3 (plan/bab-04-animasi.md): alur tanya → jawab → tersimpan →
+// f-string, merangkai Bab 4 (input) dengan kotak Bab 3 (variabel) dan
+// f-string Bab 2 dalam satu kartu yang bisa dilihat. Menggabungkan visual
+// "kotak kayu" dari VariableBoxHero/AssignmentFlyDemo dengan morph token
+// f-string dari FStringLinkDemo. Sekali jalan saat terlihat, boleh diulang
+// dengan hover/klik/fokus (sesuai spesifikasi mockup).
+interface Props {
+  varName?: string;
+  promptText?: string;
+  typed?: string;
+  template?: string;
+  suffix?: string;
+}
+
+const {
+  varName = 'nama',
+  promptText = 'Siapa namamu? ',
+  typed = 'Kirana',
+  template = 'Halo, ',
+  suffix = '!',
+} = Astro.props;
+const token = `{${varName}}`;
+---
+
+<div
+  class="input-flow"
+  data-anim="input-flow"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi tanya, jawab, tersimpan"
+>
+  <div class="input-flow__left">
+    <div class="input-flow__code">
+      <pre class="input-flow__pre"><code
+        ><span class="input-flow__line"><span class="tok-var">{varName}</span> <span class="tok-eq">=</span> <span class="tok-fn">input</span>(<span class="tok-str">&quot;{promptText}&quot;</span>)</span
+        ><span class="input-flow__line"><span class="tok-fn">print</span>(<span class="tok-fprefix">f</span><span class="tok-str">&quot;{template}<span class="input-flow__tok">{token}</span>{suffix}&quot;</span>)</span
+      ></code></pre>
+    </div>
+
+    <div class="input-flow__console">
+      <div class="input-flow__typing">
+        <span>{promptText}</span><span class="input-flow__typed">{typed}</span><span
+          class="input-flow__caret"
+          aria-hidden="true"></span><span class="input-flow__hand" aria-hidden="true">🖐️</span>
+      </div>
+      <div class="input-flow__result">
+        {template}<span class="input-flow__slot"
+          ><span class="input-flow__ph" aria-hidden="true">{token}</span><span
+            class="input-flow__val"
+            data-value>{typed}</span
+          ><span class="input-flow__spacer">{typed}</span></span
+        >{suffix}
+      </div>
+    </div>
+  </div>
+
+  <div class="input-flow__right">
+    <div class="input-flow__box">
+      <span class="input-flow__ball" aria-hidden="true">&quot;{typed}&quot;</span>
+      <div class="input-flow__rim"></div>
+      <div class="input-flow__band"></div>
+      <span class="input-flow__label" aria-hidden="true">{varName}</span>
+    </div>
+    <div class="input-flow__beam" aria-hidden="true"></div>
+    <p class="input-flow__caption">jawaban → kotak <code>{varName}</code></p>
+  </div>
+</div>
+
+<p class="input-flow__hint">💡 Komputer bertanya → kamu jawab → jawaban masuk kotak <code>{varName}</code> → kotak dipakai di f-string. <em>(Klik / hover untuk ulangi.)</em></p>
+
+<style>
+  .input-flow {
+    position: relative;
+    display: flex;
+    gap: 22px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 22px 24px;
+    cursor: pointer;
+  }
+
+  .input-flow__left {
+    flex: 1;
+    min-width: 260px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .input-flow__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 16px 18px;
+    overflow-x: auto;
+  }
+
+  .input-flow__pre {
+    margin: 0;
+    font-family: var(--font-code);
+    font-size: 15px;
+    line-height: 1.95;
+    color: var(--code-text);
+  }
+
+  .input-flow__line {
+    display: block;
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-eq {
+    color: var(--code-text);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .tok-fprefix {
+    color: var(--code-purple);
+    font-weight: 700;
+  }
+
+  .input-flow__tok {
+    color: var(--sunny-yellow);
+    background: rgba(255, 201, 77, 0.16);
+    border-radius: 4px;
+  }
+
+  .input-flow__console {
+    background: var(--console-bg);
+    border-radius: var(--radius-code);
+    padding: 12px 16px;
+    font-family: var(--font-code);
+    font-size: 14px;
+    line-height: 1.9;
+    color: var(--code-text);
+    min-height: 54px;
+  }
+
+  .input-flow__typing {
+    position: relative;
+  }
+
+  .input-flow__typed {
+    color: var(--code-green);
+    opacity: 0;
+  }
+
+  .input-flow__caret {
+    display: inline-block;
+    width: 8px;
+    height: 15px;
+    background: var(--code-green);
+    vertical-align: -2px;
+    margin-left: 1px;
+    opacity: 0;
+  }
+
+  .input-flow__hand {
+    position: absolute;
+    margin-left: 6px;
+    font-size: 16px;
+    opacity: 0;
+  }
+
+  .input-flow__slot {
+    position: relative;
+    display: inline-block;
+    min-width: 56px;
+    text-align: left;
+  }
+
+  .input-flow__ph {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--sunny-yellow);
+  }
+
+  .input-flow__val {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%) scale(0.55);
+    color: var(--code-green);
+    font-weight: 700;
+    opacity: 0;
+  }
+
+  .input-flow__spacer {
+    visibility: hidden;
+  }
+
+  /* ---- kolom kanan: kotak kayu ---- */
+  .input-flow__right {
+    position: relative;
+    width: 140px;
+    flex-shrink: 0;
+    text-align: center;
+    padding-top: 6px;
+  }
+
+  .input-flow__box {
+    position: relative;
+    width: 118px;
+    height: 100px;
+    margin: 0 auto;
+  }
+
+  .input-flow__rim {
+    position: absolute;
+    bottom: 0;
+    width: 118px;
+    height: 78px;
+    border-radius: 10px;
+    background: linear-gradient(var(--wood), var(--wood-dark));
+    border: 3px solid var(--wood-border);
+    box-shadow: 0 6px 14px rgba(154, 99, 41, 0.28);
+  }
+
+  .input-flow__band {
+    position: absolute;
+    top: 0;
+    left: 9px;
+    width: 100px;
+    height: 14px;
+    border-radius: 8px;
+    background: var(--wood-label-text);
+  }
+
+  .input-flow__ball {
+    position: absolute;
+    left: 50%;
+    top: -4px;
+    transform: translate(-50%, -30px) scale(0.7);
+    z-index: 3;
+    background: var(--code-green);
+    color: #1e3a16;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    box-shadow: 0 4px 8px rgba(152, 195, 121, 0.5);
+    white-space: nowrap;
+    opacity: 0;
+  }
+
+  .input-flow__label {
+    position: absolute;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 4;
+    background: var(--box-main-yuk-bg);
+    border: 2px solid var(--wood-label-border);
+    color: var(--wood-label-text);
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 14px;
+    padding: 3px 12px;
+    border-radius: 7px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+  }
+
+  .input-flow__beam {
+    position: absolute;
+    left: 20px;
+    bottom: -6px;
+    width: 90px;
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--sunny-yellow), rgba(255, 201, 77, 0));
+    opacity: 0;
+    transform-origin: left center;
+    transform: scaleX(0);
+  }
+
+  .input-flow__caption {
+    font-size: 13px;
+    color: var(--slate);
+    margin: 12px 0 0;
+    font-weight: 600;
+  }
+
+  .input-flow__caption code {
+    color: var(--wood-label-text);
+  }
+
+  .input-flow__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 12px 2px 0;
+    color: var(--slate);
+  }
+
+  .input-flow__hint code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  /* ---- animasi ---- */
+  .input-flow.is-in .input-flow__caret {
+    animation: input-flow-in 0.05s linear 0.8s forwards, input-flow-blink 0.6s step-end 1s 4,
+      input-flow-caret-stop 0.1s linear 3.4s forwards;
+  }
+
+  .input-flow.is-in .input-flow__typed {
+    animation: input-flow-in 0.05s linear 3.4s forwards;
+  }
+
+  .input-flow.is-in .input-flow__hand {
+    animation: input-flow-hand-in 0.35s ease 0.9s forwards, input-flow-hand-out 0.35s ease 3.5s forwards;
+  }
+
+  .input-flow.is-in .input-flow__ball {
+    animation: input-flow-ball-fall 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 3.6s forwards;
+  }
+
+  .input-flow.is-in .input-flow__rim {
+    animation: input-flow-box-flash 0.7s ease 4s 1;
+  }
+
+  .input-flow.is-in .input-flow__beam {
+    animation: input-flow-beam-grow 1s ease 4.4s forwards;
+  }
+
+  .input-flow.is-in .input-flow__ph {
+    animation: input-flow-ph-out 0.3s ease 5s forwards;
+  }
+
+  .input-flow.is-in .input-flow__val {
+    animation: input-flow-val-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 5.1s forwards;
+  }
+
+  @keyframes input-flow-in {
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes input-flow-blink {
+    0%,
+    49% {
+      opacity: 1;
+    }
+    50%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes input-flow-caret-stop {
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes input-flow-hand-in {
+    from {
+      opacity: 0;
+      transform: translate(6px, 6px) rotate(8deg);
+    }
+    to {
+      opacity: 1;
+      transform: translate(0, 0) rotate(0);
+    }
+  }
+
+  @keyframes input-flow-hand-out {
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes input-flow-ball-fall {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -30px) scale(0.7);
+    }
+    40% {
+      opacity: 1;
+    }
+    70% {
+      transform: translate(-50%, 4px) scale(1);
+    }
+    85% {
+      transform: translate(-50%, -4px) scale(1);
+    }
+    100% {
+      opacity: 1;
+      transform: translate(-50%, 0) scale(1);
+    }
+  }
+
+  @keyframes input-flow-box-flash {
+    0%,
+    100% {
+      box-shadow: 0 6px 14px rgba(154, 99, 41, 0.28);
+    }
+    45% {
+      box-shadow: 0 0 0 5px rgba(47, 191, 113, 0.45), 0 6px 14px rgba(154, 99, 41, 0.28);
+    }
+  }
+
+  @keyframes input-flow-beam-grow {
+    0% {
+      opacity: 0;
+      transform: scaleX(0);
+    }
+    30% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: scaleX(1);
+    }
+  }
+
+  @keyframes input-flow-ph-out {
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes input-flow-val-in {
+    0% {
+      opacity: 0;
+      transform: translateX(-50%) scale(0.55);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(-50%) scale(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .input-flow__caret,
+    .input-flow__typed,
+    .input-flow__hand,
+    .input-flow__ball,
+    .input-flow__rim,
+    .input-flow__beam,
+    .input-flow__ph,
+    .input-flow__val {
+      animation: none !important;
+    }
+
+    .input-flow__typed,
+    .input-flow__ball,
+    .input-flow__val {
+      opacity: 1;
+    }
+
+    .input-flow__ball {
+      transform: translateX(-50%);
+    }
+
+    .input-flow__caret,
+    .input-flow__hand,
+    .input-flow__beam,
+    .input-flow__ph {
+      opacity: 0;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .input-flow__pre {
+      font-size: 14px;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="input-flow"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => {
+    const replay = () => {
+      el.classList.remove('is-in');
+      void el.offsetWidth;
+      el.classList.add('is-in');
+    };
+    el.addEventListener('mouseenter', replay);
+    el.addEventListener('click', replay);
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        replay();
+      }
+    });
+  });
+</script>
