@@ -1,0 +1,178 @@
+---
+// Bab 6 — Kalau Begini, Maka Begitu (if).
+// Sumber animasi: plan/bab-06-animasi.md.
+// Sumber desain: plan/design/bab-06-kalau-begini-maka-begitu.dc.html.
+// (Tidak ada naskah master terpisah untuk Bab 6, sama seperti Bab 5 — dc.html
+// + animasi.md jadi sumber tunggal konten & choreography.)
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import ChapterHero from '../../components/ChapterHero.astro';
+import IfElseForkHero from '../../components/IfElseForkHero.astro';
+import ConditionDemo from '../../components/ConditionDemo.astro';
+import IfElifElseLanesDemo from '../../components/IfElifElseLanesDemo.astro';
+import EqualsColonAwas from '../../components/EqualsColonAwas.astro';
+import TrafficLightDemo from '../../components/TrafficLightDemo.astro';
+import AndOrDemo from '../../components/AndOrDemo.astro';
+import KotakAwas from '../../components/KotakAwas.astro';
+import KotakMainYuk from '../../components/KotakMainYuk.astro';
+import KotakTahuLebih from '../../components/KotakTahuLebih.astro';
+import PyodideEditor from '../../components/PyodideEditor.astro';
+import RangkumanList from '../../components/RangkumanList.astro';
+import Glossary from '../../components/Glossary.astro';
+import ChapterFooterNav from '../../components/ChapterFooterNav.astro';
+
+const base = import.meta.env.BASE_URL;
+
+const rangkuman = [
+  '<code>if</code> menjalankan blok kode di bawahnya hanya kalau syaratnya bernilai <code>True</code>.',
+  '<code>elif</code> dicek kalau <code>if</code> di atasnya salah; <code>else</code> jalan kalau semua di atasnya salah.',
+  'Python berhenti di cabang pertama yang benar — cabang setelahnya tidak pernah dicek.',
+  '<code>==</code> membandingkan nilai, beda dengan <code>=</code> yang menaruh nilai ke variabel.',
+  'Baris di dalam blok <code>if</code>/<code>elif</code>/<code>else</code> harus menjorok ke dalam (indentasi), dan diakhiri titik dua <code>:</code>.',
+];
+
+const glossaryTerms = [
+  { term: 'if', def: 'Menjalankan blok kode kalau syaratnya benar (True).' },
+  { term: 'elif', def: 'Singkatan "else if" — syarat lain yang dicek kalau if di atasnya salah.' },
+  { term: 'else', def: 'Blok yang jalan kalau semua syarat di atasnya salah.' },
+  { term: '==', def: 'Operator perbandingan: "apakah sama dengan?"' },
+  { term: 'Indentasi', def: 'Spasi/lekukan di awal baris yang menandai baris itu ada di dalam sebuah blok.' },
+];
+---
+
+<ChapterLayout
+  currentChapter={6}
+  description="Bab 6: Kalau Begini Maka Begitu — belajar membuat kode mengambil keputusan pakai if, elif, dan else, ditemani Pyto si robot ular yang memilih jalan di persimpangan."
+>
+  <ChapterHero
+    number={6}
+    title="Kalau Begini, Maka Begitu 🚦"
+    tagline={'Sampai sekarang kode kita selalu jalan lurus dari atas ke bawah. Sekarang Pyto belajar <strong>mengambil keputusan</strong> — memilih jalan sesuai syaratnya, pakai <code>if</code>.'}
+  >
+    <IfElseForkHero slot="mascot" size={150} />
+  </ChapterHero>
+
+  <section data-reveal>
+    <h2>Kalau Syaratnya Benar…</h2>
+    <p>
+      <code>if</code> artinya "kalau". Baris di bawah <code>if</code> hanya dijalankan
+      <strong>kalau</strong> syaratnya benar (<code>True</code>). Perhatikan baris itu
+      <strong>menjorok ke dalam</strong> — itu tandanya baris itu ada di dalam blok <code>if</code>.
+    </p>
+    <div class="chapter-media">
+      <ConditionDemo />
+    </div>
+  </section>
+
+  <section data-reveal>
+    <h2>Kalau Bukan Ini, Coba Itu — <code>elif</code> &amp; <code>else</code></h2>
+    <p>Python mengecek tiap cabang <strong>satu per satu dari atas</strong>, dan berhenti di cabang pertama yang benar:</p>
+    <div class="chapter-media">
+      <IfElifElseLanesDemo />
+    </div>
+  </section>
+
+  <section class="pyto-quote-box" data-reveal>
+    <span class="pyto-quote-box__mascot" role="img" aria-label="Pyto">🐍</span>
+    <p class="pyto-quote-box__text">
+      "Ingat: <code>if</code> selalu butuh titik dua <code>:</code> di akhir baris, dan baris di
+      bawahnya harus menjorok ke dalam. Dua hal ini paling sering terlupa pemula!"
+    </p>
+  </section>
+
+  <KotakAwas title="Awas — Dua Jebakan Umum">
+    <p>
+      Dua kesalahan paling sering dibuat pemula saat baru belajar <code>if</code>: tertukar
+      <code>=</code> dengan <code>==</code>, dan lupa titik dua <code>:</code> di akhir baris.
+    </p>
+    <EqualsColonAwas />
+    <p class="awas-caption">
+      <code>if</code> selalu butuh <code>:</code> di akhir baris. Kalau lupa, Python akan kasih
+      tahu — cara membaca pesannya kita bahas tuntas di <strong>Bab 9</strong>.
+      <em>(Klik / hover untuk lihat lagi.)</em>
+    </p>
+  </KotakAwas>
+
+  <KotakMainYuk title="Main Yuk! — Lampu Lalu Lintas" icon="🎮" wiggleIcon>
+    <p>
+      <code>if</code>/<code>elif</code>/<code>else</code> bisa memilih di antara lebih dari dua
+      kemungkinan — seperti lampu lalu lintas:
+    </p>
+    <div class="main-yuk-tl">
+      <TrafficLightDemo />
+      <p>
+        Coba ubah nilai <code>warna = "kuning"</code> di editor bawah, lalu tebak lampu mana yang
+        menyala.
+      </p>
+    </div>
+  </KotakMainYuk>
+
+  <KotakTahuLebih title="Tahu Lebih — Gabungkan Syarat dengan and/or">
+    <p>Syarat <code>if</code> bisa digabung lebih dari satu pakai <code>and</code>/<code>or</code>:</p>
+    <AndOrDemo />
+  </KotakTahuLebih>
+
+  <section data-reveal>
+    <h2>Coba Sendiri: Sudah Boleh Bikin SIM?</h2>
+    <p>
+      Ini <strong>Python asli</strong> yang jalan di browser-mu. Klik <strong>▶ Jalankan</strong>, lalu
+      ketik umurmu saat diminta:
+    </p>
+    <PyodideEditor
+      mode="interactive"
+      idPrefix="bab6"
+      title="🐍 sim.py"
+      runLabel="▶ Jalankan"
+      codeAriaLabel="Kotak kode pengecek umur SIM"
+      minHeight={140}
+      rows={6}
+      starterCode={`umur = input("Umurmu berapa? ")
+umur = int(umur)
+
+if umur >= 17:
+    print("Kamu sudah boleh bikin SIM!")
+else:
+    print("Kamu belum cukup umur untuk bikin SIM.")
+`}
+      notes={[
+        '📌 Ganti angka <code>17</code> jadi umurmu sendiri, atau ubah jadi lebih besar/kecil untuk melihat cabang lain menyala.',
+        '✏️ Coba tambah <code>elif</code> baru, misalnya untuk umur pas 16 tahun (boleh belajar nyetir dulu).',
+      ]}
+    />
+  </section>
+
+  <section data-reveal>
+    <h2>Rangkuman Bab 6</h2>
+    <RangkumanList items={rangkuman} />
+  </section>
+
+  <section data-reveal>
+    <h2>📖 Kamus Kata</h2>
+    <Glossary terms={glossaryTerms} />
+  </section>
+
+  <ChapterFooterNav
+    prevHref={`${base}/bab/5/`}
+    prevLabel="← Bab 5: Angka & Hitung-hitungan"
+    nextLabel="Bab 7: Ulang-ulang (Loop)"
+    nextDisabled
+  />
+</ChapterLayout>
+
+<style>
+  .awas-caption {
+    margin-top: 12px;
+  }
+
+  .main-yuk-tl {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .main-yuk-tl p {
+    flex: 1;
+    min-width: 200px;
+    margin: 0;
+  }
+</style>

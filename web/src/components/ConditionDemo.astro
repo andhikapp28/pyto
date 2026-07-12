@@ -1,0 +1,241 @@
+---
+// Animasi #2 (plan/bab-06-animasi.md) / .cnd (plan/design/bab-06-...dc.html):
+// contoh if paling dasar — cuaca == "hujan". Baris if menyala, tanda ==
+// berkedip dua kali seolah membandingkan, lencana hijau True muncul, lalu
+// baris yang menjorok (indentasi) ikut menyala dan hasilnya tercetak. Sekali
+// jalan saat terlihat, boleh diulang lewat hover/klik/fokus.
+---
+
+<div
+  class="cnd-demo"
+  data-anim="cnd-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi kondisi cuaca sama dengan hujan"
+>
+  <div class="cnd-demo__code">
+    <div class="cnd-demo__line">
+      <span class="tok-var">cuaca</span> <span class="tok-eq">=</span>
+      <span class="tok-str">&quot;hujan&quot;</span>
+    </div>
+    <div class="cnd-demo__line">&nbsp;</div>
+    <div class="cnd-demo__line">
+      <span class="tok-p">if</span> <span class="tok-var">cuaca</span>
+      <span class="cnd-demo__eq">==</span> <span class="tok-str">&quot;hujan&quot;</span><span
+        class="tok-eq">:</span
+      >
+    </div>
+    <div class="cnd-demo__line cnd-demo__indent">
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="tok-fn">print</span>(<span class="tok-str"
+        >&quot;Jangan lupa bawa payung!&quot;</span
+      >)
+    </div>
+  </div>
+
+  <div class="cnd-demo__row">
+    <div class="cnd-demo__true">✓ True</div>
+    <div class="cnd-demo__result">
+      ☂ <strong>&quot;Jangan lupa bawa payung!&quot;</strong> tercetak
+    </div>
+  </div>
+</div>
+
+<p class="cnd-demo__hint">
+  💡 <code>==</code> artinya "apakah sama dengan?" (membandingkan), beda dengan <code>=</code> yang
+  artinya "taruh nilai ini". <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .cnd-demo {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 22px 24px;
+    cursor: pointer;
+  }
+
+  .cnd-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 16px 18px;
+    font-family: var(--font-code);
+    font-size: 15px;
+    line-height: 1.95;
+    color: var(--code-text);
+    overflow-x: auto;
+  }
+
+  .cnd-demo__line {
+    white-space: pre;
+  }
+
+  .cnd-demo__indent {
+    border-radius: 6px;
+    transition: none;
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-eq {
+    color: var(--code-text);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .tok-p {
+    color: var(--code-purple);
+  }
+
+  .cnd-demo__eq {
+    color: var(--code-green);
+  }
+
+  .cnd-demo.is-in .cnd-demo__eq {
+    animation: cnd-demo-eq-blink 0.4s ease 0s 2;
+  }
+
+  @keyframes cnd-demo-eq-blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.25;
+    }
+  }
+
+  .cnd-demo.is-in .cnd-demo__indent {
+    animation: cnd-demo-indent-glow 0.5s ease 1.3s forwards;
+  }
+
+  @keyframes cnd-demo-indent-glow {
+    to {
+      background: rgba(255, 201, 77, 0.18);
+    }
+  }
+
+  .cnd-demo__row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+  }
+
+  .cnd-demo__true {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--pyto-green-soft);
+    border: 2px solid var(--pyto-green);
+    border-radius: 8px;
+    padding: 5px 12px;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--pyto-green-dark);
+    opacity: 0;
+  }
+
+  .cnd-demo.is-in .cnd-demo__true {
+    animation: cnd-demo-true-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.9s forwards;
+  }
+
+  @keyframes cnd-demo-true-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.5);
+    }
+    70% {
+      opacity: 1;
+      transform: scale(1.15);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .cnd-demo__result {
+    font-size: 15px;
+    color: var(--slate);
+    opacity: 0;
+  }
+
+  .cnd-demo.is-in .cnd-demo__result {
+    animation: cnd-demo-result-in 0.5s ease 1.7s forwards;
+  }
+
+  @keyframes cnd-demo-result-in {
+    0% {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .cnd-demo__result strong {
+    color: var(--ink);
+  }
+
+  .cnd-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 12px 2px 0;
+    color: var(--slate);
+  }
+
+  .cnd-demo__hint code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cnd-demo__eq,
+    .cnd-demo__indent,
+    .cnd-demo__true,
+    .cnd-demo__result {
+      animation: none !important;
+    }
+
+    .cnd-demo__true,
+    .cnd-demo__result {
+      opacity: 1;
+      transform: none;
+    }
+
+    .cnd-demo__indent {
+      background: rgba(255, 201, 77, 0.18);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .cnd-demo__code {
+      font-size: 14px;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="cnd-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

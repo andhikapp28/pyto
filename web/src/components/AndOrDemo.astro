@@ -1,0 +1,242 @@
+---
+// Animasi #8 (plan/bab-06-animasi.md) / .tl8 (plan/design/bab-06-...dc.html):
+// menggabungkan dua syarat dengan and/or. Dua lencana True saling mendekat
+// dan "berpegangan tangan" membentuk satu lencana True gabungan (and — perlu
+// keduanya benar), lalu kata and berganti jadi or (cukup salah satu benar).
+// Sekali jalan saat terlihat, boleh diulang lewat hover/klik/fokus.
+---
+
+<div
+  class="ao-demo"
+  data-anim="ao-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi menggabungkan syarat dengan and dan or"
+>
+  <div class="ao-demo__code">
+    <div class="ao-demo__line">
+      <span class="tok-var">umur</span> = <span class="tok-num">17</span>
+    </div>
+    <div class="ao-demo__line">
+      <span class="tok-var">punya_ktp</span> = <span class="tok-bool">True</span>
+    </div>
+    <div class="ao-demo__line">&nbsp;</div>
+    <div class="ao-demo__line">
+      <span class="tok-p">if</span> umur &gt;= 17
+      <span class="ao-demo__word-wrap"
+        ><span class="ao-demo__word ao-demo__word--and">and</span><span
+          class="ao-demo__word ao-demo__word--or">or</span
+        ></span
+      > punya_ktp:
+    </div>
+  </div>
+
+  <div class="ao-demo__badges">
+    <div class="ao-demo__badge ao-demo__badge--a">True</div>
+    <div class="ao-demo__badge ao-demo__badge--b">True</div>
+    <div class="ao-demo__badge ao-demo__badge--combo">→ True</div>
+  </div>
+</div>
+
+<p class="ao-demo__hint">
+  <code>and</code> perlu <strong>keduanya</strong> benar. <code>or</code> cukup
+  <strong>salah satu</strong> saja benar. <em>(Klik / hover untuk lihat lagi.)</em>
+</p>
+
+<style>
+  .ao-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    cursor: pointer;
+  }
+
+  .ao-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 12px 16px;
+    font-family: var(--font-code);
+    font-size: 15px;
+    color: var(--code-text);
+  }
+
+  .ao-demo__line {
+    white-space: pre-wrap;
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-num {
+    color: var(--code-orange);
+  }
+
+  .tok-bool {
+    color: var(--code-orange);
+  }
+
+  .tok-p {
+    color: var(--code-purple);
+  }
+
+  .ao-demo__word-wrap {
+    position: relative;
+    display: inline-block;
+  }
+
+  .ao-demo__word {
+    color: var(--code-purple);
+    font-weight: 700;
+  }
+
+  .ao-demo__word--or {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+  }
+
+  .ao-demo.is-in .ao-demo__word--and {
+    animation: ao-demo-word-out 0.3s ease 1.3s forwards;
+  }
+
+  .ao-demo.is-in .ao-demo__word--or {
+    animation: ao-demo-word-in 0.3s ease 1.3s forwards;
+  }
+
+  @keyframes ao-demo-word-out {
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes ao-demo-word-in {
+    to {
+      opacity: 1;
+    }
+  }
+
+  .ao-demo__badges {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .ao-demo__badge {
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 14px;
+    padding: 5px 12px;
+    border-radius: 8px;
+  }
+
+  .ao-demo__badge--a,
+  .ao-demo__badge--b {
+    background: var(--pyto-green-soft);
+    border: 2px solid var(--pyto-green);
+    color: var(--pyto-green-dark);
+    transition: transform 0.5s ease;
+  }
+
+  .ao-demo.is-in .ao-demo__badge--a {
+    animation: ao-demo-join-a 0.5s ease 0.1s forwards;
+  }
+
+  .ao-demo.is-in .ao-demo__badge--b {
+    animation: ao-demo-join-b 0.5s ease 0.1s forwards;
+  }
+
+  @keyframes ao-demo-join-a {
+    to {
+      transform: translateX(14px);
+    }
+  }
+
+  @keyframes ao-demo-join-b {
+    to {
+      transform: translateX(-14px);
+    }
+  }
+
+  .ao-demo__badge--combo {
+    margin-left: 6px;
+    background: var(--pyto-green);
+    color: #fff;
+    font-weight: 800;
+    font-size: 15px;
+    padding: 6px 14px;
+    opacity: 0;
+  }
+
+  .ao-demo.is-in .ao-demo__badge--combo {
+    animation: ao-demo-combo-in 0.4s ease 0.7s forwards;
+  }
+
+  @keyframes ao-demo-combo-in {
+    0% {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .ao-demo__hint {
+    font-size: 15px;
+    line-height: 1.6;
+    margin: 0;
+    color: var(--slate);
+  }
+
+  .ao-demo__hint code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ao-demo__word--and,
+    .ao-demo__word--or,
+    .ao-demo__badge--a,
+    .ao-demo__badge--b,
+    .ao-demo__badge--combo {
+      animation: none !important;
+    }
+
+    .ao-demo__word--and {
+      opacity: 1;
+    }
+
+    .ao-demo__word--or {
+      opacity: 0;
+    }
+
+    .ao-demo__badge--a {
+      transform: translateX(14px);
+    }
+
+    .ao-demo__badge--b {
+      transform: translateX(-14px);
+    }
+
+    .ao-demo__badge--combo {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="ao-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

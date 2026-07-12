@@ -1,0 +1,272 @@
+---
+// Animasi #1 (plan/bab-06-animasi.md) / hero6 (plan/design/bab-06-...dc.html):
+// Pyto berdiri di persimpangan dua jalan. Jalan kiri menyala hijau (aktif),
+// jalan kanan redup. Sebuah gelembung "if" muncul di atas kepalanya, lalu ia
+// melangkah mantap ke arah jalan yang menyala. Main langsung begitu halaman
+// terbuka (tidak menunggu scroll) — sama seperti PytoCalculatorHero (Bab 5)
+// dan PytoQuestionHero (Bab 4). Idle: jalur aktif berkedip pelan terus-menerus
+// seperti menunggu keputusan berikutnya.
+//
+// Catatan penyimpangan kecil dari mockup .dc.html: di mockup, Pyto melangkah
+// ke KANAN (translateX positif) walau jalur yang menyala ada di KIRI —
+// tampaknya salah arah di mockup aslinya. Di sini langkahnya dibuat konsisten
+// menuju jalur yang menyala (kiri, translateX negatif) supaya ceritanya jelas
+// buat pembaca kecil: Pyto memilih jalan yang menyala.
+interface Props {
+  size?: number;
+}
+
+const { size = 150 } = Astro.props;
+const height = Math.round((size * 180) / 188);
+---
+
+<div class="if-fork-hero" data-anim="if-fork-hero">
+  <div class="if-fork-hero__stage">
+    <svg
+      class="if-fork-hero__roads"
+      width="300"
+      height="150"
+      viewBox="0 0 300 150"
+      aria-hidden="true"
+    >
+      <path
+        class="if-fork-hero__path if-fork-hero__path--active"
+        d="M150 150 C 150 100, 90 90, 40 30"
+        stroke="var(--pyto-green)"
+        stroke-width="10"
+        stroke-linecap="round"
+        fill="none"></path>
+      <path
+        class="if-fork-hero__path"
+        d="M150 150 C 150 100, 210 90, 260 30"
+        stroke="var(--border)"
+        stroke-width="10"
+        stroke-linecap="round"
+        fill="none"></path>
+      <circle cx="40" cy="26" r="9" fill="var(--pyto-green)"></circle>
+      <circle cx="260" cy="26" r="9" fill="var(--border)"></circle>
+    </svg>
+
+    <div class="if-fork-hero__bubble" aria-hidden="true">if</div>
+
+    <div class="if-fork-hero__pyto">
+      <svg
+        width={size}
+        height={height}
+        viewBox="0 0 188 180"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        class="if-fork-hero__svg"
+        role="img"
+        aria-label="Pyto berdiri di persimpangan, memilih jalan yang menyala hijau"
+      >
+        <path
+          d="M56 150 C 20 150, 22 110, 60 112 C 104 114, 120 150, 150 140"
+          stroke="var(--pyto-green-dark)"
+          stroke-width="17"
+          stroke-linecap="round"
+          fill="none"></path>
+        <path
+          d="M56 150 C 20 150, 22 110, 60 112 C 104 114, 120 150, 150 140"
+          stroke="var(--pyto-green)"
+          stroke-width="9"
+          stroke-linecap="round"
+          fill="none"></path>
+        <rect x="44" y="30" width="96" height="82" rx="30" fill="var(--pyto-green)"></rect>
+        <line
+          x1="92"
+          y1="30"
+          x2="92"
+          y2="12"
+          stroke="var(--pyto-green-dark)"
+          stroke-width="5"
+          stroke-linecap="round"></line>
+        <circle cx="92" cy="9" r="6" fill="var(--sunny-yellow)"></circle>
+        <g class="if-fork-hero__eyes">
+          <circle cx="74" cy="62" r="14" fill="#FFFFFF"></circle>
+          <circle cx="112" cy="62" r="14" fill="#FFFFFF"></circle>
+          <circle cx="77" cy="64" r="6" fill="var(--ink)"></circle>
+          <circle cx="115" cy="64" r="6" fill="var(--ink)"></circle>
+          <circle cx="79" cy="61" r="2" fill="#FFFFFF"></circle>
+          <circle cx="117" cy="61" r="2" fill="#FFFFFF"></circle>
+        </g>
+        <circle cx="60" cy="86" r="7" fill="var(--coral)" opacity="0.55"></circle>
+        <circle cx="126" cy="86" r="7" fill="var(--coral)" opacity="0.55"></circle>
+        <path
+          d="M78 88 Q 92 104, 106 88"
+          stroke="var(--ink)"
+          stroke-width="4"
+          stroke-linecap="round"
+          fill="none"></path>
+      </svg>
+    </div>
+  </div>
+
+  <span class="if-fork-hero__sr">
+    Pyto berdiri di persimpangan dua jalan. Jalan kiri menyala hijau, jalan kanan redup. Gelembung
+    kecil bertuliskan "if" muncul di atas kepalanya, lalu ia melangkah ke jalan yang menyala.
+  </span>
+</div>
+
+<style>
+  .if-fork-hero {
+    display: flex;
+    justify-content: center;
+  }
+
+  .if-fork-hero__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .if-fork-hero__stage {
+    position: relative;
+    width: 300px;
+    height: 210px;
+  }
+
+  .if-fork-hero__roads {
+    position: absolute;
+    left: 0;
+    top: 60px;
+  }
+
+  .if-fork-hero__path--active {
+    animation: if-fork-hero-path-glow 2.6s ease-in-out infinite;
+  }
+
+  @keyframes if-fork-hero-path-glow {
+    0%,
+    100% {
+      opacity: 0.55;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  .if-fork-hero__bubble {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translate(-50%, -10px);
+    background: #fff;
+    border: 2px solid var(--pyto-green);
+    border-radius: 12px 12px 12px 4px;
+    padding: 6px 14px;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--pyto-green-dark);
+    box-shadow: 0 4px 10px rgba(30, 42, 50, 0.1);
+    opacity: 0;
+  }
+
+  .if-fork-hero.is-in .if-fork-hero__bubble {
+    animation: if-fork-hero-bubble-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s forwards;
+  }
+
+  @keyframes if-fork-hero-bubble-pop {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -10px) scale(0.6);
+    }
+    60% {
+      opacity: 1;
+      transform: translate(-50%, -10px) scale(1.15);
+    }
+    100% {
+      opacity: 1;
+      transform: translate(-50%, -10px) scale(1);
+    }
+  }
+
+  .if-fork-hero__pyto {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translate(-50%, 0);
+    animation: if-fork-hero-bob 4s ease-in-out infinite;
+  }
+
+  .if-fork-hero.is-in .if-fork-hero__pyto {
+    animation: if-fork-hero-bob 4s ease-in-out infinite, if-fork-hero-step 0.6s ease 1s forwards;
+  }
+
+  @keyframes if-fork-hero-step {
+    0% {
+      transform: translate(-50%, 0);
+    }
+    100% {
+      transform: translate(calc(-50% - 18px), 0);
+    }
+  }
+
+  @keyframes if-fork-hero-bob {
+    0%,
+    100% {
+      transform: translate(-50%, 0) translateY(0);
+    }
+    50% {
+      transform: translate(-50%, 0) translateY(-8px);
+    }
+  }
+
+  .if-fork-hero__svg {
+    filter: drop-shadow(0 12px 18px rgba(30, 42, 50, 0.14));
+  }
+
+  .if-fork-hero__eyes {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: if-fork-hero-blink 4.5s infinite;
+  }
+
+  @keyframes if-fork-hero-blink {
+    0%,
+    92%,
+    100% {
+      transform: scaleY(1);
+    }
+    96% {
+      transform: scaleY(0.1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .if-fork-hero__path--active,
+    .if-fork-hero__bubble,
+    .if-fork-hero__pyto,
+    .if-fork-hero__eyes {
+      animation: none !important;
+    }
+
+    .if-fork-hero__bubble {
+      opacity: 1;
+      transform: translate(-50%, -10px);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .if-fork-hero__stage {
+      width: 260px;
+      height: 190px;
+    }
+
+    .if-fork-hero__roads {
+      left: -20px;
+    }
+  }
+</style>
+
+<script>
+  // Hero selalu terlihat begitu halaman dibuka, jadi langsung dipicu (tidak
+  // menunggu scroll masuk layar) — sama seperti PytoCalculatorHero (Bab 5).
+  document.querySelectorAll('[data-anim="if-fork-hero"]').forEach((el) => {
+    setTimeout(() => el.classList.add('is-in'), 200);
+  });
+</script>

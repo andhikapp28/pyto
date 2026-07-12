@@ -14,8 +14,8 @@ export const chapters = [
   { number: 10, title: 'Proyek Seru' },
 ];
 
-// Untuk sekarang baru Bab 1-5 yang punya halaman sungguhan.
-export const AVAILABLE_CHAPTERS = [1, 2, 3, 4, 5];
+// Untuk sekarang baru Bab 1-6 yang punya halaman sungguhan.
+export const AVAILABLE_CHAPTERS = [1, 2, 3, 4, 5, 6];
 
 export function isChapterAvailable(number) {
   return AVAILABLE_CHAPTERS.includes(number);

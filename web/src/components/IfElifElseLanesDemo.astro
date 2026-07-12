@@ -1,0 +1,292 @@
+---
+// Animasi #3 (plan/bab-06-animasi.md) / .grd (plan/design/bab-06-...dc.html):
+// momen utama Bab 6 — nilai ujian dengan if/elif/else lengkap. Tiga jalur
+// digambar berjajar dari atas ke bawah. Jalur 1 (if nilai >= 90) dicoba dan
+// gagal (meredup + tanda silang). Jalur 2 (elif nilai >= 75) dicoba dan
+// berhasil (menyala hijau + centang + isi blok jalan). Jalur 3 (else) tidak
+// pernah dicek sama sekali (meredup total tanpa proses). Sekali jalan saat
+// terlihat, boleh diulang lewat hover/klik/fokus.
+---
+
+<div
+  class="grd-demo"
+  data-anim="grd-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi percabangan if elif else nilai ujian"
+>
+  <div class="grd-demo__code">
+    <span class="tok-var">nilai</span> <span class="tok-eq">=</span> <span class="tok-num">75</span>
+  </div>
+
+  <div class="grd-demo__lanes">
+    <div class="grd-demo__lane grd-demo__lane--1">
+      <div class="grd-demo__head">
+        <span class="tok-p">if</span> nilai <span class="grd-demo__op grd-demo__op--1">&gt;=</span> 90<span
+          >:</span
+        >
+        <span class="grd-demo__check grd-demo__check--fail">✗ gagal</span>
+      </div>
+    </div>
+
+    <div class="grd-demo__lane grd-demo__lane--2">
+      <div class="grd-demo__head">
+        <span class="tok-p">elif</span> nilai <span class="grd-demo__op grd-demo__op--2">&gt;=</span> 75<span
+          >:</span
+        >
+        <span class="grd-demo__check grd-demo__check--ok">✓ cocok!</span>
+      </div>
+      <div class="grd-demo__body">→ print(&quot;Nilai B&quot;) <strong>dijalankan</strong></div>
+    </div>
+
+    <div class="grd-demo__lane grd-demo__lane--3">
+      <div class="grd-demo__head">
+        <span class="tok-p">else</span><span>:</span>
+        <span class="grd-demo__note">(tidak pernah dicek)</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="grd-demo__hint">
+  💡 Karena <code>elif</code> ke-2 sudah cocok, <code>else</code> tidak pernah dijalankan — hanya
+  <strong>satu</strong> cabang yang pernah berjalan. <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .grd-demo {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 22px 24px;
+    cursor: pointer;
+  }
+
+  .grd-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 16px 18px;
+    font-family: var(--font-code);
+    font-size: 15px;
+    color: var(--code-text);
+    margin-bottom: 16px;
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-eq {
+    color: var(--code-text);
+  }
+
+  .tok-num {
+    color: var(--code-orange);
+  }
+
+  .tok-p {
+    color: var(--code-purple);
+  }
+
+  .grd-demo__lanes {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .grd-demo__lane {
+    border-radius: 10px;
+    padding: 10px 14px;
+    background: var(--cloud);
+    opacity: 0.3;
+    transition: opacity 0.3s ease, background-color 0.3s ease;
+  }
+
+  .grd-demo__head {
+    font-family: var(--font-code);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ink);
+  }
+
+  .grd-demo__body {
+    font-family: var(--font-code);
+    font-size: 14px;
+    color: var(--pyto-green-dark);
+    margin-top: 6px;
+    padding-left: 18px;
+    opacity: 0;
+  }
+
+  .grd-demo__check {
+    margin-left: auto;
+    font-size: 13px;
+    opacity: 0;
+  }
+
+  .grd-demo__check--fail {
+    color: #b4791a;
+  }
+
+  .grd-demo__check--ok {
+    color: var(--pyto-green-dark);
+  }
+
+  .grd-demo__note {
+    color: var(--slate);
+    font-size: 13px;
+  }
+
+  /* Jalur 1: dicoba (operator berkedip), lalu gagal (meredup + silang) */
+  .grd-demo.is-in .grd-demo__op--1 {
+    animation: grd-demo-check-blink 0.35s ease 0s 2;
+  }
+
+  .grd-demo.is-in .grd-demo__lane--1 {
+    animation: grd-demo-fade-out 0.3s ease 0.8s forwards;
+  }
+
+  .grd-demo.is-in .grd-demo__check--fail {
+    animation: grd-demo-check-pop 0.3s ease 0.6s forwards;
+  }
+
+  /* Jalur 2: dicoba (operator berkedip), lalu berhasil (menyala + centang + isi) */
+  .grd-demo.is-in .grd-demo__op--2 {
+    animation: grd-demo-check-blink 0.35s ease 1.1s 2;
+  }
+
+  .grd-demo.is-in .grd-demo__lane--2 {
+    animation: grd-demo-success 0.4s ease 1.85s forwards;
+  }
+
+  .grd-demo.is-in .grd-demo__check--ok {
+    animation: grd-demo-check-pop 0.3s ease 1.7s forwards;
+  }
+
+  .grd-demo.is-in .grd-demo__lane--2 .grd-demo__body {
+    animation: grd-demo-body-in 0.4s ease 2.2s forwards;
+  }
+
+  /* Jalur 3: langsung meredup total, tidak pernah dicek */
+  .grd-demo.is-in .grd-demo__lane--3 {
+    animation: grd-demo-fade-more 0.3s ease 2.7s forwards;
+  }
+
+  @keyframes grd-demo-check-blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.3;
+    }
+  }
+
+  @keyframes grd-demo-fade-out {
+    to {
+      opacity: 0.18;
+    }
+  }
+
+  @keyframes grd-demo-fade-more {
+    to {
+      opacity: 0.18;
+    }
+  }
+
+  @keyframes grd-demo-success {
+    to {
+      opacity: 1;
+      background: rgba(47, 191, 113, 0.12);
+    }
+  }
+
+  @keyframes grd-demo-check-pop {
+    0% {
+      opacity: 0;
+      transform: scale(0.5);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes grd-demo-body-in {
+    0% {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .grd-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 12px 2px 0;
+    color: var(--slate);
+  }
+
+  .grd-demo__hint code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .grd-demo__op--1,
+    .grd-demo__op--2,
+    .grd-demo__lane--1,
+    .grd-demo__lane--2,
+    .grd-demo__lane--3,
+    .grd-demo__check--fail,
+    .grd-demo__check--ok,
+    .grd-demo__lane--2 .grd-demo__body {
+      animation: none !important;
+    }
+
+    .grd-demo__lane--1,
+    .grd-demo__lane--3 {
+      opacity: 0.18;
+    }
+
+    .grd-demo__lane--2 {
+      opacity: 1;
+      background: rgba(47, 191, 113, 0.12);
+    }
+
+    .grd-demo__check--fail,
+    .grd-demo__check--ok,
+    .grd-demo__lane--2 .grd-demo__body {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .grd-demo__head {
+      flex-wrap: wrap;
+    }
+
+    .grd-demo__check {
+      margin-left: 0;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="grd-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

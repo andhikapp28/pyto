@@ -1,0 +1,64 @@
+---
+// Animasi #7 (plan/bab-06-animasi.md) / lampu lalu lintas di kartu
+// "Main Yuk" (plan/design/bab-06-...dc.html). Tiga lampu menyala bergantian
+// terus-menerus (merah → kuning → hijau), analogi if/elif/else yang memilih
+// di antara lebih dari dua kemungkinan. Loop dekoratif terus-menerus (bukan
+// "sekali jalan"), dihormati via aturan prefers-reduced-motion global.
+---
+
+<div class="tl-demo" role="img" aria-label="Lampu lalu lintas menyala bergantian merah, kuning, hijau">
+  <span class="tl-demo__light tl-demo__light--red"></span>
+  <span class="tl-demo__light tl-demo__light--yellow"></span>
+  <span class="tl-demo__light tl-demo__light--green"></span>
+</div>
+
+<style>
+  .tl-demo {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 8px;
+    background: var(--ink);
+    border-radius: 14px;
+    padding: 12px 10px;
+    width: fit-content;
+  }
+
+  .tl-demo__light {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    animation: tl-demo-cycle 3.6s steps(1) infinite;
+  }
+
+  .tl-demo__light--red {
+    background: var(--coral);
+  }
+
+  .tl-demo__light--yellow {
+    background: var(--sunny-yellow);
+    animation-delay: 1.2s;
+  }
+
+  .tl-demo__light--green {
+    background: var(--pyto-green);
+    animation-delay: 2.4s;
+  }
+
+  @keyframes tl-demo-cycle {
+    0%,
+    30% {
+      opacity: 1;
+    }
+    33%,
+    100% {
+      opacity: 0.2;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tl-demo__light {
+      animation: none;
+      opacity: 1;
+    }
+  }
+</style>

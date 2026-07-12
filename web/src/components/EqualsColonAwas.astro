@@ -1,0 +1,206 @@
+---
+// Animasi #5 (plan/bab-06-animasi.md) / .awas (plan/design/bab-06-...dc.html):
+// dua jebakan umum pemula. (a) if umur = 17: — tanda = tunggal bergetar merah,
+// lalu tanda = kedua melayang masuk membentuk == yang bersinar hijau tenang.
+// (b) if umur >= 17 tanpa titik dua — baris bergetar merah, lalu titik dua
+// melayang masuk dan "mengklik" di ujung baris. Dipakai di dalam
+// <KotakAwas>. Sekali jalan saat terlihat, boleh diulang lewat hover/klik/fokus.
+---
+
+<div
+  class="eca-demo"
+  data-anim="eca-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi kesalahan tanda sama dengan dan titik dua yang terlupa"
+>
+  <div class="eca-demo__block">
+    <div class="eca-demo__line"><span class="tok-var">umur</span> = <span class="tok-num">17</span></div>
+    <div class="eca-demo__line">
+      <span class="tok-p">if</span> umur <span class="eca-demo__bad-eq">=</span><span
+        class="eca-demo__good-eq">=</span
+      >
+      <span class="tok-num">17</span>:
+      <span class="eca-demo__caption"
+        >← <span class="eca-demo__good-word">bandingkan</span>, bukan
+        <span class="eca-demo__bad-word">taruh nilai</span></span
+      >
+    </div>
+  </div>
+
+  <div class="eca-demo__block">
+    <div class="eca-demo__line">
+      <span class="tok-p">if</span> umur &gt;= <span class="tok-num">17</span><span
+        class="eca-demo__colon">:</span
+      >
+    </div>
+    <div class="eca-demo__line eca-demo__indent">
+      <span class="tok-fn">print</span>(<span class="tok-str">&quot;Sudah boleh bikin SIM&quot;</span>)
+    </div>
+  </div>
+</div>
+
+<style>
+  .eca-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    cursor: pointer;
+  }
+
+  .eca-demo__block {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 12px 16px;
+    font-family: var(--font-code);
+    font-size: 15px;
+    color: var(--code-text);
+  }
+
+  .eca-demo__line {
+    white-space: pre-wrap;
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-num {
+    color: var(--code-orange);
+  }
+
+  .tok-p {
+    color: var(--code-purple);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .eca-demo__indent {
+    padding-left: 18px;
+  }
+
+  .eca-demo__bad-eq {
+    color: var(--code-green);
+  }
+
+  .eca-demo.is-in .eca-demo__bad-eq {
+    animation: eca-demo-shake 0.4s ease 0.1s 1;
+    color: var(--coral);
+  }
+
+  .eca-demo__good-eq {
+    color: var(--code-green);
+    opacity: 0;
+  }
+
+  .eca-demo.is-in .eca-demo__good-eq {
+    animation: eca-demo-fade-up 0.4s ease 0.6s forwards;
+  }
+
+  .eca-demo__caption {
+    display: block;
+    margin-top: 4px;
+    color: var(--code-comment);
+    font-size: 12px;
+  }
+
+  .eca-demo__good-word {
+    color: var(--pyto-green-dark);
+  }
+
+  .eca-demo__bad-word {
+    color: var(--coral);
+  }
+
+  .eca-demo__colon {
+    display: inline-block;
+    color: var(--pyto-green-dark);
+    opacity: 0;
+  }
+
+  .eca-demo.is-in .eca-demo__colon {
+    animation: eca-demo-colon-click 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1.6s forwards;
+  }
+
+  @keyframes eca-demo-colon-click {
+    0% {
+      opacity: 0;
+      transform: translateX(-8px) scale(0.5);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+  }
+
+  .eca-demo.is-in .eca-demo__block:last-child {
+    animation: eca-demo-shake 0.4s ease 1.1s 1;
+  }
+
+  @keyframes eca-demo-shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-4px);
+    }
+    75% {
+      transform: translateX(4px);
+    }
+  }
+
+  @keyframes eca-demo-fade-up {
+    0% {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .eca-demo__bad-eq,
+    .eca-demo__good-eq,
+    .eca-demo__colon,
+    .eca-demo__block:last-child {
+      animation: none !important;
+    }
+
+    .eca-demo__bad-eq {
+      color: var(--coral);
+    }
+
+    .eca-demo__good-eq,
+    .eca-demo__colon {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .eca-demo__block {
+      font-size: 14px;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="eca-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>
