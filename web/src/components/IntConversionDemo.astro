@@ -517,7 +517,7 @@
 </style>
 
 <script>
-  import { observeOnce } from '../scripts/reveal-anim.js';
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
 
   const els = document.querySelectorAll('[data-anim="conv-demo"]');
 
@@ -525,19 +525,5 @@
     el.classList.add('is-in');
   });
 
-  els.forEach((el) => {
-    const replay = () => {
-      el.classList.remove('is-in');
-      void el.offsetWidth;
-      el.classList.add('is-in');
-    };
-    el.addEventListener('mouseenter', replay);
-    el.addEventListener('click', replay);
-    el.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        replay();
-      }
-    });
-  });
+  els.forEach((el) => wireReplay(el, 'is-in'));
 </script>

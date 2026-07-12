@@ -2,7 +2,7 @@
 // Animasi #6 (plan/bab-01-animasi.md) — ilustrasi menekan tombol Run: kursor
 // bergerak ke tombol, tombol tertekan, lalu hasil muncul. Ini murni ilustrasi
 // konsep (bukan editor sungguhan) — editor Pyodide asli ada di bagian
-// "Coba Sendiri" (lihat PracticeEditor.astro).
+// "Coba Sendiri" (lihat PyodideEditor.astro).
 import CodeBlock from './CodeBlock.astro';
 
 const CODE = `print("Halo, dunia!")`;
@@ -186,20 +186,17 @@ const RESULT = 'Halo, dunia!';
 </style>
 
 <script>
-  import { observeOnce } from '../scripts/reveal-anim.js';
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
 
   const demos = document.querySelectorAll('[data-anim="rundemo"]');
 
-  function replay(demo) {
-    demo.classList.remove('play');
-    // Paksa reflow supaya animasi CSS bisa diulang dari awal.
-    void demo.offsetWidth;
-    demo.classList.add('play');
-  }
-
-  observeOnce(demos, (demo) => replay(demo));
-
+  // Beda dari demo lain (fsx, str-trap, dst): rundemo cuma boleh diputar
+  // ulang lewat hover, bukan klik/keyboard — kartunya bukan elemen
+  // interaktif (tanpa tabindex/role="button").
+  const replays = new Map();
   demos.forEach((demo) => {
-    demo.addEventListener('mouseenter', () => replay(demo));
+    replays.set(demo, wireReplay(demo, 'play', { events: ['mouseenter'] }));
   });
+
+  observeOnce(demos, (demo) => replays.get(demo)?.());
 </script>

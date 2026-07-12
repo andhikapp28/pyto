@@ -1,60 +1,56 @@
 ---
-const chapters = [
-  {
-    title: 'Kenalan dengan Python',
-    desc: 'Apa itu ngoding, dan kenapa Python seru untuk dipelajari.',
-  },
-  {
-    title: 'Menampilkan Tulisan',
-    desc: 'Perintah print() dan cara komputer "berbicara".',
-  },
-  {
-    title: 'Menyimpan Data',
-    desc: 'Mengenal variabel, kotak ajaib penyimpan informasi.',
-  },
-  {
-    title: 'Angka & Berhitung',
-    desc: 'Menjadikan Python sebagai kalkulator super.',
-  },
-  {
-    title: 'Bertanya ke Pengguna',
-    desc: 'Perintah input() untuk membuat program interaktif.',
-  },
-  {
-    title: 'Pilihan & Perulangan',
-    desc: 'if dan for, membuat program berpikir dan mengulang.',
-  },
-];
+import { chapters, isChapterAvailable, AVAILABLE_CHAPTERS } from '../data/chapters.js';
+
+// Deskripsi singkat tiap bab untuk kartu di beranda. Judul & ketersediaan
+// datang dari data/chapters.js (sumber tunggal, dipakai juga oleh sidebar
+// ChapterLayout.astro) — di sini cuma nambah kalimat singkat per bab.
+const descriptions = {
+  1: 'Apa itu ngoding, dan kenapa Python seru untuk dipelajari.',
+  2: 'Perintah print() dan cara komputer "berbicara".',
+  3: 'Mengenal variabel, kotak ajaib penyimpan informasi.',
+  4: 'Perintah input() untuk membuat program interaktif.',
+  5: 'Menjadikan Python sebagai kalkulator super.',
+  6: 'if dan else, cara komputer mengambil keputusan.',
+  7: 'for dan while, menyuruh komputer mengulang tanpa capek.',
+  8: 'Daftar teman, daftar belanja — kumpulan data dalam satu kotak.',
+  9: 'Cara membaca pesan error tanpa panik, lalu memperbaikinya.',
+  10: '3 mini-project seru: Tebak Angka, Kuis, dan Kalkulator.',
+};
+
+const totalChapters = chapters.length;
+const availableCount = AVAILABLE_CHAPTERS.length;
 ---
 
 <section class="chapters" id="bab">
   <div class="container">
     <div class="section-head">
       <h2>Mulai Petualanganmu</h2>
-      <p>Enam langkah pertama untuk kenalan sama Python. Satu konsep tiap bab, pelan-pelan saja.</p>
+      <p>
+        {totalChapters} bab dari nol sampai bisa, {availableCount} bab pertama sudah bisa dicoba
+        sekarang. Satu konsep tiap bab, pelan-pelan saja.
+      </p>
     </div>
 
     <ol class="chapters__list">
       {
-        chapters.map((chapter, index) => {
-          const number = index + 1;
-          const isFirst = index === 0;
-          const Tag = isFirst ? 'a' : 'div';
+        chapters.map((chapter) => {
+          const available = isChapterAvailable(chapter.number);
+          const Tag = available ? 'a' : 'div';
           return (
             <li>
               <Tag
-                id={isFirst ? 'bab-1' : undefined}
-                href={isFirst ? `${import.meta.env.BASE_URL}/bab/1/` : undefined}
-                class={`chapter-card ${isFirst ? 'chapter-card--active' : ''}`}
+                id={available ? `bab-${chapter.number}` : undefined}
+                href={available ? `${import.meta.env.BASE_URL}/bab/${chapter.number}/` : undefined}
+                class={`chapter-card ${available ? 'chapter-card--active' : ''}`}
                 data-reveal
               >
-                <span class="chapter-card__number">{number}</span>
+                <span class="chapter-card__number">{chapter.number}</span>
                 <span class="chapter-card__body">
                   <span class="chapter-card__title">{chapter.title}</span>
-                  <span class="chapter-card__desc">{chapter.desc}</span>
+                  <span class="chapter-card__desc">{descriptions[chapter.number]}</span>
                 </span>
                 <span class="chapter-card__tag">
-                  {isFirst ? 'Mulai di sini →' : 'Segera'}
+                  {available ? 'Mulai di sini →' : 'Segera'}
                 </span>
               </Tag>
             </li>

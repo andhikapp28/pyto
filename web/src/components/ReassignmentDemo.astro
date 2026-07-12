@@ -288,7 +288,7 @@ const { varName = 'umur', oldValue = '10', newValue = '11' } = Astro.props;
 </style>
 
 <script>
-  import { observeOnce } from '../scripts/reveal-anim.js';
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
 
   const els = document.querySelectorAll('[data-anim="reassign"]');
 
@@ -297,20 +297,5 @@ const { varName = 'umur', oldValue = '10', newValue = '11' } = Astro.props;
   });
 
   // Boleh diulang: hover/klik/fokus keyboard memutar ulang animasinya.
-  els.forEach((el) => {
-    const replay = () => {
-      el.classList.remove('is-in');
-      // eslint-disable-next-line no-unused-expressions
-      void el.offsetWidth; // paksa reflow supaya animasi bisa diulang
-      el.classList.add('is-in');
-    };
-    el.addEventListener('mouseenter', replay);
-    el.addEventListener('click', replay);
-    el.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        replay();
-      }
-    });
-  });
+  els.forEach((el) => wireReplay(el, 'is-in'));
 </script>

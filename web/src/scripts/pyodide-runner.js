@@ -1,6 +1,6 @@
 // Logika bersama untuk memuat & menjalankan Pyodide (Python asli di
 // browser). Diekstrak dari EditorSection.astro supaya bisa dipakai ulang
-// oleh editor latihan di halaman bab (PracticeEditor.astro) tanpa duplikasi.
+// oleh editor latihan di halaman bab (PyodideEditor.astro) tanpa duplikasi.
 const PYODIDE_VERSION = '0.26.4';
 const PYODIDE_CDN = `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`;
 

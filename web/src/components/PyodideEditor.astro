@@ -1,0 +1,578 @@
+---
+// Editor Pyodide bersama, dipakai di semua "Coba Sendiri" tiap bab.
+// Konsolidasi dari 3 komponen yang dulu 80%+ identik:
+// - PracticeEditor.astro (Bab 1/2: tanpa input(), satu kotak hasil)
+// - InteractivePracticeEditor.astro (Bab 4: satu input())
+// - CalculatorPracticeEditor.astro (Bab 5: dua input())
+// Bedanya cuma starter code, label, dan (untuk mode interaktif) label
+// console/placeholder — logika Pyodide-nya sama persis, jadi sekarang satu
+// komponen dengan prop `mode` yang menentukan tampilan hasil:
+// - mode="simple": kotak hasil tunggal, jalankan lewat runPython() (tanpa
+//   dukungan input() sungguhan). Dipakai Bab 1/2.
+// - mode="interactive" (default): console yang tumbuh baris demi baris,
+//   jalankan lewat runPythonInteractive() sehingga input() pembaca benar-benar
+//   berhenti menunggu jawaban lewat kotak isian di console. Dipakai Bab 4/5,
+//   mendukung berapa pun panggilan input() di starter code (tidak hardcode
+//   jumlahnya).
+// Konfeti meletus sekali, persis seperti versi lama, saat kode yang
+// dijalankan pembaca betul-betul mencetak sesuatu.
+interface Props {
+  mode?: 'simple' | 'interactive';
+  idPrefix?: string;
+  title: string;
+  runLabel?: string;
+  resetLabel?: string;
+  starterCode: string;
+  rows?: number;
+  minHeight?: number;
+  codeAriaLabel: string;
+  consoleLabel?: string;
+  placeholderText?: string;
+  resultLabel?: string;
+  notes?: string[];
+}
+
+const {
+  mode = 'interactive',
+  idPrefix = 'pyoed',
+  title,
+  runLabel = '▶ Jalankan',
+  resetLabel = '↺ Reset',
+  starterCode,
+  rows = 4,
+  minHeight = 120,
+  codeAriaLabel,
+  consoleLabel = 'Console:',
+  placeholderText = `Klik ${runLabel} untuk menjalankan kode di atas.`,
+  resultLabel = 'Hasil:',
+  notes = [],
+} = Astro.props;
+
+const isInteractive = mode === 'interactive';
+---
+
+<div class="pyoed-wrap" data-mode={mode} data-id-prefix={idPrefix}>
+  <div class="pyoed card">
+    <div class="pyoed__header">
+      <span class="pyoed__title">{title}</span>
+      <div class="pyoed__buttons">
+        <button type="button" class="btn btn-secondary pyoed__reset" id={`${idPrefix}-reset`}>
+          {resetLabel}
+        </button>
+        <button type="button" class="btn btn-primary pyoed__run" id={`${idPrefix}-run`}>
+          {runLabel}
+        </button>
+      </div>
+    </div>
+
+    <textarea
+      id={`${idPrefix}-code`}
+      class="pyoed__code"
+      style={`min-height: ${minHeight}px;`}
+      spellcheck="false"
+      autocomplete="off"
+      autocapitalize="off"
+      rows={rows}
+      aria-label={codeAriaLabel}>{starterCode}</textarea
+    >
+
+    {
+      isInteractive ? (
+        <div class="pyoed__console">
+          <div class="pyoed__console-label">{consoleLabel}</div>
+          <div class="pyoed__console-body" id={`${idPrefix}-console-body`} aria-live="polite">
+            <div class="pyoed__placeholder" id={`${idPrefix}-placeholder`}>
+              {placeholderText}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div class="pyoed__result" id={`${idPrefix}-result`}>
+          <span class="pyoed__result-label" id={`${idPrefix}-result-label`}>
+            {resultLabel}
+          </span>
+          <pre class="pyoed__result-body" id={`${idPrefix}-result-body`}>{placeholderText}</pre>
+        </div>
+      )
+    }
+  </div>
+
+  <div class="pyoed__confetti" id={`${idPrefix}-confetti`} aria-hidden="true"></div>
+</div>
+
+{notes.map((note) => <p class="pyoed__note" set:html={note} />)}
+
+<style>
+  .pyoed-wrap {
+    position: relative;
+  }
+
+  .pyoed {
+    overflow: hidden;
+  }
+
+  .pyoed__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 16px 20px;
+    background: var(--cloud);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .pyoed__title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 16px;
+  }
+
+  .pyoed__buttons {
+    display: flex;
+    gap: 10px;
+  }
+
+  .pyoed__buttons .btn {
+    padding: 10px 18px;
+    font-size: 14px;
+    min-height: 40px;
+  }
+
+  .pyoed__code {
+    display: block;
+    width: 100%;
+    resize: vertical;
+    border: none;
+    outline: none;
+    background: var(--code-bg);
+    color: var(--code-text);
+    font-family: var(--font-code);
+    font-size: 15px;
+    line-height: 1.7;
+    padding: 20px;
+    tab-size: 4;
+  }
+
+  /* ---- mode simple: kotak hasil tunggal ---- */
+  .pyoed__result {
+    padding: 18px 20px 22px;
+    background: var(--white);
+    transition: background-color 0.2s ease;
+  }
+
+  .pyoed__result.is-error {
+    background: var(--box-awas-bg);
+  }
+
+  .pyoed__result-label {
+    display: block;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--slate);
+    margin-bottom: 8px;
+  }
+
+  .pyoed__result.is-error .pyoed__result-label {
+    color: var(--coral);
+  }
+
+  .pyoed__result-body {
+    margin: 0;
+    font-family: var(--font-code);
+    font-size: 15px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--ink);
+  }
+
+  .pyoed__result.is-error .pyoed__result-body {
+    color: #b3392f;
+  }
+
+  /* ---- mode interactive: console yang tumbuh ---- */
+  .pyoed__console {
+    padding: 16px 20px 20px;
+    background: var(--console-bg);
+  }
+
+  .pyoed__console-label {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: var(--code-comment);
+    margin-bottom: 8px;
+  }
+
+  .pyoed__console-body {
+    font-family: var(--font-code);
+    font-size: 15px;
+    color: var(--code-text);
+    line-height: 1.9;
+    min-height: 90px;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+
+  .pyoed__placeholder {
+    color: var(--code-comment);
+  }
+
+  .pyoed__console-body :global(.pyoed__line) {
+    margin: 2px 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .pyoed__console-body :global(.pyoed__line--loading) {
+    color: var(--sunny-yellow);
+    font-weight: 700;
+  }
+
+  .pyoed__console-body :global(.pyoed__final) {
+    margin-top: 4px;
+    color: var(--code-green);
+    font-weight: 800;
+  }
+
+  .pyoed__console-body :global(.pyoed__error) {
+    margin: 4px 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--code-error-bg);
+    border: 1px solid var(--code-error-border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    color: var(--code-error-text);
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  .pyoed__console-body :global(.pyoed__answer) {
+    color: var(--code-green);
+    font-weight: 700;
+  }
+
+  .pyoed__console-body :global(.pyoed__input-row) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 4px 0;
+  }
+
+  .pyoed__console-body :global(.pyoed__input) {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 6px;
+    color: var(--code-green);
+    font-family: var(--font-code);
+    font-size: 15px;
+    padding: 5px 9px;
+    outline: none;
+    min-width: 120px;
+  }
+
+  .pyoed__console-body :global(.pyoed__input:focus) {
+    border-color: var(--pyto-green);
+  }
+
+  .pyoed__console-body :global(.pyoed__submit) {
+    padding: 6px 13px;
+    border-radius: 8px;
+    background: var(--pyto-green);
+    color: #fff;
+    font-weight: 800;
+    font-size: 12px;
+    border: none;
+    cursor: pointer;
+  }
+
+  .pyoed__console-body :global(.pyoed__submit:hover) {
+    background: var(--pyto-green-dark);
+  }
+
+  .pyoed__run:disabled,
+  .pyoed__reset:disabled {
+    opacity: 0.6;
+    cursor: wait;
+    transform: none;
+  }
+
+  .pyoed__confetti {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .pyoed__note {
+    margin-top: 16px;
+    color: var(--slate);
+  }
+
+  .pyoed__note :global(code) {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (max-width: 600px) {
+    .pyoed__header {
+      justify-content: center;
+      text-align: center;
+    }
+
+    .pyoed__code {
+      font-size: 14px;
+    }
+  }
+</style>
+
+<script>
+  import {
+    LOADING_MESSAGE,
+    isFirstPyodideLoad,
+    runPython,
+    runPythonInteractive,
+    friendlyError,
+  } from '../scripts/pyodide-runner.js';
+  import { launchConfetti } from '../scripts/confetti.js';
+
+  document.querySelectorAll('.pyoed-wrap').forEach((wrap) => {
+    const idPrefix = wrap.dataset.idPrefix;
+    const mode = wrap.dataset.mode;
+    if (!idPrefix || wrap.dataset.pyoedWired) return;
+    wrap.dataset.pyoedWired = 'true';
+
+    const codeEl = document.getElementById(`${idPrefix}-code`);
+    const runBtn = document.getElementById(`${idPrefix}-run`);
+    const resetBtn = document.getElementById(`${idPrefix}-reset`);
+    const confettiEl = document.getElementById(`${idPrefix}-confetti`);
+
+    const STARTER_CODE = codeEl ? codeEl.value : '';
+    let confettiFired = false;
+
+    if (mode === 'interactive') {
+      const consoleBody = document.getElementById(`${idPrefix}-console-body`);
+      const PLACEHOLDER_TEXT =
+        document.getElementById(`${idPrefix}-placeholder`)?.textContent ?? '';
+      let hasOutput = false;
+
+      const scrollToEnd = () => {
+        if (consoleBody) consoleBody.scrollTop = consoleBody.scrollHeight;
+      };
+
+      const clearPlaceholder = () => {
+        const placeholder = consoleBody?.querySelector(`#${idPrefix}-placeholder`);
+        if (placeholder) placeholder.remove();
+      };
+
+      const resetConsole = () => {
+        if (!consoleBody) return;
+        consoleBody.innerHTML = '';
+        const placeholder = document.createElement('div');
+        placeholder.className = 'pyoed__placeholder';
+        placeholder.id = `${idPrefix}-placeholder`;
+        placeholder.textContent = PLACEHOLDER_TEXT;
+        consoleBody.appendChild(placeholder);
+      };
+
+      const appendOutputLine = (text) => {
+        if (!consoleBody) return;
+        clearPlaceholder();
+        const line = document.createElement('div');
+        line.className = 'pyoed__line';
+        line.textContent = text;
+        consoleBody.appendChild(line);
+        scrollToEnd();
+        hasOutput = true;
+      };
+
+      const appendErrorLine = (message) => {
+        if (!consoleBody) return;
+        clearPlaceholder();
+        const line = document.createElement('div');
+        line.className = 'pyoed__error';
+        line.textContent = `💥 ${message}`;
+        consoleBody.appendChild(line);
+        scrollToEnd();
+      };
+
+      const appendFinalLine = () => {
+        if (!consoleBody) return;
+        clearPlaceholder();
+        const line = document.createElement('div');
+        line.className = 'pyoed__final';
+        line.textContent = '✅ Program selesai dijalankan.';
+        consoleBody.appendChild(line);
+        scrollToEnd();
+      };
+
+      const requestInput = (promptText) =>
+        new Promise((resolve) => {
+          if (!consoleBody) {
+            resolve('');
+            return;
+          }
+          clearPlaceholder();
+
+          const row = document.createElement('div');
+          row.className = 'pyoed__input-row';
+
+          const promptSpan = document.createElement('span');
+          promptSpan.textContent = promptText;
+
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.className = 'pyoed__input';
+          input.setAttribute('aria-label', promptText || 'Jawaban');
+
+          const submitBtn = document.createElement('button');
+          submitBtn.type = 'button';
+          submitBtn.className = 'pyoed__submit';
+          submitBtn.textContent = 'Kirim ⏎';
+
+          row.append(promptSpan, input, submitBtn);
+          consoleBody.appendChild(row);
+          scrollToEnd();
+          input.focus();
+
+          let done = false;
+          const submit = () => {
+            if (done) return;
+            done = true;
+            const value = input.value;
+
+            const doneLine = document.createElement('div');
+            doneLine.className = 'pyoed__line';
+            doneLine.append(document.createTextNode(promptText));
+            const answerSpan = document.createElement('span');
+            answerSpan.className = 'pyoed__answer';
+            answerSpan.textContent = value;
+            doneLine.append(answerSpan);
+
+            row.replaceWith(doneLine);
+            scrollToEnd();
+            resolve(value);
+          };
+
+          submitBtn.addEventListener('click', submit);
+          input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              submit();
+            }
+          });
+        });
+
+      async function run() {
+        if (!codeEl || !runBtn) return;
+        const code = codeEl.value;
+
+        runBtn.disabled = true;
+        if (resetBtn) resetBtn.disabled = true;
+        hasOutput = false;
+        resetConsole();
+        clearPlaceholder();
+
+        let loadingLine = null;
+        if (isFirstPyodideLoad()) {
+          loadingLine = document.createElement('div');
+          loadingLine.className = 'pyoed__line pyoed__line--loading';
+          loadingLine.textContent = LOADING_MESSAGE;
+          consoleBody?.appendChild(loadingLine);
+        }
+
+        const clearLoading = () => {
+          if (loadingLine) {
+            loadingLine.remove();
+            loadingLine = null;
+          }
+        };
+
+        try {
+          await runPythonInteractive(code, {
+            onOutput: (text) => {
+              clearLoading();
+              appendOutputLine(text);
+            },
+            onInputRequest: (promptText) => {
+              clearLoading();
+              clearPlaceholder();
+              return requestInput(promptText);
+            },
+          });
+          clearLoading();
+          appendFinalLine();
+
+          if (!confettiFired && hasOutput) {
+            confettiFired = true;
+            launchConfetti(confettiEl);
+          }
+        } catch (err) {
+          clearLoading();
+          appendErrorLine(friendlyError(err));
+        } finally {
+          runBtn.disabled = false;
+          if (resetBtn) resetBtn.disabled = false;
+        }
+      }
+
+      runBtn?.addEventListener('click', run);
+
+      resetBtn?.addEventListener('click', () => {
+        if (!codeEl) return;
+        codeEl.value = STARTER_CODE;
+        resetConsole();
+      });
+    } else {
+      const resultWrap = document.getElementById(`${idPrefix}-result`);
+      const resultLabel = document.getElementById(`${idPrefix}-result-label`);
+      const resultBody = document.getElementById(`${idPrefix}-result-body`);
+      const placeholderText = resultBody?.textContent ?? '';
+
+      const showResult = (text, isError) => {
+        if (!resultWrap || !resultBody || !resultLabel) return;
+        resultWrap.classList.toggle('is-error', isError);
+        resultLabel.textContent = isError ? '⚠️ Oops! Ada yang perlu diperbaiki:' : 'Hasil:';
+        resultBody.textContent = text || '(Tidak ada tulisan yang ditampilkan)';
+      };
+
+      runBtn?.addEventListener('click', async () => {
+        if (!codeEl || !runBtn) return;
+        const code = codeEl.value;
+
+        runBtn.disabled = true;
+        if (isFirstPyodideLoad()) {
+          showResult(LOADING_MESSAGE, false);
+        } else {
+          showResult('Menjalankan...', false);
+        }
+
+        try {
+          const output = await runPython(code);
+          showResult(output, false);
+
+          if (!confettiFired && output.trim().length > 0) {
+            confettiFired = true;
+            launchConfetti(confettiEl);
+          }
+        } catch (err) {
+          showResult(friendlyError(err), true);
+        } finally {
+          runBtn.disabled = false;
+        }
+      });
+
+      resetBtn?.addEventListener('click', () => {
+        if (!codeEl) return;
+        codeEl.value = STARTER_CODE;
+        showResult(placeholderText, false);
+      });
+    }
+  });
+</script>

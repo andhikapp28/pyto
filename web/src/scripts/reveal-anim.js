@@ -28,3 +28,33 @@ export function observeOnce(elements, activate, { threshold = 0.3 } = {}) {
 
   els.forEach((el) => observer.observe(el));
 }
+
+// Util kecil dipakai oleh animasi "boleh diulang lewat hover/klik/keyboard"
+// di kartu-kartu demo (FStringLinkDemo, InputFlowDemo, ReassignmentDemo,
+// dst). Melepas lalu memasang ulang `activeClass` (dengan paksa reflow di
+// antaranya) supaya animasi CSS-nya bisa diputar ulang dari awal — dipicu
+// lewat mouseenter/click/keydown (Enter/Space) secara default. Kembalikan
+// fungsi replay-nya supaya bisa dipakai ulang juga sebagai handler
+// "aktifkan pertama kali" (lihat RunDemo.astro).
+export function wireReplay(el, activeClass, { events = ['mouseenter', 'click', 'keydown'] } = {}) {
+  const replay = () => {
+    el.classList.remove(activeClass);
+    void el.offsetWidth; // paksa reflow supaya animasi bisa diulang
+    el.classList.add(activeClass);
+  };
+
+  events.forEach((eventName) => {
+    if (eventName === 'keydown') {
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          replay();
+        }
+      });
+    } else {
+      el.addEventListener(eventName, replay);
+    }
+  });
+
+  return replay;
+}
