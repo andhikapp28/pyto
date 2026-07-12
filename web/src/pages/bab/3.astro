@@ -177,62 +177,7 @@ const glossaryTerms = [
   <ChapterFooterNav
     prevHref={`${base}/bab/2/`}
     prevLabel="← Bab 2: Menyapa Dunia (print)"
+    nextHref={`${base}/bab/4/`}
     nextLabel="Bab 4: Ngobrol dengan Komputer (input)"
-    nextDisabled
   />
 </ChapterLayout>
-
-<style>
-  .pyto-quote-box {
-    background: var(--pyto-green-soft);
-    border-radius: var(--radius-card);
-    padding: 32px;
-    display: flex;
-    align-items: center;
-    gap: 24px;
-  }
-
-  .pyto-quote-box__mascot {
-    font-size: 64px;
-    flex-shrink: 0;
-  }
-
-  .pyto-quote-box__text {
-    font-family: var(--font-heading);
-    font-size: 19px;
-    font-weight: 600;
-    color: var(--pyto-green-dark);
-    line-height: 1.5;
-    margin: 0;
-  }
-
-  .chapter-media {
-    margin: 8px 0;
-  }
-
-  .jawaban {
-    margin-top: 8px;
-  }
-
-  .jawaban summary {
-    cursor: pointer;
-    font-weight: 700;
-    color: var(--pyto-green-dark);
-  }
-
-  .jawaban[open] summary {
-    margin-bottom: 8px;
-  }
-
-  .jawaban p {
-    margin: 0;
-  }
-
-  @media (max-width: 600px) {
-    .pyto-quote-box {
-      flex-direction: column;
-      text-align: center;
-      padding: 24px;
-    }
-  }
-</style>

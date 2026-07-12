@@ -11,7 +11,7 @@ import IntFloatCompareDemo from '../../components/IntFloatCompareDemo.astro';
 import IntValueErrorTeaser from '../../components/IntValueErrorTeaser.astro';
 import KotakMainYuk from '../../components/KotakMainYuk.astro';
 import KotakTahuLebih from '../../components/KotakTahuLebih.astro';
-import CalculatorPracticeEditor from '../../components/CalculatorPracticeEditor.astro';
+import PyodideEditor from '../../components/PyodideEditor.astro';
 import CodeBlock from '../../components/CodeBlock.astro';
 import RangkumanList from '../../components/RangkumanList.astro';
 import Glossary from '../../components/Glossary.astro';
@@ -124,7 +124,28 @@ const glossaryTerms = [
       Ini <strong>Python asli</strong> yang jalan di browser-mu. Klik <strong>▶ Jalankan</strong>, lalu ketik
       dua angka saat diminta:
     </p>
-    <CalculatorPracticeEditor />
+    <PyodideEditor
+      mode="interactive"
+      idPrefix="cpe"
+      title="🐍 kalkulator.py"
+      runLabel="▶ Jalankan"
+      codeAriaLabel="Kotak kode kalkulator"
+      consoleLabel="Output:"
+      minHeight={150}
+      rows={6}
+      starterCode={`angka1 = input("Masukkan angka pertama: ")
+angka2 = input("Masukkan angka kedua: ")
+
+angka1 = int(angka1)
+angka2 = int(angka2)
+
+print("Hasil jumlahnya:", angka1 + angka2)
+`}
+      notes={[
+        '📌 Saat kode sampai di <code>input()</code>, akan muncul kotak isian kecil di console — isi lalu tekan Enter atau klik <strong>Kirim</strong>.',
+        '✏️ Ganti <code>int()</code> jadi <code>float()</code> kalau mau coba angka desimal!',
+      ]}
+    />
   </section>
 
   <section data-reveal>
@@ -146,29 +167,6 @@ const glossaryTerms = [
 </ChapterLayout>
 
 <style>
-  .pyto-quote-box {
-    background: var(--pyto-green-soft);
-    border-radius: var(--radius-card);
-    padding: 32px;
-    display: flex;
-    align-items: center;
-    gap: 24px;
-  }
-
-  .pyto-quote-box__mascot {
-    font-size: 64px;
-    flex-shrink: 0;
-  }
-
-  .pyto-quote-box__text {
-    font-family: var(--font-heading);
-    font-size: 19px;
-    font-weight: 600;
-    color: var(--pyto-green-dark);
-    line-height: 1.5;
-    margin: 0;
-  }
-
   .pyto-quote-box__text :global(code) {
     color: var(--pyto-green-dark);
     background: rgba(255, 255, 255, 0.55);
@@ -176,37 +174,7 @@ const glossaryTerms = [
     padding: 1px 6px;
   }
 
-  .chapter-media {
-    margin: 8px 0;
-  }
-
-  .jawaban {
-    margin-top: 8px;
-  }
-
-  .jawaban summary {
-    cursor: pointer;
-    font-weight: 700;
-    color: var(--pyto-green-dark);
-  }
-
-  .jawaban[open] summary {
-    margin-bottom: 8px;
-  }
-
-  .jawaban p {
-    margin: 0;
-  }
-
   .tahu-lebih-caption {
     margin-top: 12px;
-  }
-
-  @media (max-width: 600px) {
-    .pyto-quote-box {
-      flex-direction: column;
-      text-align: center;
-      padding: 24px;
-    }
   }
 </style>

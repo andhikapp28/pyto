@@ -11,7 +11,7 @@ import CodeBlock from '../../components/CodeBlock.astro';
 import RunDemo from '../../components/RunDemo.astro';
 import KotakTahuLebih from '../../components/KotakTahuLebih.astro';
 import InterpreterScan from '../../components/InterpreterScan.astro';
-import PracticeEditor from '../../components/PracticeEditor.astro';
+import PyodideEditor from '../../components/PyodideEditor.astro';
 import RangkumanList from '../../components/RangkumanList.astro';
 import Glossary from '../../components/Glossary.astro';
 import ChapterFooterNav from '../../components/ChapterFooterNav.astro';
@@ -138,7 +138,21 @@ const glossaryTerms = [
   <section data-reveal>
     <h2>Coba Sendiri Yuk (Latihan Pertamamu!)</h2>
     <p>Buka editor Python (lewat internet), lalu ketik persis seperti ini dan tekan <strong>Run</strong>:</p>
-    <PracticeEditor />
+    <PyodideEditor
+      mode="simple"
+      idPrefix="practice"
+      title="🐍 Editor Python"
+      runLabel="▶ Jalankan"
+      codeAriaLabel="Kotak kode latihan pertama"
+      placeholderText="Klik ▶ Jalankan untuk melihat hasilnya di sini."
+      starterCode={`print("Namaku adalah ...")
+print("Aku berumur ... tahun")
+print("Dan aku sedang belajar Python!")
+`}
+      notes={[
+        'Ganti bagian titik-titik dengan namamu dan umurmu, lalu klik <strong>▶ Jalankan</strong>. Kalau tulisanmu muncul di layar — <strong>selamat, kamu baru saja ngoding untuk pertama kali!</strong> 🎉',
+      ]}
+    />
   </section>
 
   <section data-reveal>
@@ -158,58 +172,3 @@ const glossaryTerms = [
     nextLabel="Bab 2: Menyapa Dunia (print)"
   />
 </ChapterLayout>
-
-<style>
-  .pyto-quote-box {
-    background: var(--pyto-green-soft);
-    border-radius: var(--radius-card);
-    padding: 32px;
-    display: flex;
-    align-items: center;
-    gap: 24px;
-  }
-
-  .pyto-quote-box__mascot {
-    font-size: 64px;
-    flex-shrink: 0;
-  }
-
-  .pyto-quote-box__text {
-    font-family: var(--font-heading);
-    font-size: 19px;
-    font-weight: 600;
-    color: var(--pyto-green-dark);
-    line-height: 1.5;
-    margin: 0;
-  }
-
-  .chapter-media {
-    margin: 8px 0;
-  }
-
-  .jawaban {
-    margin-top: 8px;
-  }
-
-  .jawaban summary {
-    cursor: pointer;
-    font-weight: 700;
-    color: var(--pyto-green-dark);
-  }
-
-  .jawaban[open] summary {
-    margin-bottom: 8px;
-  }
-
-  .jawaban p {
-    margin: 0;
-  }
-
-  @media (max-width: 600px) {
-    .pyto-quote-box {
-      flex-direction: column;
-      text-align: center;
-      padding: 24px;
-    }
-  }
-</style>
