@@ -1,0 +1,196 @@
+---
+// Animasi #3 (plan/bab-05-animasi.md) / .opx (plan/design/bab-05-...dc.html):
+// empat operator dasar beraksi satu per satu — lambang berdenyut lalu
+// hasilnya muncul, bergantian dari kiri ke kanan. Titik desimal pada hasil
+// pembagian berkedip untuk menegaskan bahwa "/" selalu menghasilkan angka
+// desimal. Jalan sekali saat terlihat (tidak ada replay, sesuai spesifikasi).
+const columns = [
+  { symbol: '+', kind: 'plus', result: '9' },
+  { symbol: '−', kind: 'minus', result: '3' },
+  { symbol: '×', kind: 'times', result: '18' },
+  { symbol: '÷', kind: 'div', result: '2', decimal: '.0' },
+];
+---
+
+<div class="opx-demo" data-anim="opx-demo">
+  <div class="opx-demo__grid">
+    {
+      columns.map((col, i) => (
+        <div class={`opx-demo__col opx-demo__col--${i + 1}`}>
+          <div class="opx-demo__expr">
+            6 <span class={`opx-demo__badge opx-demo__badge--${col.kind}`}>{col.symbol}</span> 3
+          </div>
+          <div class="opx-demo__result">
+            {col.result}
+            {col.decimal && <span class="opx-demo__dec">{col.decimal}</span>}
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<p class="opx-demo__hint">
+  💡 Perhatikan <code>/</code> (bagi): hasilnya <strong>selalu desimal</strong> di Python, walau angkanya
+  habis dibagi.
+</p>
+
+<style>
+  .opx-demo__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  .opx-demo__col {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 10px;
+    text-align: center;
+  }
+
+  .opx-demo__expr {
+    font-family: var(--font-code);
+    font-size: 14px;
+    color: var(--slate);
+    margin-bottom: 10px;
+  }
+
+  .opx-demo__badge {
+    display: inline-block;
+    font-weight: 800;
+  }
+
+  .opx-demo__badge--plus {
+    color: var(--pyto-green-dark);
+  }
+
+  .opx-demo__badge--minus {
+    color: var(--code-red);
+  }
+
+  .opx-demo__badge--times {
+    color: var(--sky-blue);
+  }
+
+  .opx-demo__badge--div {
+    color: var(--grape);
+  }
+
+  .opx-demo__result {
+    font-family: var(--font-code);
+    font-weight: 800;
+    font-size: 24px;
+    color: var(--ink);
+    opacity: 0;
+  }
+
+  .opx-demo.is-in .opx-demo__col--1 .opx-demo__badge {
+    animation: opx-demo-pulse 0.5s ease 0s 1;
+  }
+
+  .opx-demo.is-in .opx-demo__col--1 .opx-demo__result {
+    animation: opx-demo-result-in 0.5s ease 0.25s forwards;
+  }
+
+  .opx-demo.is-in .opx-demo__col--2 .opx-demo__badge {
+    animation: opx-demo-pulse 0.5s ease 0.8s 1;
+  }
+
+  .opx-demo.is-in .opx-demo__col--2 .opx-demo__result {
+    animation: opx-demo-result-in 0.5s ease 1.05s forwards;
+  }
+
+  .opx-demo.is-in .opx-demo__col--3 .opx-demo__badge {
+    animation: opx-demo-pulse 0.5s ease 1.6s 1;
+  }
+
+  .opx-demo.is-in .opx-demo__col--3 .opx-demo__result {
+    animation: opx-demo-result-in 0.5s ease 1.85s forwards;
+  }
+
+  .opx-demo.is-in .opx-demo__col--4 .opx-demo__badge {
+    animation: opx-demo-pulse 0.5s ease 2.4s 1;
+  }
+
+  .opx-demo.is-in .opx-demo__col--4 .opx-demo__result {
+    animation: opx-demo-result-in 0.5s ease 2.65s forwards;
+  }
+
+  .opx-demo.is-in .opx-demo__dec {
+    animation: opx-demo-dec-blink 0.5s ease 3.1s 3;
+  }
+
+  @keyframes opx-demo-pulse {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.5);
+    }
+  }
+
+  @keyframes opx-demo-result-in {
+    0% {
+      opacity: 0;
+      transform: translateY(8px) scale(0.85);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes opx-demo-dec-blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.15;
+    }
+  }
+
+  .opx-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 12px 2px 0;
+    color: var(--slate);
+  }
+
+  .opx-demo__hint code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .opx-demo__badge,
+    .opx-demo__result,
+    .opx-demo__dec {
+      animation: none !important;
+    }
+
+    .opx-demo__result {
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .opx-demo__grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="opx-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+</script>

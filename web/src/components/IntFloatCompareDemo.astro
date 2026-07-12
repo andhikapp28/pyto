@@ -1,0 +1,312 @@
+---
+// Animasi #4 (plan/bab-05-animasi.md) / .cvt (plan/design/bab-05-...dc.html):
+// int() vs float() — tiga kolom berurutan. (a) float() langsung berhasil
+// membaca teks berkoma. (b) int() langsung pada teks berkoma DITOLAK
+// (ValueError). (c) int() pada nilai float yang sudah jadi angka memotong
+// bagian desimalnya. Sekali jalan saat terlihat, boleh diulang lewat
+// hover/klik/fokus.
+---
+
+<div
+  class="cvt-demo"
+  data-anim="cvt-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi perbandingan int() dan float()"
+>
+  <div class="cvt-demo__grid">
+    <div class="cvt-demo__col">
+      <div class="cvt-demo__stage">
+        <div class="cvt-demo__before" aria-hidden="true">
+          <span class="cvt-demo__chip-str">&quot;15000.5&quot;</span>
+        </div>
+        <div class="cvt-demo__after cvt-demo__after--a" aria-hidden="true">
+          <span class="cvt-demo__chip-num">15000.5</span>
+          <span class="cvt-demo__check">✓</span>
+        </div>
+      </div>
+      <div class="cvt-demo__label"><code>float(</code>harga<code>)</code></div>
+    </div>
+
+    <div class="cvt-demo__col cvt-demo__col--b">
+      <div class="cvt-demo__stage">
+        <div class="cvt-demo__before" aria-hidden="true">
+          <span class="cvt-demo__chip-str">&quot;15000.5&quot;</span>
+        </div>
+        <div class="cvt-demo__after cvt-demo__after--b" aria-hidden="true">
+          <span class="cvt-demo__chip-str cvt-demo__chip-str--faded">&quot;15000.5&quot;</span>
+          <span class="cvt-demo__error">💥 ValueError</span>
+        </div>
+      </div>
+      <div class="cvt-demo__label"><code>int(</code>harga<code>)</code> ✗ ditolak</div>
+    </div>
+
+    <div class="cvt-demo__col cvt-demo__col--c">
+      <div class="cvt-demo__stage">
+        <div class="cvt-demo__before" aria-hidden="true">
+          <span class="cvt-demo__chip-num">15000.5</span>
+        </div>
+        <div class="cvt-demo__after cvt-demo__after--c" aria-hidden="true">
+          <span class="cvt-demo__chip-num">15000</span>
+          <span class="cvt-demo__frag">.5</span>
+        </div>
+      </div>
+      <div class="cvt-demo__label"><code>int(</code>harga_desimal<code>)</code> → potong</div>
+    </div>
+  </div>
+
+  <p class="cvt-demo__hint">
+    💡 <strong>Solusi:</strong> kalau teksnya berkoma, pakai <code>float()</code> dulu — baru boleh
+    dibulatkan dengan <code>int()</code>. <em>(Klik / hover untuk ulangi.)</em>
+  </p>
+</div>
+
+<style>
+  .cvt-demo {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 20px 22px;
+    cursor: pointer;
+  }
+
+  .cvt-demo__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+
+  .cvt-demo__col {
+    text-align: center;
+  }
+
+  .cvt-demo__stage {
+    position: relative;
+    height: 100px;
+  }
+
+  .cvt-demo__before,
+  .cvt-demo__after {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .cvt-demo__after {
+    flex-direction: column;
+    opacity: 0;
+  }
+
+  .cvt-demo__chip-str {
+    background: var(--code-green);
+    color: #1e3a16;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 14px;
+    padding: 5px 9px;
+    border-radius: 7px;
+    border: 2px solid #7bae58;
+  }
+
+  .cvt-demo__chip-str--faded {
+    font-size: 13px;
+    padding: 4px 8px;
+    opacity: 0.6;
+  }
+
+  .cvt-demo__chip-num {
+    background: #eaf3ff;
+    border: 2px solid #7fb6ef;
+    color: #1e4e85;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 15px;
+    padding: 5px 10px;
+    border-radius: 8px;
+  }
+
+  .cvt-demo__check {
+    color: var(--pyto-green-dark);
+    font-weight: 800;
+    font-size: 15px;
+  }
+
+  .cvt-demo__error {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--code-error-bg);
+    border: 1px solid var(--code-error-border);
+    border-radius: 7px;
+    padding: 3px 8px;
+    color: var(--code-error-text);
+    font-weight: 700;
+    font-size: 10px;
+  }
+
+  .cvt-demo__frag {
+    position: absolute;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--wood-label-text);
+    opacity: 0;
+  }
+
+  .cvt-demo__label {
+    font-family: var(--font-code);
+    font-size: 12px;
+    color: var(--slate);
+    margin-top: 6px;
+  }
+
+  .cvt-demo__label code {
+    color: var(--code-blue);
+    font-weight: 700;
+  }
+
+  .cvt-demo.is-in .cvt-demo__col .cvt-demo__before {
+    animation: cvt-demo-fade-out 0.4s ease 0.5s forwards;
+  }
+
+  .cvt-demo.is-in .cvt-demo__after--a {
+    animation: cvt-demo-fade-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.6s forwards;
+  }
+
+  .cvt-demo.is-in .cvt-demo__col--b .cvt-demo__before {
+    animation: cvt-demo-fade-out 0.4s ease 1.4s forwards;
+  }
+
+  .cvt-demo.is-in .cvt-demo__after--b {
+    animation: cvt-demo-fade-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 1.5s forwards,
+      cvt-demo-shake 0.4s ease 2.1s 1;
+  }
+
+  .cvt-demo.is-in .cvt-demo__col--c .cvt-demo__before {
+    animation: cvt-demo-fade-out 0.4s ease 2.3s forwards;
+  }
+
+  .cvt-demo.is-in .cvt-demo__after--c {
+    animation: cvt-demo-fade-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 2.4s forwards;
+  }
+
+  .cvt-demo.is-in .cvt-demo__after--c .cvt-demo__frag {
+    animation: cvt-demo-frag-fall 0.6s ease 2.9s forwards;
+  }
+
+  @keyframes cvt-demo-fade-out {
+    to {
+      opacity: 0;
+      transform: scale(0.85);
+    }
+  }
+
+  @keyframes cvt-demo-fade-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    60% {
+      opacity: 1;
+      transform: scale(1.06);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes cvt-demo-shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-4px);
+    }
+    75% {
+      transform: translateX(4px);
+    }
+  }
+
+  @keyframes cvt-demo-frag-fall {
+    0% {
+      opacity: 1;
+      transform: translate(0, 0) rotate(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(16px, 26px) rotate(35deg);
+    }
+  }
+
+  .cvt-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 14px 0 0;
+    color: var(--slate);
+    text-align: center;
+  }
+
+  .cvt-demo__hint code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cvt-demo__before,
+    .cvt-demo__after,
+    .cvt-demo__frag {
+      animation: none !important;
+    }
+
+    .cvt-demo__before {
+      opacity: 0;
+    }
+
+    .cvt-demo__after {
+      opacity: 1;
+    }
+
+    .cvt-demo__after--c .cvt-demo__frag {
+      opacity: 0;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .cvt-demo__grid {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="cvt-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => {
+    const replay = () => {
+      el.classList.remove('is-in');
+      void el.offsetWidth;
+      el.classList.add('is-in');
+    };
+    el.addEventListener('mouseenter', replay);
+    el.addEventListener('click', replay);
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        replay();
+      }
+    });
+  });
+</script>

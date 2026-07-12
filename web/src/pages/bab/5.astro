@@ -1,0 +1,212 @@
+---
+// Bab 5 — Angka & Hitung-hitungan (int/float, operator dasar).
+// Sumber animasi: plan/bab-05-animasi.md.
+// Sumber desain: plan/design/bab-05-angka-dan-hitung-hitungan.dc.html.
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import ChapterHero from '../../components/ChapterHero.astro';
+import PytoCalculatorHero from '../../components/PytoCalculatorHero.astro';
+import IntConversionDemo from '../../components/IntConversionDemo.astro';
+import OperatorsGridDemo from '../../components/OperatorsGridDemo.astro';
+import IntFloatCompareDemo from '../../components/IntFloatCompareDemo.astro';
+import IntValueErrorTeaser from '../../components/IntValueErrorTeaser.astro';
+import KotakMainYuk from '../../components/KotakMainYuk.astro';
+import KotakTahuLebih from '../../components/KotakTahuLebih.astro';
+import CalculatorPracticeEditor from '../../components/CalculatorPracticeEditor.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import RangkumanList from '../../components/RangkumanList.astro';
+import Glossary from '../../components/Glossary.astro';
+import ChapterFooterNav from '../../components/ChapterFooterNav.astro';
+
+const base = import.meta.env.BASE_URL;
+
+const rangkuman = [
+  '<code>input()</code> selalu memberi teks. Supaya bisa dihitung, ubah dulu jadi angka pakai <code>int()</code> atau <code>float()</code>.',
+  '<code>int()</code> mengubah teks angka bulat jadi angka sungguhan (tanpa titik desimal).',
+  '<code>float()</code> mengubah teks angka berkoma jadi angka desimal sungguhan.',
+  '<code>int()</code> TIDAK bisa membaca teks yang ada titik desimalnya — harus lewat <code>float()</code> dulu.',
+  'Operator dasar: <code>+ − × /</code>. Pembagian (<code>/</code>) selalu menghasilkan angka desimal.',
+];
+
+const glossaryTerms = [
+  { term: 'int()', def: 'Mengubah teks/angka menjadi bilangan bulat.' },
+  { term: 'float()', def: 'Mengubah teks/angka menjadi bilangan desimal.' },
+  { term: 'ValueError', def: 'Error saat teks tidak bisa diubah jadi angka, misal int("abc").' },
+  { term: 'Operator', def: 'Simbol hitung: + (tambah), − (kurang), × (kali), / (bagi).' },
+  { term: 'Tipe data', def: 'Kategori nilai: str (teks), int (bulat), float (desimal).' },
+];
+---
+
+<ChapterLayout
+  currentChapter={5}
+  description="Bab 5: Angka & Hitung-hitungan — belajar mengubah teks jadi angka sungguhan pakai int() dan float(), lalu menghitung pakai empat operator dasar, ditemani Pyto si robot ular yang berubah jadi kalkulator."
+>
+  <ChapterHero
+    number={5}
+    title="Angka & Hitung-hitungan 🔢"
+    tagline={'Sekarang Pyto berubah jadi <strong>kalkulator</strong>! Kita akan belajar menghitung, dan membereskan jebakan <code>"10"</code> dari Bab 4.'}
+  >
+    <PytoCalculatorHero slot="mascot" size={172} />
+  </ChapterHero>
+
+  <section data-reveal>
+    <h2>Angka Beneran vs Angka Bohongan</h2>
+    <p>
+      Ingat jebakan di Bab 4? <code>input()</code> selalu memberi <strong>teks</strong>, bukan angka — walau
+      kamu mengetik angka. Supaya bisa dihitung, teks itu harus diubah dulu jadi angka sungguhan, pakai
+      <code>int()</code> atau <code>float()</code>.
+    </p>
+  </section>
+
+  <section data-reveal>
+    <div class="chapter-media">
+      <IntConversionDemo />
+    </div>
+  </section>
+
+  <section data-reveal>
+    <h2>Empat Operator Dasar</h2>
+    <p>Setelah jadi angka sungguhan, kamu bisa menghitung pakai operator matematika biasa:</p>
+    <div class="chapter-media">
+      <OperatorsGridDemo />
+    </div>
+  </section>
+
+  <section class="pyto-quote-box" data-reveal>
+    <span class="pyto-quote-box__mascot" role="img" aria-label="Pyto">🐍</span>
+    <p class="pyto-quote-box__text">
+      "Ada dua cara membungkus angka: <code>int()</code> untuk angka bulat, dan <code>float()</code> untuk
+      angka berkoma. Tapi hati-hati, keduanya punya batasnya masing-masing…"
+    </p>
+  </section>
+
+  <section data-reveal>
+    <h2>Bulat atau Berkoma?</h2>
+    <p>
+      <code>float()</code> bisa langsung membaca teks berkoma. Tapi <code>int()</code>
+      <strong>tidak bisa</strong> membaca teks yang ada titik desimalnya — ia cuma bisa memotong angka
+      desimal yang <em>sudah jadi angka</em>.
+    </p>
+    <div class="chapter-media">
+      <IntFloatCompareDemo />
+    </div>
+  </section>
+
+  <KotakMainYuk title="Main Yuk! — Kalkulator Kilat" icon="🎮" wiggleIcon>
+    <p>
+      Tanpa menjalankan kode, coba tebak dulu — berapa hasil <code>print(umur + 1)</code> kalau
+      <code>umur = int("9")</code>?
+    </p>
+    <CodeBlock code={'umur = int("9")\nprint(umur + 1)'} />
+    <details class="jawaban">
+      <summary>🔎 Lihat jawaban</summary>
+      <p>
+        Hasilnya <strong>10</strong> (angka, bukan "91"!). Karena <code>int("9")</code> sudah jadi angka
+        <strong>9</strong> sungguhan, jadi <strong>9 + 1 = 10</strong>.
+      </p>
+    </details>
+  </KotakMainYuk>
+
+  <KotakTahuLebih title="Tahu Lebih — Kalau Angkanya Bukan Angka">
+    <p>
+      <code>int()</code> cuma bisa mengubah teks yang isinya <strong>benar-benar angka</strong>. Coba kalau
+      isinya huruf:
+    </p>
+    <IntValueErrorTeaser />
+    <p class="tahu-lebih-caption">
+      Cara membaca dan mengatasi error seperti ini akan kita bahas tuntas di <strong>Bab 9</strong>.
+      <em>(Klik / hover untuk lihat lagi.)</em>
+    </p>
+  </KotakTahuLebih>
+
+  <section data-reveal>
+    <h2>Coba Sendiri: Kalkulator Sungguhan!</h2>
+    <p>
+      Ini <strong>Python asli</strong> yang jalan di browser-mu. Klik <strong>▶ Jalankan</strong>, lalu ketik
+      dua angka saat diminta:
+    </p>
+    <CalculatorPracticeEditor />
+  </section>
+
+  <section data-reveal>
+    <h2>Rangkuman Bab 5</h2>
+    <RangkumanList items={rangkuman} />
+  </section>
+
+  <section data-reveal>
+    <h2>📖 Kamus Kata</h2>
+    <Glossary terms={glossaryTerms} />
+  </section>
+
+  <ChapterFooterNav
+    prevHref={`${base}/bab/4/`}
+    prevLabel="← Bab 4: Ngobrol dengan Komputer"
+    nextLabel="Bab 6: Kalau Begini Maka Begitu"
+    nextDisabled
+  />
+</ChapterLayout>
+
+<style>
+  .pyto-quote-box {
+    background: var(--pyto-green-soft);
+    border-radius: var(--radius-card);
+    padding: 32px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .pyto-quote-box__mascot {
+    font-size: 64px;
+    flex-shrink: 0;
+  }
+
+  .pyto-quote-box__text {
+    font-family: var(--font-heading);
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--pyto-green-dark);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .pyto-quote-box__text :global(code) {
+    color: var(--pyto-green-dark);
+    background: rgba(255, 255, 255, 0.55);
+    border-radius: 6px;
+    padding: 1px 6px;
+  }
+
+  .chapter-media {
+    margin: 8px 0;
+  }
+
+  .jawaban {
+    margin-top: 8px;
+  }
+
+  .jawaban summary {
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--pyto-green-dark);
+  }
+
+  .jawaban[open] summary {
+    margin-bottom: 8px;
+  }
+
+  .jawaban p {
+    margin: 0;
+  }
+
+  .tahu-lebih-caption {
+    margin-top: 12px;
+  }
+
+  @media (max-width: 600px) {
+    .pyto-quote-box {
+      flex-direction: column;
+      text-align: center;
+      padding: 24px;
+    }
+  }
+</style>

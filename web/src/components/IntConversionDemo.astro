@@ -1,0 +1,543 @@
+---
+// Animasi #2 (plan/bab-05-animasi.md) / .conv (plan/design/bab-05-...dc.html):
+// momen utama Bab 5 — mengubah teks "10" jadi angka 10 sungguhan lewat
+// int(). Dimulai dengan pengingat singkat jebakan Bab 4 (chip "10" + 5 →
+// TypeError), lalu cangkang int(...) menutup di sekeliling chip, tanda
+// kutipnya mengelupas, dan berubah jadi bola angka 10 yang siap dihitung.
+// Sekali jalan saat terlihat, boleh diulang lewat hover/klik/fokus.
+---
+
+<div
+  class="conv-demo"
+  data-anim="conv-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi mengubah teks sepuluh jadi angka sepuluh dengan int()"
+>
+  <div class="conv-demo__left">
+    <div class="conv-demo__code">
+      <pre class="conv-demo__pre"><code
+        ><span class="conv-demo__line"><span class="tok-var">umur</span> <span class="tok-eq">=</span> <span class="tok-fn">input</span>(<span class="tok-str">&quot;Umurmu berapa? &quot;</span>)</span
+        ><span class="conv-demo__line"><span class="tok-var">umur</span> <span class="tok-eq">=</span> <span class="conv-demo__tok-a tok-fn">int</span>(<span class="conv-demo__tok-b tok-var">umur</span>)</span
+        ><span class="conv-demo__line"><span class="tok-fn">print</span>(<span class="tok-var">umur</span> <span class="conv-demo__tok-c">+</span> <span class="tok-num">5</span>)</span
+      ></code></pre>
+    </div>
+
+    <div class="conv-demo__caption">
+      <span class="conv-demo__cap conv-demo__cap--1">❌ Bab 4 tadi sempat kena masalah ini…</span>
+      <span class="conv-demo__cap conv-demo__cap--2">📦 int(...) membungkus teksnya</span>
+      <span class="conv-demo__cap conv-demo__cap--3">✅ sekarang beneran angka — siap dihitung!</span>
+    </div>
+  </div>
+
+  <div class="conv-demo__right">
+    <div class="conv-demo__stage">
+      <div class="conv-demo__state conv-demo__state--a" aria-hidden="true">
+        <div class="conv-demo__row">
+          <span class="conv-demo__chip-str">&quot;10&quot;</span>
+          <span class="conv-demo__plus">+</span>
+          <span class="conv-demo__five">5</span>
+        </div>
+        <div class="conv-demo__error">💥 TypeError</div>
+      </div>
+
+      <div class="conv-demo__state conv-demo__state--b" aria-hidden="true">
+        <span class="conv-demo__shell conv-demo__shell--l">int(</span>
+        <span class="conv-demo__chip-str conv-demo__chip-str--mid">&quot;10&quot;</span>
+        <span class="conv-demo__shell conv-demo__shell--r">)</span>
+      </div>
+
+      <div class="conv-demo__state conv-demo__state--c" aria-hidden="true">
+        <div class="conv-demo__row">
+          <span class="conv-demo__ball">10</span>
+          <span class="conv-demo__check">✓</span>
+        </div>
+        <div class="conv-demo__result">+ 5 = <strong>15</strong></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="conv-demo__hint">
+  💡 <code>int()</code> mengubah teks angka jadi angka sungguhan — tanda kutipnya hilang.
+  <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .conv-demo {
+    position: relative;
+    display: flex;
+    gap: 22px;
+    align-items: center;
+    flex-wrap: wrap;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 22px 24px;
+    cursor: pointer;
+  }
+
+  .conv-demo__left {
+    flex: 1;
+    min-width: 260px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .conv-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 16px 18px;
+    overflow-x: auto;
+  }
+
+  .conv-demo__pre {
+    margin: 0;
+    font-family: var(--font-code);
+    font-size: 15px;
+    line-height: 1.95;
+    color: var(--code-text);
+  }
+
+  .conv-demo__line {
+    display: block;
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-eq {
+    color: var(--code-text);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .tok-num {
+    color: var(--code-orange);
+  }
+
+  .conv-demo__tok-a,
+  .conv-demo__tok-b,
+  .conv-demo__tok-c {
+    border-radius: 4px;
+  }
+
+  .conv-demo__tok-c {
+    color: var(--code-text);
+  }
+
+  .conv-demo.is-in .conv-demo__tok-a {
+    animation: conv-demo-glow-b 0.8s ease 0.15s 1;
+  }
+
+  .conv-demo.is-in .conv-demo__tok-b {
+    animation: conv-demo-glow-y 0.8s ease 0.45s 1;
+  }
+
+  .conv-demo.is-in .conv-demo__tok-c {
+    animation: conv-demo-glow-g 0.8s ease 0.75s 1;
+  }
+
+  @keyframes conv-demo-glow-b {
+    0% {
+      background: transparent;
+    }
+    30% {
+      background: rgba(97, 175, 239, 0.32);
+    }
+    100% {
+      background: transparent;
+    }
+  }
+
+  @keyframes conv-demo-glow-y {
+    0% {
+      background: transparent;
+    }
+    30% {
+      background: rgba(255, 201, 77, 0.4);
+    }
+    100% {
+      background: transparent;
+    }
+  }
+
+  @keyframes conv-demo-glow-g {
+    0% {
+      background: transparent;
+    }
+    30% {
+      background: rgba(152, 195, 121, 0.32);
+    }
+    100% {
+      background: transparent;
+    }
+  }
+
+  .conv-demo__caption {
+    position: relative;
+    min-height: 20px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--slate);
+  }
+
+  .conv-demo__cap {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+  }
+
+  .conv-demo.is-in .conv-demo__cap--1 {
+    animation: conv-demo-cap-a 0.9s ease 0s forwards;
+  }
+
+  .conv-demo.is-in .conv-demo__cap--2 {
+    animation: conv-demo-cap-b 0.9s ease 0.8s forwards;
+  }
+
+  .conv-demo.is-in .conv-demo__cap--3 {
+    animation: conv-demo-cap-stay 0.5s ease 1.6s forwards;
+  }
+
+  @keyframes conv-demo-cap-a {
+    0% {
+      opacity: 0;
+    }
+    12% {
+      opacity: 1;
+    }
+    78% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes conv-demo-cap-b {
+    0% {
+      opacity: 0;
+    }
+    20% {
+      opacity: 1;
+    }
+    85% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes conv-demo-cap-stay {
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* ---- kolom kanan: panggung konversi ---- */
+  .conv-demo__right {
+    flex-shrink: 0;
+    width: 170px;
+  }
+
+  .conv-demo__stage {
+    position: relative;
+    width: 160px;
+    height: 120px;
+    margin: 0 auto;
+  }
+
+  .conv-demo__state {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    opacity: 0;
+  }
+
+  .conv-demo.is-in .conv-demo__state--a {
+    animation: conv-demo-a-in 0.9s ease 0s forwards;
+  }
+
+  .conv-demo.is-in .conv-demo__state--b {
+    animation: conv-demo-b-in 0.9s ease 0.8s forwards;
+  }
+
+  .conv-demo.is-in .conv-demo__state--c {
+    animation: conv-demo-c-in 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 1.6s forwards;
+  }
+
+  @keyframes conv-demo-a-in {
+    0% {
+      opacity: 0;
+    }
+    12% {
+      opacity: 1;
+    }
+    78% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes conv-demo-b-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    20% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    85% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes conv-demo-c-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.7);
+    }
+    55% {
+      opacity: 1;
+      transform: scale(1.08);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .conv-demo__row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .conv-demo__chip-str {
+    background: var(--code-green);
+    color: #1e3a16;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 15px;
+    padding: 5px 10px;
+    border-radius: 7px;
+    border: 2px solid #7bae58;
+  }
+
+  .conv-demo__chip-str--mid {
+    margin: 0 2px;
+  }
+
+  .conv-demo__plus {
+    display: inline-block;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--code-text);
+  }
+
+  .conv-demo.is-in .conv-demo__plus {
+    animation: conv-demo-plus-break 0.8s ease 0.05s 1;
+  }
+
+  @keyframes conv-demo-plus-break {
+    0%,
+    100% {
+      color: var(--ink);
+      transform: none;
+    }
+    30%,
+    70% {
+      color: var(--coral);
+      transform: translateX(-2px) rotate(-6deg);
+    }
+  }
+
+  .conv-demo__five {
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--code-orange);
+  }
+
+  .conv-demo__error {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--code-error-bg);
+    border: 1px solid var(--code-error-border);
+    border-radius: 8px;
+    padding: 4px 10px;
+    color: var(--code-error-text);
+    font-weight: 700;
+    font-size: 11px;
+  }
+
+  .conv-demo__shell {
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 19px;
+    color: var(--code-blue);
+    opacity: 0;
+  }
+
+  .conv-demo.is-in .conv-demo__shell--l {
+    animation: conv-demo-shell-l 0.5s ease 0.85s forwards;
+  }
+
+  .conv-demo.is-in .conv-demo__shell--r {
+    animation: conv-demo-shell-r 0.5s ease 0.85s forwards;
+  }
+
+  @keyframes conv-demo-shell-l {
+    0% {
+      opacity: 0;
+      transform: translateX(-22px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes conv-demo-shell-r {
+    0% {
+      opacity: 0;
+      transform: translateX(22px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .conv-demo__ball {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 34% 30%, #eaf3ff, #bbdcff);
+    border: 2px solid #7fb6ef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 17px;
+    color: #1e4e85;
+  }
+
+  .conv-demo__check {
+    color: var(--pyto-green-dark);
+    font-size: 20px;
+    font-weight: 800;
+  }
+
+  .conv-demo__result {
+    font-family: var(--font-code);
+    font-size: 13px;
+    color: var(--slate);
+  }
+
+  .conv-demo__result strong {
+    color: var(--pyto-green-dark);
+  }
+
+  .conv-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 12px 2px 0;
+    color: var(--slate);
+  }
+
+  .conv-demo__hint code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .conv-demo__tok-a,
+    .conv-demo__tok-b,
+    .conv-demo__tok-c,
+    .conv-demo__cap,
+    .conv-demo__state,
+    .conv-demo__plus,
+    .conv-demo__shell {
+      animation: none !important;
+    }
+
+    .conv-demo__cap--1,
+    .conv-demo__cap--2,
+    .conv-demo__state--a,
+    .conv-demo__state--b {
+      opacity: 0;
+    }
+
+    .conv-demo__cap--3,
+    .conv-demo__state--c {
+      opacity: 1;
+      transform: none;
+    }
+
+    .conv-demo__shell {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .conv-demo__pre {
+      font-size: 14px;
+    }
+
+    .conv-demo__right {
+      width: 100%;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="conv-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => {
+    const replay = () => {
+      el.classList.remove('is-in');
+      void el.offsetWidth;
+      el.classList.add('is-in');
+    };
+    el.addEventListener('mouseenter', replay);
+    el.addEventListener('click', replay);
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        replay();
+      }
+    });
+  });
+</script>

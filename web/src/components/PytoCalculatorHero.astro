@@ -1,0 +1,274 @@
+---
+// Animasi #1 (plan/bab-05-animasi.md) / hero5 (plan/design/bab-05-...dc.html):
+// Pyto berubah jadi kalkulator. Angka 1-4 dan operator + − × ÷ melayang pelan
+// mengorbit di sekeliling Pyto seperti bintang, lalu sebuah lencana "+"
+// meletup dan menempel sekejap di dadanya. Main langsung begitu halaman
+// terbuka (tidak menunggu scroll) — sama seperti VariableBoxHero (Bab 3) dan
+// PytoQuestionHero (Bab 4).
+interface Props {
+  size?: number;
+}
+
+const { size = 172 } = Astro.props;
+const height = Math.round((size * 180) / 188);
+
+const orbitItems = [
+  { label: '1', angle: 0, kind: 'num' },
+  { label: '+', angle: 45, kind: 'plus' },
+  { label: '2', angle: 90, kind: 'num' },
+  { label: '−', angle: 135, kind: 'minus' },
+  { label: '3', angle: 180, kind: 'num' },
+  { label: '×', angle: 225, kind: 'times' },
+  { label: '4', angle: 270, kind: 'num' },
+  { label: '÷', angle: 315, kind: 'div' },
+];
+---
+
+<div class="calc-hero" data-anim="calc-hero">
+  <div class="calc-hero__stage">
+    <div class="calc-hero__ring" aria-hidden="true">
+      {
+        orbitItems.map((item) => (
+          <span
+            class={`calc-hero__chip calc-hero__chip--${item.kind}`}
+            style={`transform: rotate(${item.angle}deg) translate(108px) rotate(${-item.angle}deg);`}
+          >
+            {item.label}
+          </span>
+        ))
+      }
+    </div>
+
+    <div class="calc-hero__pyto">
+      <svg
+        width={size}
+        height={height}
+        viewBox="0 0 188 180"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        class="calc-hero__svg"
+        role="img"
+        aria-label="Pyto tersenyum lebar dengan lencana + di dadanya, dikelilingi angka dan operator hitung"
+      >
+        <path
+          d="M56 150 C 20 150, 22 110, 60 112 C 104 114, 120 150, 150 140"
+          stroke="var(--pyto-green-dark)"
+          stroke-width="17"
+          stroke-linecap="round"
+          fill="none"></path>
+        <path
+          d="M56 150 C 20 150, 22 110, 60 112 C 104 114, 120 150, 150 140"
+          stroke="var(--pyto-green)"
+          stroke-width="9"
+          stroke-linecap="round"
+          fill="none"></path>
+        <rect x="44" y="30" width="96" height="82" rx="30" fill="var(--pyto-green)"></rect>
+        <line x1="92" y1="30" x2="92" y2="12" stroke="var(--pyto-green-dark)" stroke-width="5" stroke-linecap="round"
+        ></line>
+        <circle cx="92" cy="9" r="6" fill="var(--sunny-yellow)"></circle>
+        <g class="calc-hero__eyes">
+          <circle cx="74" cy="62" r="14" fill="#FFFFFF"></circle>
+          <circle cx="112" cy="62" r="14" fill="#FFFFFF"></circle>
+          <circle cx="77" cy="64" r="6" fill="var(--ink)"></circle>
+          <circle cx="115" cy="64" r="6" fill="var(--ink)"></circle>
+          <circle cx="79" cy="61" r="2" fill="#FFFFFF"></circle>
+          <circle cx="117" cy="61" r="2" fill="#FFFFFF"></circle>
+        </g>
+        <circle cx="60" cy="86" r="7" fill="var(--coral)" opacity="0.55"></circle>
+        <circle cx="126" cy="86" r="7" fill="var(--coral)" opacity="0.55"></circle>
+        <path d="M78 88 Q 92 104, 106 88" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" fill="none"></path>
+      </svg>
+
+      <span class="calc-hero__badge" aria-hidden="true">+</span>
+    </div>
+  </div>
+
+  <span class="calc-hero__sr">
+    Pyto berubah jadi kalkulator: dikelilingi angka 1 sampai 4 dan simbol + − × ÷ yang mengorbit pelan, lalu
+    lencana + meletup dan menempel di dadanya.
+  </span>
+</div>
+
+<style>
+  .calc-hero {
+    display: flex;
+    justify-content: center;
+  }
+
+  .calc-hero__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .calc-hero__stage {
+    position: relative;
+    width: 260px;
+    height: 234px;
+  }
+
+  .calc-hero__ring {
+    position: absolute;
+    inset: 0;
+    animation: calc-hero-spin 46s linear infinite;
+  }
+
+  .calc-hero__chip {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin: -17px 0 0 -17px;
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 15px;
+    box-shadow: 0 3px 8px rgba(30, 42, 50, 0.14);
+  }
+
+  .calc-hero__chip--num {
+    background: #eaf3ff;
+    color: #1e4e85;
+  }
+
+  .calc-hero__chip--plus {
+    background: var(--pyto-green-soft);
+    color: var(--pyto-green-dark);
+  }
+
+  .calc-hero__chip--minus {
+    background: #fbe3e0;
+    color: #c0392b;
+  }
+
+  .calc-hero__chip--times {
+    background: #eaf3ff;
+    color: var(--sky-blue);
+  }
+
+  .calc-hero__chip--div {
+    background: #f3e8fb;
+    color: var(--grape);
+  }
+
+  .calc-hero__pyto {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    animation: calc-hero-bob 4s ease-in-out infinite;
+  }
+
+  .calc-hero__svg {
+    filter: drop-shadow(0 12px 18px rgba(30, 42, 50, 0.14));
+  }
+
+  @keyframes calc-hero-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes calc-hero-bob {
+    0%,
+    100% {
+      transform: translate(-50%, -50%) translateY(0);
+    }
+    50% {
+      transform: translate(-50%, -50%) translateY(-8px);
+    }
+  }
+
+  .calc-hero__eyes {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: calc-hero-blink 4.5s infinite;
+  }
+
+  @keyframes calc-hero-blink {
+    0%,
+    92%,
+    100% {
+      transform: scaleY(1);
+    }
+    96% {
+      transform: scaleY(0.1);
+    }
+  }
+
+  .calc-hero__badge {
+    position: absolute;
+    left: 50%;
+    top: 58%;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--box-main-yuk-bg);
+    border: 3px solid var(--sunny-yellow);
+    color: var(--wood-label-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 17px;
+    box-shadow: 0 4px 10px rgba(255, 201, 77, 0.5);
+    opacity: 0;
+  }
+
+  .calc-hero.is-in .calc-hero__badge {
+    animation: calc-hero-badge-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.9s forwards;
+  }
+
+  @keyframes calc-hero-badge-pop {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0) rotate(-20deg);
+    }
+    60% {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1.3) rotate(6deg);
+    }
+    100% {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1) rotate(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .calc-hero__ring,
+    .calc-hero__pyto,
+    .calc-hero__eyes {
+      animation: none;
+    }
+
+    .calc-hero__badge {
+      animation: none !important;
+      opacity: 1;
+      transform: translate(-50%, -50%);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .calc-hero__stage {
+      width: 220px;
+      height: 200px;
+    }
+  }
+</style>
+
+<script>
+  // Hero selalu terlihat begitu halaman dibuka, jadi langsung dipicu (tidak
+  // menunggu scroll masuk layar) — sama seperti VariableBoxHero (Bab 3) dan
+  // PytoQuestionHero (Bab 4).
+  document.querySelectorAll('[data-anim="calc-hero"]').forEach((el) => {
+    setTimeout(() => el.classList.add('is-in'), 200);
+  });
+</script>

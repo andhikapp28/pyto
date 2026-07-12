@@ -1,0 +1,194 @@
+---
+// Animasi #8 (plan/bab-05-animasi.md) / .tl (plan/design/bab-05-...dc.html):
+// int() cuma bisa mengubah teks yang isinya benar-benar angka. Echo singkat
+// dari beat #2: keping teks "abc" dicoba dimasukkan ke cangkang int(...),
+// tapi ditolak dan memantul keluar disertai gelembung ValueError. Sekali
+// jalan saat terlihat, boleh diulang lewat hover/klik/fokus.
+---
+
+<div
+  class="int-err-demo"
+  data-anim="int-err-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi int(&quot;abc&quot;) menyebabkan ValueError"
+>
+  <div class="int-err-demo__code">
+    <span class="tok-var">umur</span> <span class="tok-eq">=</span> <span class="tok-fn">int</span>(<span
+      class="tok-str">&quot;abc&quot;</span
+    >)
+  </div>
+
+  <div class="int-err-demo__stage">
+    <div class="int-err-demo__before" aria-hidden="true">
+      <span class="tok-fn">int(</span><span class="int-err-demo__chip">&quot;abc&quot;</span><span class="tok-fn"
+        >)</span
+      >
+    </div>
+    <div class="int-err-demo__after" aria-hidden="true">
+      <span class="int-err-demo__error">💥 ValueError</span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .int-err-demo {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+    cursor: pointer;
+  }
+
+  .int-err-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 12px 16px;
+    font-family: var(--font-code);
+    font-size: 15px;
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-eq {
+    color: var(--code-text);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .int-err-demo__stage {
+    position: relative;
+    width: 140px;
+    height: 56px;
+  }
+
+  .int-err-demo__before,
+  .int-err-demo__after {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .int-err-demo__after {
+    opacity: 0;
+  }
+
+  .int-err-demo__chip {
+    background: var(--code-green);
+    color: #1e3a16;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 14px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 2px solid #7bae58;
+  }
+
+  .int-err-demo__error {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--code-error-bg);
+    border: 1px solid var(--code-error-border);
+    border-radius: 8px;
+    padding: 5px 12px;
+    color: var(--code-error-text);
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  .int-err-demo.is-in .int-err-demo__before {
+    animation: int-err-demo-fade-out 0.4s ease 0.6s forwards;
+  }
+
+  .int-err-demo.is-in .int-err-demo__after {
+    animation: int-err-demo-fade-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.7s forwards,
+      int-err-demo-shake 0.4s ease 1.3s 1;
+  }
+
+  @keyframes int-err-demo-fade-out {
+    to {
+      opacity: 0;
+      transform: scale(0.85);
+    }
+  }
+
+  @keyframes int-err-demo-fade-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    60% {
+      opacity: 1;
+      transform: scale(1.06);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes int-err-demo-shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-4px);
+    }
+    75% {
+      transform: translateX(4px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .int-err-demo__before,
+    .int-err-demo__after {
+      animation: none !important;
+    }
+
+    .int-err-demo__before {
+      opacity: 0;
+    }
+
+    .int-err-demo__after {
+      opacity: 1;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="int-err-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => {
+    const replay = () => {
+      el.classList.remove('is-in');
+      void el.offsetWidth;
+      el.classList.add('is-in');
+    };
+    el.addEventListener('mouseenter', replay);
+    el.addEventListener('click', replay);
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        replay();
+      }
+    });
+  });
+</script>
