@@ -45,8 +45,8 @@ Alur kerja: tulis naskah di **`plan/naskah/`** → hasilkan **`buku/`**, **`web/
 ## 📚 Daftar Bab (Python Dasar)
 
 1. Kenalan dengan Python ✅
-2. Menyapa Dunia (`print`)
-3. Kotak Ajaib (Variabel)
+2. Menyapa Dunia (`print`)✅
+3. Kotak Ajaib (Variabel)✅
 4. Ngobrol dengan Komputer (`input`)
 5. Angka & Hitung-hitungan
 6. Kalau Begini, Maka Begitu (`if`)
