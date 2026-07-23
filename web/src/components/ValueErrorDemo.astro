@@ -1,0 +1,238 @@
+---
+// Animasi #5 (plan/bab-09-animasi.md): ValueError — teks yang tidak bisa
+// jadi angka. int("abc") ditolak (echo Bab 5 beat #8), lalu versi "sesudah"
+// mengakui lewat print() biasa bahwa teksnya bukan angka, tanpa memaksa
+// int() di atasnya. Sekali jalan saat terlihat, boleh diulang lewat
+// hover/klik/fokus.
+---
+
+<div
+  class="vle-demo"
+  data-anim="vle-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi ValueError karena teks bukan angka"
+>
+  <div class="vle-demo__cols">
+    <div class="vle-demo__col">
+      <p class="vle-demo__label">Sebelum</p>
+      <div class="vle-demo__code">
+        <span class="tok-var">angka</span> = <span class="tok-fn">int</span>(<span class="vle-demo__chip"
+          >&quot;abc&quot;</span
+        >)
+      </div>
+      <span class="vle-demo__error">💥 ValueError: invalid literal for int() with base 10: 'abc'</span>
+    </div>
+
+    <div class="vle-demo__col vle-demo__col--after">
+      <p class="vle-demo__label">Sesudah</p>
+      <div class="vle-demo__code">
+        <span class="tok-var">teks</span> = <span class="tok-str">&quot;abc&quot;</span>
+        <br />
+        <span class="tok-fn">print</span>(<span class="tok-fstr">f&quot;'{'{teks}'}' bukan angka, jadi tidak bisa diubah dengan int().&quot;</span
+        >)
+      </div>
+      <span class="vle-demo__success">✅ 'abc' bukan angka, jadi tidak bisa diubah dengan int().</span>
+    </div>
+  </div>
+
+  <p class="vle-demo__translation">
+    🐍 "Python bilang: tulisan <code>'abc'</code> isinya bukan angka sama sekali, jadi
+    <code>int()</code> menyerah, nggak tahu harus diubah jadi angka berapa."
+  </p>
+</div>
+
+<p class="vle-demo__hint">
+  💡 <code>ValueError</code> beda dengan <code>TypeError</code>: ini soal isi teksnya yang memang
+  tidak cocok, bukan soal dua tipe yang digabung. <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .vle-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    cursor: pointer;
+  }
+
+  .vle-demo__cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .vle-demo__label {
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--slate);
+    margin: 0 0 6px;
+  }
+
+  .vle-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 12px 14px;
+    font-family: var(--font-code);
+    font-size: 12.5px;
+    line-height: 1.85;
+    color: var(--code-text);
+    overflow-x: auto;
+    margin-bottom: 8px;
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .tok-fstr {
+    color: var(--code-green);
+  }
+
+  .vle-demo__chip {
+    display: inline-block;
+    color: var(--code-green);
+  }
+
+  .vle-demo.is-in .vle-demo__chip {
+    animation: vle-demo-reject 0.5s ease 0.3s;
+  }
+
+  @keyframes vle-demo-reject {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    30% {
+      transform: translateX(6px);
+    }
+    60% {
+      transform: translateX(-4px);
+    }
+  }
+
+  .vle-demo__col--after {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+
+  .vle-demo.is-in .vle-demo__col--after {
+    animation: vle-demo-col-in 0.5s ease 1.6s forwards;
+  }
+
+  @keyframes vle-demo-col-in {
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .vle-demo__error,
+  .vle-demo__success {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-weight: 700;
+    font-size: 11.5px;
+    width: fit-content;
+  }
+
+  .vle-demo__error {
+    background: var(--code-error-bg);
+    border: 1px solid var(--code-error-border);
+    color: var(--code-error-text);
+    opacity: 0;
+  }
+
+  .vle-demo.is-in .vle-demo__error {
+    animation: vle-demo-fade-in 0.4s ease 0.8s forwards;
+  }
+
+  .vle-demo__success {
+    background: var(--pyto-green-soft);
+    border: 1px solid var(--pyto-green);
+    color: var(--pyto-green-dark);
+  }
+
+  @keyframes vle-demo-fade-in {
+    to {
+      opacity: 1;
+    }
+  }
+
+  .vle-demo__translation {
+    background: var(--pyto-green-soft);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin: 0;
+    font-size: 14px;
+    color: var(--pyto-green-dark);
+    font-weight: 600;
+    opacity: 0;
+  }
+
+  .vle-demo.is-in .vle-demo__translation {
+    animation: vle-demo-fade-in 0.5s ease 1.1s forwards;
+  }
+
+  .vle-demo__translation code {
+    background: rgba(255, 255, 255, 0.55);
+    border-radius: 6px;
+    padding: 1px 6px;
+  }
+
+  .vle-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .vle-demo__chip,
+    .vle-demo__col--after,
+    .vle-demo__error,
+    .vle-demo__translation {
+      animation: none !important;
+    }
+
+    .vle-demo__col--after {
+      opacity: 1;
+      transform: none;
+    }
+
+    .vle-demo__error,
+    .vle-demo__translation {
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .vle-demo__cols {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="vle-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

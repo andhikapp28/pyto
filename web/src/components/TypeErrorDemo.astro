@@ -1,0 +1,263 @@
+---
+// Animasi #4 (plan/bab-09-animasi.md): TypeError — nyampur teks dan angka.
+// Replay singkat dari jebakan Bab 4/5: umur = input(...); print(umur + 5)
+// menghasilkan TypeError, lalu baris umur = int(umur) disisipkan dan kode
+// berhasil mencetak 15. Sekali jalan saat terlihat, boleh diulang lewat
+// hover/klik/fokus.
+---
+
+<div
+  class="tye-demo"
+  data-anim="tye-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi TypeError karena mencampur teks dan angka"
+>
+  <div class="tye-demo__cols">
+    <div class="tye-demo__col">
+      <p class="tye-demo__label">Sebelum</p>
+      <div class="tye-demo__code">
+        <span class="tok-var">umur</span> = <span class="tok-fn">input</span>(<span class="tok-str"
+          >&quot;Umurmu berapa? &quot;</span
+        >)
+        <br />
+        <span class="tok-fn">print</span>(umur <span class="tye-demo__plus">+</span> <span class="tok-num"
+          >5</span
+        >)
+      </div>
+      <span class="tye-demo__error">💥 TypeError: can only concatenate str (not &quot;int&quot;) to str</span>
+    </div>
+
+    <div class="tye-demo__col tye-demo__col--after">
+      <p class="tye-demo__label">Sesudah</p>
+      <div class="tye-demo__code">
+        <span class="tok-var">umur</span> = <span class="tok-fn">input</span>(<span class="tok-str"
+          >&quot;Umurmu berapa? &quot;</span
+        >)
+        <br />
+        <span class="tye-demo__new-line">umur = <span class="tok-fn">int</span>(umur)</span>
+        <br />
+        <span class="tok-fn">print</span>(umur + <span class="tok-num">5</span>)
+      </div>
+      <span class="tye-demo__success">✅ 15</span>
+    </div>
+  </div>
+
+  <p class="tye-demo__translation">
+    🐍 "Python bilang: kamu coba gabungin teks (str) dan angka (int) pakai <code>+</code>, tapi dua
+    tipe itu nggak bisa langsung disatukan."
+  </p>
+</div>
+
+<p class="tye-demo__hint">
+  💡 Solusinya: bungkus dulu dengan <code>int()</code> supaya jadi angka sungguhan sebelum dijumlahkan.
+  <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .tye-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    cursor: pointer;
+  }
+
+  .tye-demo__cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .tye-demo__label {
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--slate);
+    margin: 0 0 6px;
+  }
+
+  .tye-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 12px 14px;
+    font-family: var(--font-code);
+    font-size: 13px;
+    line-height: 1.85;
+    color: var(--code-text);
+    overflow-x: auto;
+    margin-bottom: 8px;
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .tok-num {
+    color: var(--code-orange);
+  }
+
+  .tye-demo__plus {
+    color: var(--coral);
+    font-weight: 700;
+  }
+
+  .tye-demo.is-in .tye-demo__plus {
+    animation: tye-demo-break 0.6s ease 0.3s;
+  }
+
+  @keyframes tye-demo-break {
+    0%,
+    100% {
+      transform: none;
+    }
+    30%,
+    70% {
+      transform: translateX(-2px) rotate(-8deg);
+    }
+  }
+
+  .tye-demo__col--after {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+
+  .tye-demo.is-in .tye-demo__col--after {
+    animation: tye-demo-col-in 0.5s ease 1.6s forwards;
+  }
+
+  @keyframes tye-demo-col-in {
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .tye-demo__new-line {
+    display: inline-block;
+    border-radius: 4px;
+  }
+
+  .tye-demo.is-in .tye-demo__new-line {
+    animation: tye-demo-glow 0.8s ease 1.9s;
+  }
+
+  @keyframes tye-demo-glow {
+    0%,
+    100% {
+      background: transparent;
+    }
+    40% {
+      background: rgba(97, 175, 239, 0.3);
+    }
+  }
+
+  .tye-demo__error,
+  .tye-demo__success {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-weight: 700;
+    font-size: 12px;
+    width: fit-content;
+  }
+
+  .tye-demo__error {
+    background: var(--code-error-bg);
+    border: 1px solid var(--code-error-border);
+    color: var(--code-error-text);
+    opacity: 0;
+  }
+
+  .tye-demo.is-in .tye-demo__error {
+    animation: tye-demo-fade-in 0.4s ease 0.9s forwards;
+  }
+
+  .tye-demo__success {
+    background: var(--pyto-green-soft);
+    border: 1px solid var(--pyto-green);
+    color: var(--pyto-green-dark);
+  }
+
+  @keyframes tye-demo-fade-in {
+    to {
+      opacity: 1;
+    }
+  }
+
+  .tye-demo__translation {
+    background: var(--pyto-green-soft);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin: 0;
+    font-size: 14px;
+    color: var(--pyto-green-dark);
+    font-weight: 600;
+    opacity: 0;
+  }
+
+  .tye-demo.is-in .tye-demo__translation {
+    animation: tye-demo-fade-in 0.5s ease 1.2s forwards;
+  }
+
+  .tye-demo__translation code {
+    background: rgba(255, 255, 255, 0.55);
+    border-radius: 6px;
+    padding: 1px 6px;
+  }
+
+  .tye-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tye-demo__plus,
+    .tye-demo__col--after,
+    .tye-demo__new-line,
+    .tye-demo__error,
+    .tye-demo__translation {
+      animation: none !important;
+    }
+
+    .tye-demo__col--after {
+      opacity: 1;
+      transform: none;
+    }
+
+    .tye-demo__error,
+    .tye-demo__translation {
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .tye-demo__cols {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="tye-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

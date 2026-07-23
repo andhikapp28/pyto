@@ -1,0 +1,202 @@
+---
+// Animasi #9 (plan/bab-09-animasi.md) — kartu "Main Yuk: Jadi Detektif
+// Bug". Pembaca menjodohkan pesan error singkat dengan terjemahan bahasa
+// sederhananya; tiap jodoh yang benar membuat dua kartu kecil itu menyatu
+// dengan kedipan hijau lembut. Widget interaktif kecil (bukan animasi
+// "sekali putar saat terlihat"), memakai script sendiri seperti
+// PyodideEditor/PytoJumpGuess.
+const pairs = [
+  { id: 'name', error: 'NameError', translation: 'Nama kotaknya nggak ketemu (salah ketik?)' },
+  { id: 'type', error: 'TypeError', translation: 'Dua tipe data yang beda nggak bisa digabung' },
+  { id: 'value', error: 'ValueError', translation: 'Isi teksnya memang bukan angka' },
+  { id: 'syntax', error: 'SyntaxError', translation: 'Kalimat kodenya belum lengkap (lupa titik dua?)' },
+];
+
+const translationsShuffled = [pairs[2], pairs[0], pairs[3], pairs[1]];
+---
+
+<div class="emg" data-pairs={JSON.stringify(pairs.map((p) => p.id))}>
+  <p class="emg__instruction">Klik satu jenis error di kiri, lalu klik terjemahan yang cocok di kanan:</p>
+  <div class="emg__board">
+    <div class="emg__col">
+      {
+        pairs.map((p) => (
+          <button type="button" class="emg__chip emg__chip--error" data-id={p.id}>
+            {p.error}
+          </button>
+        ))
+      }
+    </div>
+    <div class="emg__col">
+      {
+        translationsShuffled.map((p) => (
+          <button type="button" class="emg__chip emg__chip--translation" data-id={p.id}>
+            {p.translation}
+          </button>
+        ))
+      }
+    </div>
+  </div>
+  <p class="emg__status" aria-live="polite"></p>
+</div>
+
+<style>
+  .emg {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .emg__instruction {
+    margin: 0;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .emg__board {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .emg__col {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .emg__chip {
+    text-align: left;
+    border-radius: 10px;
+    border: 2px solid var(--border);
+    background: var(--white);
+    padding: 10px 14px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+  }
+
+  .emg__chip--error {
+    font-family: var(--font-code);
+    font-weight: 700;
+    color: var(--coral);
+  }
+
+  .emg__chip:hover:not(:disabled) {
+    border-color: var(--pyto-green);
+  }
+
+  .emg__chip.is-selected {
+    border-color: var(--sunny-yellow);
+    box-shadow: 0 0 0 2px rgba(255, 201, 77, 0.4);
+  }
+
+  .emg__chip.is-matched {
+    border-color: var(--pyto-green);
+    background: var(--pyto-green-soft);
+    color: var(--pyto-green-dark);
+    cursor: default;
+  }
+
+  .emg__chip.is-matched.emg__chip--error {
+    color: var(--pyto-green-dark);
+  }
+
+  .emg__chip.is-wrong {
+    animation: emg-shake 0.35s ease;
+  }
+
+  @keyframes emg-shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-4px);
+    }
+    75% {
+      transform: translateX(4px);
+    }
+  }
+
+  .emg__status {
+    min-height: 20px;
+    margin: 0;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--pyto-green-dark);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .emg__chip.is-wrong {
+      animation: none;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .emg__board {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll('.emg').forEach((widget) => {
+    const chips = Array.from(widget.querySelectorAll('.emg__chip'));
+    const status = widget.querySelector('.emg__status');
+    let selected = null;
+    let matchedCount = 0;
+
+    chips.forEach((chip) => {
+      chip.addEventListener('click', () => {
+        if (chip.classList.contains('is-matched')) return;
+
+        if (!selected) {
+          selected = chip;
+          chip.classList.add('is-selected');
+          return;
+        }
+
+        if (selected === chip) {
+          selected.classList.remove('is-selected');
+          selected = null;
+          return;
+        }
+
+        const sameSide = selected.parentElement === chip.parentElement;
+        if (sameSide) {
+          selected.classList.remove('is-selected');
+          selected = chip;
+          chip.classList.add('is-selected');
+          return;
+        }
+
+        if (selected.dataset.id === chip.dataset.id) {
+          selected.classList.remove('is-selected');
+          selected.classList.add('is-matched');
+          chip.classList.add('is-matched');
+          selected.disabled = true;
+          chip.disabled = true;
+          selected = null;
+          matchedCount += 1;
+          if (status) {
+            status.textContent =
+              matchedCount === chips.length / 2
+                ? '🎉 Semua cocok! Kamu jago mengenali jenis error.'
+                : 'Cocok! Lanjutkan ke pasangan berikutnya.';
+          }
+        } else {
+          const wrongChips = [selected, chip];
+          wrongChips.forEach((c) => c.classList.add('is-wrong'));
+          if (status) status.textContent = 'Belum cocok, coba lagi.';
+          setTimeout(() => {
+            wrongChips.forEach((c) => c.classList.remove('is-wrong'));
+          }, 350);
+          selected.classList.remove('is-selected');
+          selected = null;
+        }
+      });
+    });
+  });
+</script>

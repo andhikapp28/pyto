@@ -1,0 +1,313 @@
+---
+// Animasi #6 (plan/bab-08-animasi.md): belanja = ["Roti", "Susu", "Telur"];
+// for barang in belanja: print(barang) — sebuah "jembatan" cahaya melompat
+// dari gerbong ke gerbong secara berurutan (echo animasi for Bab 7), tiap
+// kali mendarat isinya turun ke kotak barang lalu tercetak. Sekali jalan
+// saat terlihat, boleh diulang lewat hover/klik/fokus.
+const items = ['Roti', 'Susu', 'Telur'];
+const stepDuration = 0.8;
+const startDelay = 0.4;
+---
+
+<div
+  class="fol-demo"
+  data-anim="fol-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi for barang in belanja"
+>
+  <div class="fol-demo__code">
+    <div class="fol-demo__line">
+      <span class="tok-var">belanja</span> = [<span class="tok-str">&quot;Roti&quot;</span>,
+      <span class="tok-str">&quot;Susu&quot;</span>, <span class="tok-str">&quot;Telur&quot;</span>]
+    </div>
+    <div class="fol-demo__line">&nbsp;</div>
+    <div class="fol-demo__line">
+      <span class="tok-p">for</span> <span class="tok-var">barang</span> <span class="tok-p">in</span> belanja:
+    </div>
+    <div class="fol-demo__line fol-demo__indent">
+      <span class="tok-fn">print</span>(barang)
+    </div>
+  </div>
+
+  <div class="fol-demo__stage">
+    <span class="fol-demo__label">belanja</span>
+    <div class="fol-demo__cars">
+      {
+        items.map((label, i) => (
+          <div class="fol-demo__col">
+            <span
+              class="fol-demo__bridge"
+              style={`animation-delay:${startDelay + i * stepDuration}s`}
+            >
+              ✨
+            </span>
+            <span class="fol-demo__car" style={`animation-delay:${startDelay + i * stepDuration}s`}>
+              {label}
+            </span>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="fol-demo__output">
+      <span class="fol-demo__output-label">Hasil:</span>
+      <div class="fol-demo__output-chips">
+        {
+          items.map((label, i) => (
+            <span class="fol-demo__chip" style={`animation-delay:${startDelay + i * stepDuration + 0.3}s`}>
+              {label}
+            </span>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="fol-demo__hint">
+  💡 <code>for</code> bisa langsung mengambil <strong>tiap isi</strong> list satu per satu, tanpa perlu
+  menulis nomor urutnya secara manual. <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .fol-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 22px 24px;
+    cursor: pointer;
+  }
+
+  .fol-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 16px 18px;
+    font-family: var(--font-code);
+    font-size: 15px;
+    line-height: 1.9;
+    color: var(--code-text);
+    overflow-x: auto;
+  }
+
+  .fol-demo__line {
+    white-space: pre;
+  }
+
+  .fol-demo__indent {
+    padding-left: 22px;
+  }
+
+  .tok-p {
+    color: var(--code-purple);
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .fol-demo__stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .fol-demo__label {
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--slate);
+  }
+
+  .fol-demo__cars {
+    display: flex;
+    gap: 10px;
+  }
+
+  .fol-demo__col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    position: relative;
+  }
+
+  .fol-demo__bridge {
+    font-size: 16px;
+    opacity: 0;
+  }
+
+  .fol-demo.is-in .fol-demo__bridge {
+    animation: fol-demo-bridge-in 0.4s ease forwards;
+  }
+
+  @keyframes fol-demo-bridge-in {
+    0% {
+      opacity: 0;
+      transform: translateY(4px) scale(0.7);
+    }
+    50% {
+      opacity: 1;
+      transform: translateY(-4px) scale(1.2);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .fol-demo__car {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--code-green);
+    color: #1e3a16;
+    border: 2px solid #7bae58;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 14px;
+    opacity: 0.5;
+  }
+
+  .fol-demo.is-in .fol-demo__car {
+    animation: fol-demo-car-highlight 0.5s ease forwards;
+  }
+
+  @keyframes fol-demo-car-highlight {
+    0%,
+    100% {
+      opacity: 0.5;
+      transform: scale(1);
+      box-shadow: none;
+    }
+    40% {
+      opacity: 1;
+      transform: scale(1.1);
+      box-shadow: 0 0 0 4px rgba(47, 191, 113, 0.3);
+    }
+  }
+
+  .fol-demo__output {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    background: var(--cloud);
+    border-radius: 10px;
+    padding: 10px 14px;
+    min-height: 40px;
+  }
+
+  .fol-demo__output-label {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--slate);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  .fol-demo__output-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .fol-demo__chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 10px;
+    border-radius: 6px;
+    background: var(--pyto-green-soft);
+    color: var(--pyto-green-dark);
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 13px;
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  .fol-demo.is-in .fol-demo__chip {
+    animation: fol-demo-fade-up 0.35s ease forwards;
+  }
+
+  @keyframes fol-demo-fade-up {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .fol-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  .fol-demo__hint code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fol-demo__bridge,
+    .fol-demo__car,
+    .fol-demo__chip {
+      animation: none !important;
+    }
+
+    .fol-demo__bridge {
+      opacity: 0;
+    }
+
+    .fol-demo__car {
+      opacity: 1;
+    }
+
+    .fol-demo__chip {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .fol-demo__code {
+      font-size: 14px;
+    }
+
+    .fol-demo__cars {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="fol-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

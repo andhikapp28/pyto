@@ -1,0 +1,471 @@
+---
+// Animasi #2 (plan/bab-07-animasi.md) — momen utama Bab 7: range(1, 6)
+// "terbuka" jadi bola angka 1-5 berbaris (bola 6 ditolak, berkedip redup di
+// luar kotak dengan tanda silang), lalu satu per satu bola melompat masuk ke
+// kotak `angka` dan baris print(angka) yang menjorok menyala mencetak
+// nilainya, sebelum bola berikutnya gantian masuk. Sekali jalan saat
+// terlihat, boleh diulang lewat hover/klik/fokus.
+const balls = [1, 2, 3, 4, 5];
+const stepDuration = 0.4;
+const startDelay = 0.9;
+---
+
+<div
+  class="frd-demo"
+  data-anim="frd-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi for angka in range 1 sampai 6"
+>
+  <div class="frd-demo__code">
+    <div class="frd-demo__line">
+      <span class="tok-p">for</span> <span class="tok-var">angka</span> <span class="tok-p">in</span>
+      <span class="tok-fn">range</span>(<span class="tok-num">1</span>, <span class="tok-num">6</span>):
+    </div>
+    <div class="frd-demo__line frd-demo__indent">
+      <span class="tok-fn">print</span>(<span class="tok-var">angka</span>)
+    </div>
+  </div>
+
+  <div class="frd-demo__stage">
+    <div class="frd-demo__range-row">
+      <span class="frd-demo__range-label">range(1, 6)</span>
+      <div class="frd-demo__balls">
+        {
+          balls.map((n, i) => (
+            <span
+              class="frd-demo__ball"
+              style={`animation-delay:${startDelay + i * stepDuration}s`}
+              data-n={n}
+            >
+              {n}
+            </span>
+          ))
+        }
+        <span class="frd-demo__ball frd-demo__ball--rejected" aria-hidden="true">
+          6
+          <span class="frd-demo__reject-x">✗</span>
+        </span>
+      </div>
+      <span class="frd-demo__reject-caption">6 tidak ikut keluar — berhenti sebelum sampai sini!</span>
+    </div>
+
+    <div class="frd-demo__flow" aria-hidden="true">↓</div>
+
+    <div class="frd-demo__slot">
+      <span class="frd-demo__slot-label">angka</span>
+      <div class="frd-demo__slot-box">
+        {
+          balls.map((n, i) => (
+            <span
+              class="frd-demo__slot-value"
+              style={`animation-delay:${startDelay + i * stepDuration + 0.05}s`}
+              data-last={i === balls.length - 1 ? 'true' : undefined}
+            >
+              {n}
+            </span>
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="frd-demo__output">
+      <span class="frd-demo__output-label">Hasil:</span>
+      <div class="frd-demo__output-chips">
+        {
+          balls.map((n, i) => (
+            <span class="frd-demo__chip" style={`animation-delay:${startDelay + i * stepDuration + 0.15}s`}>
+              {n}
+            </span>
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="frd-demo__done">🏁 loop berhenti — bola sudah habis!</div>
+  </div>
+</div>
+
+<p class="frd-demo__hint">
+  💡 <code>range(1, 6)</code> menghasilkan angka <strong>1 sampai 5</strong> — angka <code>6</code>
+  tidak ikut! <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .frd-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 22px 24px;
+    cursor: pointer;
+  }
+
+  .frd-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 16px 18px;
+    font-family: var(--font-code);
+    font-size: 15px;
+    line-height: 1.9;
+    color: var(--code-text);
+    overflow-x: auto;
+  }
+
+  .frd-demo__line {
+    white-space: pre;
+  }
+
+  .frd-demo__indent {
+    padding-left: 22px;
+  }
+
+  .tok-p {
+    color: var(--code-purple);
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .tok-num {
+    color: var(--code-orange);
+  }
+
+  .frd-demo__stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .frd-demo__range-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .frd-demo__range-label {
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--slate);
+  }
+
+  .frd-demo__balls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .frd-demo__ball {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 34% 30%, #eaf3ff, #bbdcff);
+    border: 2px solid #7fb6ef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 15px;
+    color: #1e4e85;
+    opacity: 0.35;
+    transform: scale(0.9);
+  }
+
+  .frd-demo.is-in .frd-demo__ball {
+    animation: frd-demo-ball-pulse 0.35s ease forwards;
+  }
+
+  @keyframes frd-demo-ball-pulse {
+    0% {
+      opacity: 0.35;
+      transform: scale(0.9);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+    100% {
+      opacity: 0.55;
+      transform: scale(1);
+    }
+  }
+
+  .frd-demo__ball--rejected {
+    position: relative;
+    background: var(--cloud);
+    border-color: var(--border);
+    color: var(--slate);
+    opacity: 0.3;
+    animation: none !important;
+  }
+
+  .frd-demo.is-in .frd-demo__ball--rejected {
+    animation: frd-demo-reject-wobble 0.5s ease 0.15s !important;
+  }
+
+  @keyframes frd-demo-reject-wobble {
+    0%,
+    100% {
+      transform: translateX(0);
+      opacity: 0.3;
+    }
+    40% {
+      transform: translateX(-4px);
+      opacity: 0.7;
+    }
+    70% {
+      transform: translateX(3px);
+    }
+  }
+
+  .frd-demo__reject-x {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    font-size: 12px;
+    color: var(--coral);
+    font-weight: 800;
+  }
+
+  .frd-demo__reject-caption {
+    font-size: 12px;
+    color: var(--slate);
+    opacity: 0;
+  }
+
+  .frd-demo.is-in .frd-demo__reject-caption {
+    animation: frd-demo-fade-in 0.4s ease 0.3s forwards;
+  }
+
+  .frd-demo__flow {
+    color: var(--border);
+    font-size: 18px;
+  }
+
+  .frd-demo__slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .frd-demo__slot-label {
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--wood-label-text);
+  }
+
+  .frd-demo__slot-box {
+    position: relative;
+    width: 64px;
+    height: 56px;
+    border-radius: 12px;
+    background: var(--box-main-yuk-bg);
+    border: 2px solid var(--wood-label-border);
+  }
+
+  .frd-demo__slot-value {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-code);
+    font-weight: 800;
+    font-size: 22px;
+    color: var(--wood-label-text);
+    opacity: 0;
+  }
+
+  .frd-demo.is-in .frd-demo__slot-value {
+    animation: frd-demo-slot-in-out 0.4s ease forwards;
+  }
+
+  .frd-demo.is-in .frd-demo__slot-value[data-last='true'] {
+    animation: frd-demo-slot-in 0.4s ease forwards;
+  }
+
+  @keyframes frd-demo-slot-in-out {
+    0% {
+      opacity: 0;
+      transform: scale(0.6);
+    }
+    30% {
+      opacity: 1;
+      transform: scale(1.15);
+    }
+    60% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+  }
+
+  @keyframes frd-demo-slot-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.6);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.15);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .frd-demo__output {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    background: var(--cloud);
+    border-radius: 10px;
+    padding: 10px 14px;
+    min-height: 40px;
+  }
+
+  .frd-demo__output-label {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--slate);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  .frd-demo__output-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .frd-demo__chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: var(--pyto-green-soft);
+    color: var(--pyto-green-dark);
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 13px;
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  .frd-demo.is-in .frd-demo__chip {
+    animation: frd-demo-fade-up 0.35s ease forwards;
+  }
+
+  @keyframes frd-demo-fade-up {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes frd-demo-fade-in {
+    to {
+      opacity: 1;
+    }
+  }
+
+  .frd-demo__done {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--pyto-green-dark);
+    opacity: 0;
+  }
+
+  .frd-demo.is-in .frd-demo__done {
+    animation: frd-demo-fade-in 0.4s ease 3s forwards;
+  }
+
+  .frd-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  .frd-demo__hint code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .frd-demo__ball,
+    .frd-demo__ball--rejected,
+    .frd-demo__reject-caption,
+    .frd-demo__slot-value,
+    .frd-demo__chip,
+    .frd-demo__done {
+      animation: none !important;
+    }
+
+    .frd-demo__ball {
+      opacity: 0.55;
+      transform: none;
+    }
+
+    .frd-demo__ball--rejected {
+      opacity: 0.3;
+    }
+
+    .frd-demo__reject-caption,
+    .frd-demo__chip,
+    .frd-demo__done {
+      opacity: 1;
+      transform: none;
+    }
+
+    .frd-demo__slot-value {
+      opacity: 0;
+    }
+
+    .frd-demo__slot-value[data-last='true'] {
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .frd-demo__code {
+      font-size: 14px;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="frd-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

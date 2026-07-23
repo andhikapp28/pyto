@@ -1,0 +1,299 @@
+---
+// Animasi #9 (plan/bab-08-animasi.md): belanja = ["Roti", "Susu", "Telur"];
+// print(belanja[-1]) — deretan gerbong dengan nomor urut biasa (0,1,2) di
+// bawah, lalu di atas deretan muncul nomor negatif dihitung mundur dari
+// ujung kanan (-1, -2, -3). Tangan kecil mengetuk gerbong -1, gerbong
+// "Telur" menyala terangkat dan tercetak. Sekali jalan saat terlihat, boleh
+// diulang lewat hover/klik/fokus.
+const items = ['Roti', 'Susu', 'Telur'];
+const negatives = [-3, -2, -1];
+---
+
+<div
+  class="nid-demo"
+  data-anim="nid-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi mengambil isi list dari belakang dengan index negatif"
+>
+  <div class="nid-demo__code">
+    <div class="nid-demo__line">
+      <span class="tok-var">belanja</span> = [<span class="tok-str">&quot;Roti&quot;</span>,
+      <span class="tok-str">&quot;Susu&quot;</span>, <span class="tok-str">&quot;Telur&quot;</span>]
+    </div>
+    <div class="nid-demo__line">&nbsp;</div>
+    <div class="nid-demo__line">
+      <span class="tok-fn">print</span>(belanja[<span class="nid-demo__neg">-1</span>])
+      <span class="nid-demo__comment"># &quot;Telur&quot; — barang paling akhir</span>
+    </div>
+  </div>
+
+  <div class="nid-demo__stage">
+    <div class="nid-demo__negatives">
+      {negatives.map((n, i) => <span class={`nid-demo__neg-badge nid-demo__neg-badge--${i}`}>{n}</span>)}
+    </div>
+    <span class="nid-demo__label">belanja</span>
+    <div class="nid-demo__cars">
+      {
+        items.map((label, i) => (
+          <div class="nid-demo__col">
+            <span class={`nid-demo__car ${i === items.length - 1 ? 'nid-demo__car--target' : ''}`}>
+              {label}
+            </span>
+            <span class="nid-demo__index">{i}</span>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="nid-demo__output">
+      <span class="nid-demo__hand" aria-hidden="true">👆</span>
+      <span class="nid-demo__result">
+        <span class="nid-demo__output-label">Hasil:</span> <strong>Telur</strong>
+      </span>
+    </div>
+  </div>
+</div>
+
+<p class="nid-demo__hint">
+  💡 Index negatif menghitung dari belakang: <code>-1</code> selalu barang
+  <strong>paling akhir</strong>. <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .nid-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 22px 24px;
+    cursor: pointer;
+  }
+
+  .nid-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 16px 18px;
+    font-family: var(--font-code);
+    font-size: 15px;
+    line-height: 1.9;
+    color: var(--code-text);
+    overflow-x: auto;
+  }
+
+  .nid-demo__line {
+    white-space: pre;
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .nid-demo__comment {
+    color: var(--code-comment);
+    margin-left: 6px;
+  }
+
+  .nid-demo__neg {
+    color: var(--grape);
+    font-weight: 700;
+  }
+
+  .nid-demo__stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .nid-demo__negatives {
+    display: flex;
+    gap: 4px;
+  }
+
+  .nid-demo__neg-badge {
+    width: 62px;
+    text-align: center;
+    font-family: var(--font-code);
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--grape);
+    opacity: 0;
+  }
+
+  .nid-demo.is-in .nid-demo__neg-badge {
+    animation: nid-demo-fade-in 0.4s ease forwards;
+  }
+
+  .nid-demo.is-in .nid-demo__neg-badge--0 {
+    animation-delay: 0.5s;
+  }
+
+  .nid-demo.is-in .nid-demo__neg-badge--1 {
+    animation-delay: 0.7s;
+  }
+
+  .nid-demo.is-in .nid-demo__neg-badge--2 {
+    animation-delay: 0.9s;
+  }
+
+  .nid-demo__label {
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--slate);
+  }
+
+  .nid-demo__cars {
+    display: flex;
+    gap: 4px;
+  }
+
+  .nid-demo__col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    width: 62px;
+  }
+
+  .nid-demo__car {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--code-green);
+    color: #1e3a16;
+    border: 2px solid #7bae58;
+    border-radius: 8px;
+    padding: 8px 6px;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 13px;
+    width: 100%;
+  }
+
+  .nid-demo.is-in .nid-demo__car--target {
+    animation: nid-demo-highlight 0.5s ease 1.3s forwards;
+  }
+
+  @keyframes nid-demo-highlight {
+    0% {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+    50% {
+      transform: translateY(-6px);
+      box-shadow: 0 6px 12px rgba(47, 191, 113, 0.35);
+    }
+    100% {
+      transform: translateY(0);
+      box-shadow: 0 0 0 3px rgba(47, 191, 113, 0.35);
+    }
+  }
+
+  .nid-demo__index {
+    font-family: var(--font-code);
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--slate);
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--cloud);
+  }
+
+  .nid-demo__output {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+    opacity: 0;
+  }
+
+  .nid-demo.is-in .nid-demo__output {
+    animation: nid-demo-fade-in 0.4s ease 1.6s forwards;
+  }
+
+  .nid-demo__hand {
+    font-size: 18px;
+  }
+
+  .nid-demo__result {
+    font-size: 14px;
+    color: var(--ink);
+  }
+
+  .nid-demo__output-label {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--slate);
+    text-transform: uppercase;
+  }
+
+  .nid-demo__result strong {
+    color: var(--pyto-green-dark);
+  }
+
+  @keyframes nid-demo-fade-in {
+    to {
+      opacity: 1;
+    }
+  }
+
+  .nid-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  .nid-demo__hint code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nid-demo__neg-badge,
+    .nid-demo__car--target,
+    .nid-demo__output {
+      animation: none !important;
+    }
+
+    .nid-demo__neg-badge,
+    .nid-demo__output {
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .nid-demo__code {
+      font-size: 14px;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="nid-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

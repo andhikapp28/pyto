@@ -1,0 +1,363 @@
+---
+// Animasi #2 (plan/bab-08-animasi.md) — momen utama Bab 8: teman =
+// ["Kirana", "Budi", "Sari"] disusun jadi deretan gerbong berlabel teman,
+// nomor urut 0/1/2 muncul di bawah tiap gerbong (nomor 0 disorot dengan
+// caption "nomor urutnya mulai dari 0, bukan 1!"), lalu teman[0], teman[1],
+// teman[2] bergiliran dituliskan dan menghubungkan ke gerbong yang sesuai.
+// Sekali jalan saat terlihat, boleh diulang lewat hover/klik/fokus.
+const items = ['Kirana', 'Budi', 'Sari'];
+---
+
+<div
+  class="lid-demo"
+  data-anim="lid-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi membuat daftar teman dan mengambil isinya lewat nomor urut"
+>
+  <div class="lid-demo__code">
+    <div class="lid-demo__line">
+      <span class="tok-var">teman</span> = [<span class="tok-str">&quot;Kirana&quot;</span>,
+      <span class="tok-str">&quot;Budi&quot;</span>, <span class="tok-str">&quot;Sari&quot;</span>]
+    </div>
+    <div class="lid-demo__line">&nbsp;</div>
+    <div class="lid-demo__line">
+      <span class="tok-fn">print</span>(teman[<span class="lid-demo__idx lid-demo__idx--0">0</span>])
+    </div>
+    <div class="lid-demo__line">
+      <span class="tok-fn">print</span>(teman[<span class="lid-demo__idx lid-demo__idx--1">1</span>])
+    </div>
+    <div class="lid-demo__line">
+      <span class="tok-fn">print</span>(teman[<span class="lid-demo__idx lid-demo__idx--2">2</span>])
+    </div>
+  </div>
+
+  <div class="lid-demo__stage">
+    <span class="lid-demo__label">teman</span>
+    <div class="lid-demo__cars">
+      {
+        items.map((label, i) => (
+          <div class={`lid-demo__col lid-demo__col--${i}`}>
+            <span class="lid-demo__car">{label}</span>
+            <span class={`lid-demo__index ${i === 0 ? 'lid-demo__index--zero' : ''}`}>{i}</span>
+          </div>
+        ))
+      }
+    </div>
+    <p class="lid-demo__zero-caption">☝ nomor urutnya mulai dari 0, bukan 1!</p>
+
+    <div class="lid-demo__output">
+      <span class="lid-demo__output-label">Hasil:</span>
+      <div class="lid-demo__output-chips">
+        {
+          items.map((label, i) => (
+            <span class={`lid-demo__chip lid-demo__chip--${i}`}>{label}</span>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="lid-demo__hint">
+  💡 List menyimpan banyak nilai berurutan, dan tiap nilai punya <strong>nomor urut (index)</strong> —
+  dimulai dari <code>0</code>. <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .lid-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 22px 24px;
+    cursor: pointer;
+  }
+
+  .lid-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 16px 18px;
+    font-family: var(--font-code);
+    font-size: 15px;
+    line-height: 1.9;
+    color: var(--code-text);
+    overflow-x: auto;
+  }
+
+  .lid-demo__line {
+    white-space: pre;
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .lid-demo__idx {
+    display: inline-block;
+    border-radius: 4px;
+    color: var(--code-orange);
+    font-weight: 700;
+  }
+
+  .lid-demo.is-in .lid-demo__idx--0 {
+    animation: lid-demo-idx-glow 0.5s ease 1.4s;
+  }
+
+  .lid-demo.is-in .lid-demo__idx--1 {
+    animation: lid-demo-idx-glow 0.5s ease 2s;
+  }
+
+  .lid-demo.is-in .lid-demo__idx--2 {
+    animation: lid-demo-idx-glow 0.5s ease 2.6s;
+  }
+
+  @keyframes lid-demo-idx-glow {
+    0%,
+    100% {
+      background: transparent;
+    }
+    40% {
+      background: rgba(255, 201, 77, 0.4);
+    }
+  }
+
+  .lid-demo__stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .lid-demo__label {
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--slate);
+  }
+
+  .lid-demo__cars {
+    display: flex;
+    gap: 4px;
+  }
+
+  .lid-demo__col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+
+  .lid-demo.is-in .lid-demo__col {
+    animation: lid-demo-col-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  .lid-demo.is-in .lid-demo__col--0 {
+    animation-delay: 0.1s;
+  }
+
+  .lid-demo.is-in .lid-demo__col--1 {
+    animation-delay: 0.25s;
+  }
+
+  .lid-demo.is-in .lid-demo__col--2 {
+    animation-delay: 0.4s;
+  }
+
+  @keyframes lid-demo-col-in {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .lid-demo__car {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--code-green);
+    color: #1e3a16;
+    border: 2px solid #7bae58;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  .lid-demo__index {
+    font-family: var(--font-code);
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--slate);
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--cloud);
+  }
+
+  .lid-demo__index--zero {
+    background: var(--sunny-yellow);
+    color: var(--wood-label-text);
+  }
+
+  .lid-demo.is-in .lid-demo__index--zero {
+    animation: lid-demo-zero-pulse 0.5s ease 0.9s 2;
+  }
+
+  @keyframes lid-demo-zero-pulse {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.35);
+    }
+  }
+
+  .lid-demo__zero-caption {
+    font-size: 12px;
+    color: var(--wood-label-text);
+    font-weight: 700;
+    margin: 0;
+    opacity: 0;
+  }
+
+  .lid-demo.is-in .lid-demo__zero-caption {
+    animation: lid-demo-fade-in 0.4s ease 1s forwards;
+  }
+
+  .lid-demo__output {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    background: var(--cloud);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-top: 6px;
+  }
+
+  .lid-demo__output-label {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--slate);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  .lid-demo__output-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .lid-demo__chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 10px;
+    border-radius: 6px;
+    background: var(--pyto-green-soft);
+    color: var(--pyto-green-dark);
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 13px;
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  .lid-demo.is-in .lid-demo__chip--0 {
+    animation: lid-demo-fade-up 0.35s ease 1.6s forwards;
+  }
+
+  .lid-demo.is-in .lid-demo__chip--1 {
+    animation: lid-demo-fade-up 0.35s ease 2.2s forwards;
+  }
+
+  .lid-demo.is-in .lid-demo__chip--2 {
+    animation: lid-demo-fade-up 0.35s ease 2.8s forwards;
+  }
+
+  @keyframes lid-demo-fade-up {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes lid-demo-fade-in {
+    to {
+      opacity: 1;
+    }
+  }
+
+  .lid-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  .lid-demo__hint code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lid-demo__idx,
+    .lid-demo__col,
+    .lid-demo__index--zero,
+    .lid-demo__zero-caption,
+    .lid-demo__chip {
+      animation: none !important;
+    }
+
+    .lid-demo__col {
+      opacity: 1;
+      transform: none;
+    }
+
+    .lid-demo__zero-caption,
+    .lid-demo__chip {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .lid-demo__code {
+      font-size: 14px;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="lid-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

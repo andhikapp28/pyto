@@ -1,0 +1,259 @@
+---
+// Animasi #3 (plan/bab-09-animasi.md): NameError — salah ketik nama
+// variabel. nama = "Kirana"; print(nam) menghasilkan NameError disertai
+// petunjuk "Did you mean: 'nama'?" (echo Python 3.12). Kata nam berkedip
+// merah, lalu huruf "a" melayang masuk membentuk nama yang benar, dan versi
+// "Sesudah" berjalan mulus. Sekali jalan saat terlihat, boleh diulang lewat
+// hover/klik/fokus.
+---
+
+<div
+  class="nme-demo"
+  data-anim="nme-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi NameError karena salah ketik nama variabel"
+>
+  <div class="nme-demo__code">
+    <div class="nme-demo__line nme-demo__comment"># Sebelum — salah ketik &quot;nam&quot;</div>
+    <div class="nme-demo__line"><span class="tok-var">nama</span> = <span class="tok-str">&quot;Kirana&quot;</span></div>
+    <div class="nme-demo__line">
+      <span class="tok-fn">print</span>(<span class="nme-demo__typo">nam<span class="nme-demo__extra-a">a</span></span>)
+    </div>
+  </div>
+
+  <div class="nme-demo__result">
+    <div class="nme-demo__error-block">
+      <span class="nme-demo__error">💥 NameError: name 'nam' is not defined</span>
+      <span class="nme-demo__hint-line">Did you mean: 'nama'?</span>
+    </div>
+    <div class="nme-demo__success-block">
+      <span class="nme-demo__success">✅ Kirana</span>
+    </div>
+  </div>
+</div>
+
+<p class="nme-demo__hint">
+  💡 Salah ketik nama variabel adalah error paling umum bagi pemula. Python kadang sudah membantu
+  menebak maksud kita lewat petunjuk "Did you mean". <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .nme-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    cursor: pointer;
+  }
+
+  .nme-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 14px 16px;
+    font-family: var(--font-code);
+    font-size: 14px;
+    line-height: 1.85;
+    color: var(--code-text);
+    overflow-x: auto;
+  }
+
+  .nme-demo__line {
+    white-space: pre;
+  }
+
+  .nme-demo__comment {
+    color: var(--code-comment);
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .nme-demo__typo {
+    position: relative;
+    color: var(--coral);
+    font-weight: 700;
+  }
+
+  .nme-demo.is-in .nme-demo__typo {
+    animation: nme-demo-shake 0.4s ease 0.2s;
+  }
+
+  @keyframes nme-demo-shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-3px);
+    }
+    75% {
+      transform: translateX(3px);
+    }
+  }
+
+  .nme-demo__extra-a {
+    opacity: 0;
+    color: var(--pyto-green);
+  }
+
+  .nme-demo.is-in .nme-demo__extra-a {
+    animation: nme-demo-a-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1.6s forwards;
+  }
+
+  .nme-demo.is-in .nme-demo__typo {
+    animation: nme-demo-shake 0.4s ease 0.2s, nme-demo-fix-color 0.3s ease 1.8s forwards;
+  }
+
+  @keyframes nme-demo-a-in {
+    0% {
+      opacity: 0;
+      transform: translateX(-6px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes nme-demo-fix-color {
+    to {
+      color: var(--pyto-green-dark);
+    }
+  }
+
+  .nme-demo__result {
+    position: relative;
+    min-height: 56px;
+  }
+
+  .nme-demo__error-block,
+  .nme-demo__success-block {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    opacity: 0;
+  }
+
+  .nme-demo.is-in .nme-demo__error-block {
+    animation: nme-demo-fade-in-out 0.4s ease 0.6s forwards, nme-demo-fade-out 0.4s ease 1.7s forwards;
+  }
+
+  .nme-demo.is-in .nme-demo__success-block {
+    animation: nme-demo-fade-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 2.1s forwards;
+  }
+
+  @keyframes nme-demo-fade-in-out {
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes nme-demo-fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes nme-demo-fade-in {
+    to {
+      opacity: 1;
+    }
+  }
+
+  .nme-demo__error {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--code-error-bg);
+    border: 1px solid var(--code-error-border);
+    border-radius: 8px;
+    padding: 5px 12px;
+    color: var(--code-error-text);
+    font-weight: 700;
+    font-size: 13px;
+    width: fit-content;
+  }
+
+  .nme-demo__hint-line {
+    font-family: var(--font-code);
+    font-size: 12px;
+    color: var(--slate);
+    font-style: italic;
+    padding-left: 4px;
+  }
+
+  .nme-demo__success {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--pyto-green-soft);
+    border: 1px solid var(--pyto-green);
+    border-radius: 8px;
+    padding: 5px 12px;
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+    font-size: 14px;
+    width: fit-content;
+  }
+
+  .nme-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nme-demo__typo,
+    .nme-demo__extra-a,
+    .nme-demo__error-block,
+    .nme-demo__success-block {
+      animation: none !important;
+    }
+
+    .nme-demo__typo {
+      color: var(--pyto-green-dark);
+    }
+
+    .nme-demo__extra-a {
+      opacity: 1;
+    }
+
+    .nme-demo__error-block {
+      opacity: 0;
+    }
+
+    .nme-demo__success-block {
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .nme-demo__code {
+      font-size: 13px;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="nme-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

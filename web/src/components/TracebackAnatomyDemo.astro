@@ -1,0 +1,300 @@
+---
+// Animasi #2 (plan/bab-09-animasi.md) — momen utama Bab 9: membedah bagian
+// traceback. nama = "Kirana"; print(nam) menghasilkan NameError. Tiap baris
+// traceback disorot bergiliran dengan label: "di baris mana masalahnya"
+// (biru), "kode yang bermasalah, dikutip ulang" (kuning), "jenis errornya" +
+// "pesan detailnya" (coral) — lalu semua label memudar dan gelembung Pyto
+// menerjemahkan ke bahasa manusia. Sekali jalan saat terlihat, boleh
+// diulang lewat hover/klik/fokus.
+---
+
+<div
+  class="tad-demo"
+  data-anim="tad-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi membedah bagian-bagian pesan error"
+>
+  <div class="tad-demo__code">
+    <span class="tok-var">nama</span> = <span class="tok-str">&quot;Kirana&quot;</span>
+    <br />
+    <span class="tok-fn">print</span>(nam)
+  </div>
+
+  <div class="tad-demo__traceback">
+    <div class="tad-demo__tb-line">Traceback (most recent call last):</div>
+
+    <div class="tad-demo__tb-line tad-demo__tb-line--file">
+      <span class="tad-demo__hl tad-demo__hl--blue">File &quot;main.py&quot;, line 2, in &lt;module&gt;</span>
+      <span class="tad-demo__label tad-demo__label--blue">di baris mana masalahnya</span>
+    </div>
+
+    <div class="tad-demo__tb-line tad-demo__tb-line--code">
+      <span class="tad-demo__hl tad-demo__hl--yellow">&nbsp;&nbsp;print(nam)</span>
+      <span class="tad-demo__label tad-demo__label--yellow">kode yang bermasalah, dikutip ulang</span>
+    </div>
+
+    <div class="tad-demo__tb-line tad-demo__tb-line--final">
+      <span class="tad-demo__hl tad-demo__hl--coral">NameError</span>: name 'nam' is not defined
+      <span class="tad-demo__label tad-demo__label--type">jenis errornya</span>
+      <span class="tad-demo__label tad-demo__label--msg">pesan detailnya</span>
+    </div>
+  </div>
+
+  <div class="tad-demo__translation pyto-quote-box">
+    <span class="pyto-quote-box__mascot" role="img" aria-label="Pyto">🐍</span>
+    <p class="pyto-quote-box__text">
+      "Python nyariin kotak bernama <code>nam</code>, tapi nggak ketemu — kayaknya salah ketik dari
+      <code>nama</code>?"
+    </p>
+  </div>
+</div>
+
+<p class="tad-demo__hint">
+  💡 Traceback cuma berisi 3 info: <strong>di mana</strong>, <strong>kode apa</strong>, dan
+  <strong>kenapa</strong>. <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .tad-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 22px 24px;
+    cursor: pointer;
+  }
+
+  .tad-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 14px 16px;
+    font-family: var(--font-code);
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--code-text);
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .tad-demo__traceback {
+    background: var(--console-bg);
+    border-radius: var(--radius-code);
+    padding: 14px 16px;
+    font-family: var(--font-code);
+    font-size: 13.5px;
+    line-height: 1.9;
+    color: var(--code-text);
+    overflow-x: auto;
+    transition: opacity 0.4s ease;
+  }
+
+  .tad-demo.is-in .tad-demo__traceback {
+    animation: tad-demo-tb-fade 0.4s ease 2.8s forwards;
+  }
+
+  @keyframes tad-demo-tb-fade {
+    to {
+      opacity: 0.35;
+    }
+  }
+
+  .tad-demo__tb-line {
+    position: relative;
+    white-space: pre;
+    padding: 2px 0;
+  }
+
+  .tad-demo__hl {
+    border-radius: 4px;
+    padding: 1px 4px;
+    margin: -1px -4px;
+  }
+
+  .tad-demo.is-in .tad-demo__hl--blue {
+    animation: tad-demo-glow-blue 0.6s ease 0.2s;
+  }
+
+  .tad-demo.is-in .tad-demo__hl--yellow {
+    animation: tad-demo-glow-yellow 0.6s ease 1s;
+  }
+
+  .tad-demo.is-in .tad-demo__hl--coral {
+    animation: tad-demo-glow-coral 0.6s ease 1.8s;
+    color: var(--coral);
+    font-weight: 700;
+  }
+
+  @keyframes tad-demo-glow-blue {
+    0%,
+    100% {
+      background: transparent;
+    }
+    40% {
+      background: rgba(97, 175, 239, 0.35);
+    }
+  }
+
+  @keyframes tad-demo-glow-yellow {
+    0%,
+    100% {
+      background: transparent;
+    }
+    40% {
+      background: rgba(255, 201, 77, 0.4);
+    }
+  }
+
+  @keyframes tad-demo-glow-coral {
+    0%,
+    100% {
+      background: transparent;
+    }
+    40% {
+      background: rgba(255, 122, 107, 0.35);
+    }
+  }
+
+  .tad-demo__label {
+    display: inline-block;
+    margin-left: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: var(--font-body);
+    padding: 2px 8px;
+    border-radius: 999px;
+    opacity: 0;
+  }
+
+  .tad-demo__label--blue {
+    background: rgba(97, 175, 239, 0.2);
+    color: var(--code-blue);
+  }
+
+  .tad-demo__label--yellow {
+    background: rgba(255, 201, 77, 0.25);
+    color: var(--wood-label-text);
+  }
+
+  .tad-demo__label--type,
+  .tad-demo__label--msg {
+    background: rgba(255, 122, 107, 0.2);
+    color: var(--coral);
+  }
+
+  .tad-demo.is-in .tad-demo__label--blue {
+    animation: tad-demo-label-in 0.4s ease 0.35s forwards;
+  }
+
+  .tad-demo.is-in .tad-demo__label--yellow {
+    animation: tad-demo-label-in 0.4s ease 1.15s forwards;
+  }
+
+  .tad-demo.is-in .tad-demo__label--type {
+    animation: tad-demo-label-in 0.4s ease 1.95s forwards;
+  }
+
+  .tad-demo.is-in .tad-demo__label--msg {
+    animation: tad-demo-label-in 0.4s ease 2.25s forwards;
+  }
+
+  @keyframes tad-demo-label-in {
+    0% {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    30% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    85% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  .tad-demo__translation {
+    opacity: 0;
+    transform: translateY(8px);
+    padding: 18px 20px;
+  }
+
+  .tad-demo.is-in .tad-demo__translation {
+    animation: tad-demo-translation-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 3s forwards;
+  }
+
+  @keyframes tad-demo-translation-in {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .tad-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tad-demo__traceback,
+    .tad-demo__hl,
+    .tad-demo__label,
+    .tad-demo__translation {
+      animation: none !important;
+    }
+
+    .tad-demo__traceback {
+      opacity: 0.35;
+    }
+
+    .tad-demo__label {
+      opacity: 0;
+    }
+
+    .tad-demo__translation {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .tad-demo__code,
+    .tad-demo__traceback {
+      font-size: 13px;
+    }
+
+    .tad-demo__label {
+      display: block;
+      margin: 4px 0 0;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="tad-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

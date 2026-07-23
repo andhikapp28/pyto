@@ -1,0 +1,280 @@
+---
+// Animasi #6 (plan/bab-09-animasi.md): SyntaxError — lupa titik dua. Baris
+// if umur >= 17 tanpa titik dua berkedip merah dan bergetar (echo Bab 6
+// beat #5), lalu titik dua melayang masuk dan "mengklik" di ujung baris.
+// Sekali jalan saat terlihat, boleh diulang lewat hover/klik/fokus.
+---
+
+<div
+  class="sye-demo"
+  data-anim="sye-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi SyntaxError karena lupa titik dua"
+>
+  <div class="sye-demo__cols">
+    <div class="sye-demo__col">
+      <p class="sye-demo__label">Sebelum</p>
+      <div class="sye-demo__code">
+        <span class="tok-var">umur</span> = <span class="tok-num">20</span>
+        <br />
+        &nbsp;
+        <br />
+        <span class="sye-demo__line-bad"><span class="tok-p">if</span> umur &gt;= <span class="tok-num">17</span></span>
+        <br />
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="tok-fn">print</span>(<span class="tok-str">&quot;Sudah boleh bikin SIM&quot;</span>)
+      </div>
+      <span class="sye-demo__error">💥 SyntaxError: expected ':'</span>
+    </div>
+
+    <div class="sye-demo__col sye-demo__col--after">
+      <p class="sye-demo__label">Sesudah</p>
+      <div class="sye-demo__code">
+        <span class="tok-var">umur</span> = <span class="tok-num">20</span>
+        <br />
+        &nbsp;
+        <br />
+        <span class="tok-p">if</span> umur &gt;= <span class="tok-num">17</span><span class="sye-demo__colon">:</span>
+        <br />
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="tok-fn">print</span>(<span class="tok-str">&quot;Sudah boleh bikin SIM&quot;</span>)
+      </div>
+      <span class="sye-demo__success">✅ Sudah boleh bikin SIM</span>
+    </div>
+  </div>
+
+  <p class="sye-demo__translation">
+    🐍 "Python bilang: kalimatnya belum lengkap — ia menunggu tanda titik dua <code>:</code> di akhir
+    baris <code>if</code>, tapi belum ketemu."
+  </p>
+</div>
+
+<p class="sye-demo__hint">
+  💡 <code>SyntaxError</code> berarti Python <strong>belum sempat menjalankan</strong> kodenya sama
+  sekali — beda dari error lain yang muncul setelah kode sempat berjalan. <em>(Klik / hover untuk
+  ulangi.)</em>
+</p>
+
+<style>
+  .sye-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    cursor: pointer;
+  }
+
+  .sye-demo__cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .sye-demo__label {
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--slate);
+    margin: 0 0 6px;
+  }
+
+  .sye-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 12px 14px;
+    font-family: var(--font-code);
+    font-size: 13px;
+    line-height: 1.85;
+    color: var(--code-text);
+    overflow-x: auto;
+    margin-bottom: 8px;
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .tok-num {
+    color: var(--code-orange);
+  }
+
+  .tok-p {
+    color: var(--code-purple);
+  }
+
+  .sye-demo__line-bad {
+    display: inline-block;
+    border-radius: 4px;
+  }
+
+  .sye-demo.is-in .sye-demo__line-bad {
+    animation: sye-demo-shake 0.4s ease 0.3s;
+  }
+
+  @keyframes sye-demo-shake {
+    0%,
+    100% {
+      transform: translateX(0);
+      color: var(--code-text);
+    }
+    25% {
+      transform: translateX(-3px);
+      color: var(--coral);
+    }
+    75% {
+      transform: translateX(3px);
+      color: var(--coral);
+    }
+  }
+
+  .sye-demo__col--after {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+
+  .sye-demo.is-in .sye-demo__col--after {
+    animation: sye-demo-col-in 0.5s ease 1.4s forwards;
+  }
+
+  @keyframes sye-demo-col-in {
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .sye-demo__colon {
+    display: inline-block;
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+    opacity: 0;
+  }
+
+  .sye-demo.is-in .sye-demo__colon {
+    animation: sye-demo-colon-click 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1.7s forwards;
+  }
+
+  @keyframes sye-demo-colon-click {
+    0% {
+      opacity: 0;
+      transform: translateX(-8px) scale(0.5);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+  }
+
+  .sye-demo__error,
+  .sye-demo__success {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-weight: 700;
+    font-size: 12px;
+    width: fit-content;
+  }
+
+  .sye-demo__error {
+    background: var(--code-error-bg);
+    border: 1px solid var(--code-error-border);
+    color: var(--code-error-text);
+    opacity: 0;
+  }
+
+  .sye-demo.is-in .sye-demo__error {
+    animation: sye-demo-fade-in 0.4s ease 0.8s forwards;
+  }
+
+  .sye-demo__success {
+    background: var(--pyto-green-soft);
+    border: 1px solid var(--pyto-green);
+    color: var(--pyto-green-dark);
+  }
+
+  @keyframes sye-demo-fade-in {
+    to {
+      opacity: 1;
+    }
+  }
+
+  .sye-demo__translation {
+    background: var(--pyto-green-soft);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin: 0;
+    font-size: 14px;
+    color: var(--pyto-green-dark);
+    font-weight: 600;
+    opacity: 0;
+  }
+
+  .sye-demo.is-in .sye-demo__translation {
+    animation: sye-demo-fade-in 0.5s ease 1s forwards;
+  }
+
+  .sye-demo__translation code {
+    background: rgba(255, 255, 255, 0.55);
+    border-radius: 6px;
+    padding: 1px 6px;
+  }
+
+  .sye-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sye-demo__line-bad,
+    .sye-demo__col--after,
+    .sye-demo__colon,
+    .sye-demo__error,
+    .sye-demo__translation {
+      animation: none !important;
+    }
+
+    .sye-demo__line-bad {
+      color: var(--coral);
+    }
+
+    .sye-demo__col--after {
+      opacity: 1;
+      transform: none;
+    }
+
+    .sye-demo__colon,
+    .sye-demo__error,
+    .sye-demo__translation {
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .sye-demo__cols {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="sye-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

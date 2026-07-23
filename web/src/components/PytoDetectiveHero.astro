@@ -1,0 +1,293 @@
+---
+// Animasi #1 (plan/bab-09-animasi.md): Pyto mengeluarkan kacamata pembesar
+// kecil dan memakainya sambil tersenyum santai — sebuah gelembung merah muda
+// bertuliskan "Error" melayang mendekat, lalu Pyto mengetuknya pelan sampai
+// "pecah" dengan lembut dan berubah jadi gelembung senyum kecil. Caption:
+// "Tenang, ini bukan bencana — cuma petunjuk!" Main langsung begitu halaman
+// terbuka — sama seperti hero bab-bab sebelumnya. Idle: kacamata berkilau
+// pelan tiap beberapa detik.
+interface Props {
+  size?: number;
+}
+
+const { size = 172 } = Astro.props;
+const height = Math.round((size * 180) / 188);
+---
+
+<div class="detective-hero" data-anim="detective-hero">
+  <div class="detective-hero__stage">
+    <svg
+      width={size}
+      height={height}
+      viewBox="0 0 188 180"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      class="detective-hero__svg"
+      role="img"
+      aria-label="Pyto memakai kacamata pembesar detektif sambil tersenyum santai"
+    >
+      <path
+        d="M56 150 C 20 150, 22 110, 60 112 C 104 114, 120 150, 150 140"
+        stroke="var(--pyto-green-dark)"
+        stroke-width="17"
+        stroke-linecap="round"
+        fill="none"></path>
+      <path
+        d="M56 150 C 20 150, 22 110, 60 112 C 104 114, 120 150, 150 140"
+        stroke="var(--pyto-green)"
+        stroke-width="9"
+        stroke-linecap="round"
+        fill="none"></path>
+      <rect x="44" y="30" width="96" height="82" rx="30" fill="var(--pyto-green)"></rect>
+      <line x1="92" y1="30" x2="92" y2="12" stroke="var(--pyto-green-dark)" stroke-width="5" stroke-linecap="round"
+      ></line>
+      <circle cx="92" cy="9" r="6" fill="var(--sunny-yellow)"></circle>
+      <g class="detective-hero__eyes">
+        <circle cx="74" cy="62" r="14" fill="#FFFFFF"></circle>
+        <circle cx="112" cy="62" r="14" fill="#FFFFFF"></circle>
+        <circle cx="77" cy="64" r="6" fill="var(--ink)"></circle>
+        <circle cx="115" cy="64" r="6" fill="var(--ink)"></circle>
+        <circle cx="79" cy="61" r="2" fill="#FFFFFF"></circle>
+        <circle cx="117" cy="61" r="2" fill="#FFFFFF"></circle>
+      </g>
+      <circle cx="60" cy="86" r="7" fill="var(--coral)" opacity="0.55"></circle>
+      <circle cx="126" cy="86" r="7" fill="var(--coral)" opacity="0.55"></circle>
+      <path d="M78 88 Q 92 100, 106 88" stroke="var(--ink)" stroke-width="4" stroke-linecap="round" fill="none"></path>
+
+      <g class="detective-hero__glasses" opacity="0">
+        <circle cx="74" cy="62" r="17" fill="none" stroke="var(--ink)" stroke-width="3.5"></circle>
+        <circle cx="112" cy="62" r="17" fill="none" stroke="var(--ink)" stroke-width="3.5"></circle>
+        <line x1="91" y1="62" x2="95" y2="62" stroke="var(--ink)" stroke-width="3.5"></line>
+        <line x1="57" y1="62" x2="45" y2="58" stroke="var(--ink)" stroke-width="3.5" stroke-linecap="round"></line>
+        <line x1="129" y1="62" x2="141" y2="58" stroke="var(--ink)" stroke-width="3.5" stroke-linecap="round"></line>
+        <circle class="detective-hero__glasses-shine" cx="68" cy="56" r="3.5" fill="#fff" opacity="0.8"></circle>
+      </g>
+    </svg>
+
+    <div class="detective-hero__bubble detective-hero__bubble--error" aria-hidden="true">Error</div>
+    <div class="detective-hero__bubble detective-hero__bubble--smile" aria-hidden="true">😊</div>
+
+    <p class="detective-hero__caption">Tenang, ini bukan bencana — cuma petunjuk!</p>
+  </div>
+
+  <span class="detective-hero__sr">
+    Pyto memakai kacamata detektif, sebuah gelembung merah muda bertuliskan Error melayang mendekat
+    lalu diketuk pelan sampai berubah jadi gelembung senyum.
+  </span>
+</div>
+
+<style>
+  .detective-hero {
+    display: flex;
+    justify-content: center;
+  }
+
+  .detective-hero__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .detective-hero__stage {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .detective-hero__svg {
+    filter: drop-shadow(0 12px 18px rgba(30, 42, 50, 0.14));
+    animation: detective-hero-bob 4s ease-in-out infinite;
+  }
+
+  @keyframes detective-hero-bob {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  .detective-hero__eyes {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: detective-hero-blink 4.5s infinite;
+  }
+
+  @keyframes detective-hero-blink {
+    0%,
+    92%,
+    100% {
+      transform: scaleY(1);
+    }
+    96% {
+      transform: scaleY(0.1);
+    }
+  }
+
+  .detective-hero.is-in .detective-hero__glasses {
+    animation: detective-hero-glasses-on 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s forwards;
+  }
+
+  @keyframes detective-hero-glasses-on {
+    0% {
+      opacity: 0;
+      transform: translateY(-14px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .detective-hero__glasses-shine {
+    opacity: 0;
+  }
+
+  .detective-hero.is-in .detective-hero__glasses-shine {
+    animation: detective-hero-shine 3s ease 1.2s infinite;
+  }
+
+  @keyframes detective-hero-shine {
+    0%,
+    80%,
+    100% {
+      opacity: 0;
+    }
+    88% {
+      opacity: 0.9;
+    }
+  }
+
+  .detective-hero__bubble {
+    position: absolute;
+    top: -6px;
+    right: -12px;
+    padding: 8px 16px;
+    border-radius: 16px 16px 4px 16px;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 15px;
+    box-shadow: 0 6px 14px rgba(30, 42, 50, 0.16);
+    opacity: 0;
+  }
+
+  .detective-hero__bubble--error {
+    background: var(--box-awas-bg);
+    color: #c0392b;
+  }
+
+  .detective-hero__bubble--smile {
+    background: var(--pyto-green-soft);
+    color: var(--pyto-green-dark);
+    font-size: 20px;
+    text-align: center;
+  }
+
+  .detective-hero.is-in .detective-hero__bubble--error {
+    animation: detective-hero-error-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.9s forwards,
+      detective-hero-error-pop 0.3s ease 1.9s forwards;
+  }
+
+  .detective-hero.is-in .detective-hero__bubble--smile {
+    animation: detective-hero-smile-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 2.1s forwards;
+  }
+
+  @keyframes detective-hero-error-in {
+    0% {
+      opacity: 0;
+      transform: translate(20px, -10px) scale(0.6);
+    }
+    100% {
+      opacity: 1;
+      transform: translate(0, 0) scale(1);
+    }
+  }
+
+  @keyframes detective-hero-error-pop {
+    to {
+      opacity: 0;
+      transform: scale(0.4);
+    }
+  }
+
+  @keyframes detective-hero-smile-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.4);
+    }
+    60% {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .detective-hero__caption {
+    margin: 4px 0 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--slate);
+    text-align: center;
+    opacity: 0;
+  }
+
+  .detective-hero.is-in .detective-hero__caption {
+    animation: detective-hero-caption-in 0.5s ease 2.3s forwards;
+  }
+
+  @keyframes detective-hero-caption-in {
+    to {
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .detective-hero__svg,
+    .detective-hero__eyes,
+    .detective-hero__glasses,
+    .detective-hero__glasses-shine,
+    .detective-hero__bubble--error,
+    .detective-hero__bubble--smile,
+    .detective-hero__caption {
+      animation: none !important;
+    }
+
+    .detective-hero__glasses {
+      opacity: 1;
+    }
+
+    .detective-hero__bubble--error {
+      opacity: 0;
+    }
+
+    .detective-hero__bubble--smile {
+      opacity: 1;
+    }
+
+    .detective-hero__caption {
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .detective-hero__bubble {
+      right: -6px;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll('[data-anim="detective-hero"]').forEach((el) => {
+    setTimeout(() => el.classList.add('is-in'), 200);
+  });
+</script>

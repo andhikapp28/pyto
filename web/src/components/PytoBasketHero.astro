@@ -1,0 +1,163 @@
+---
+// Animasi #1 (plan/bab-08-animasi.md): Pyto membawa sebuah keranjang kosong,
+// lalu tiga kotak ajaib kecil ("Kirana", "Budi", "Sari") melayang satu per
+// satu dari luar layar dan masuk berbaris rapi ke dalam keranjang,
+// membentuk satu deretan memanjang seperti gerbong kereta yang saling
+// menyambung. Main langsung begitu halaman terbuka (tidak menunggu scroll)
+// — sama seperti hero bab-bab sebelumnya. Idle: deretan gerbong bergoyang
+// sangat pelan tiap beberapa detik.
+import PytoMascotWave from './PytoMascotWave.astro';
+
+const items = ['Kirana', 'Budi', 'Sari'];
+---
+
+<div class="basket-hero" data-anim="basket-hero">
+  <PytoMascotWave size={140} />
+
+  <div class="basket-hero__basket">
+    <div class="basket-hero__cars">
+      {
+        items.map((label, i) => (
+          <span class={`basket-hero__car basket-hero__car--${i + 1}`}>{label}</span>
+        ))
+      }
+    </div>
+    <div class="basket-hero__rim"></div>
+  </div>
+
+  <span class="basket-hero__sr">
+    Pyto membawa keranjang kosong, lalu tiga kotak bertuliskan Kirana, Budi, dan Sari melayang masuk
+    satu per satu membentuk deretan gerbong di dalam keranjang.
+  </span>
+</div>
+
+<style>
+  .basket-hero {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+
+  .basket-hero__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .basket-hero__basket {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: basket-hero-sway 5s ease-in-out infinite;
+  }
+
+  @keyframes basket-hero-sway {
+    0%,
+    100% {
+      transform: rotate(0);
+    }
+    25% {
+      transform: rotate(-1deg);
+    }
+    75% {
+      transform: rotate(1deg);
+    }
+  }
+
+  .basket-hero__cars {
+    display: flex;
+    gap: 4px;
+    margin-bottom: -8px;
+    z-index: 2;
+  }
+
+  .basket-hero__car {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--code-green);
+    color: #1e3a16;
+    border: 2px solid #7bae58;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 13px;
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+
+  .basket-hero.is-in .basket-hero__car--1 {
+    animation: basket-hero-car-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s forwards;
+  }
+
+  .basket-hero.is-in .basket-hero__car--2 {
+    animation: basket-hero-car-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.95s forwards;
+  }
+
+  .basket-hero.is-in .basket-hero__car--3 {
+    animation: basket-hero-car-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 1.4s forwards;
+  }
+
+  @keyframes basket-hero-car-in {
+    0% {
+      opacity: 0;
+      transform: translateY(-30px);
+    }
+    70% {
+      opacity: 1;
+      transform: translateY(4px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .basket-hero__rim {
+    width: 168px;
+    height: 74px;
+    border-radius: 0 0 20px 20px;
+    background: linear-gradient(var(--wood), var(--wood-dark));
+    border: 3px solid var(--wood-border);
+    border-top: none;
+    box-shadow: 0 6px 14px rgba(154, 99, 41, 0.28);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .basket-hero__basket {
+      animation: none;
+    }
+
+    .basket-hero__car {
+      animation: none !important;
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .basket-hero {
+      gap: 10px;
+    }
+
+    .basket-hero__rim {
+      width: 140px;
+    }
+  }
+</style>
+
+<script>
+  // Hero selalu terlihat begitu halaman dibuka, jadi langsung dipicu (tidak
+  // menunggu scroll masuk layar) — sama seperti hero bab-bab sebelumnya.
+  document.querySelectorAll('[data-anim="basket-hero"]').forEach((el) => {
+    setTimeout(() => el.classList.add('is-in'), 200);
+  });
+</script>

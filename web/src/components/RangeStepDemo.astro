@@ -1,0 +1,198 @@
+---
+// Animasi #8 (plan/bab-07-animasi.md): range(0, 10, 2) — bola-bola yang
+// keluar tidak berurutan rapat, tiap bola "meloncat" melewati satu bola di
+// antaranya. Bola yang dilompati tampak transparan sekejap lalu menghilang.
+// Sekali jalan saat terlihat, boleh diulang lewat hover/klik/fokus.
+const allNumbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+const kept = new Set([0, 2, 4, 6, 8]);
+---
+
+<div
+  class="rsd-demo"
+  data-anim="rsd-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi range dengan langkah 2"
+>
+  <div class="rsd-demo__code">
+    <span class="tok-p">for</span> <span class="tok-var">angka</span> <span class="tok-p">in</span>
+    <span class="tok-fn">range</span>(<span class="tok-num">0</span>, <span class="tok-num">10</span>,
+    <span class="tok-num">2</span>):
+    <br />
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="tok-fn">print</span>(angka)
+  </div>
+
+  <div class="rsd-demo__row">
+    {
+      allNumbers.map((n, i) => (
+        <span
+          class={`rsd-demo__ball ${kept.has(n) ? 'rsd-demo__ball--kept' : 'rsd-demo__ball--skipped'}`}
+          style={`animation-delay:${i * 0.12}s`}
+        >
+          {n}
+        </span>
+      ))
+    }
+  </div>
+</div>
+
+<p class="rsd-demo__hint">
+  Angka ketiga di <code>range()</code> itu "langkah"-nya — defaultnya 1 (rapat), tapi bisa diganti
+  supaya meloncat, misalnya loncat 2 seperti ini. <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .rsd-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    cursor: pointer;
+  }
+
+  .rsd-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 14px 16px;
+    font-family: var(--font-code);
+    font-size: 14px;
+    line-height: 1.85;
+    color: var(--code-text);
+    overflow-x: auto;
+  }
+
+  .tok-p {
+    color: var(--code-purple);
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .tok-num {
+    color: var(--code-orange);
+  }
+
+  .rsd-demo__row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .rsd-demo__ball {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 13px;
+    opacity: 0;
+  }
+
+  .rsd-demo__ball--kept {
+    background: radial-gradient(circle at 34% 30%, #eaf3ff, #bbdcff);
+    border: 2px solid #7fb6ef;
+    color: #1e4e85;
+  }
+
+  .rsd-demo.is-in .rsd-demo__ball--kept {
+    animation: rsd-demo-keep-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  .rsd-demo__ball--skipped {
+    background: var(--cloud);
+    border: 2px dashed var(--border);
+    color: var(--slate);
+  }
+
+  .rsd-demo.is-in .rsd-demo__ball--skipped {
+    animation: rsd-demo-skip 0.6s ease forwards;
+  }
+
+  @keyframes rsd-demo-keep-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.6);
+    }
+    60% {
+      opacity: 1;
+      transform: scale(1.15);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes rsd-demo-skip {
+    0% {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    35% {
+      opacity: 0.55;
+      transform: scale(1);
+    }
+    70% {
+      opacity: 0.25;
+    }
+    100% {
+      opacity: 0.08;
+      transform: scale(0.8);
+    }
+  }
+
+  .rsd-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0;
+    color: var(--slate);
+  }
+
+  .rsd-demo__hint code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rsd-demo__ball--kept,
+    .rsd-demo__ball--skipped {
+      animation: none !important;
+    }
+
+    .rsd-demo__ball--kept {
+      opacity: 1;
+      transform: none;
+    }
+
+    .rsd-demo__ball--skipped {
+      opacity: 0.15;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .rsd-demo__code {
+      font-size: 13px;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="rsd-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

@@ -1,0 +1,162 @@
+---
+// Animasi #8 (plan/bab-08-animasi.md) — kartu "Main Yuk: Daftar Teman
+// Impian". Tiap kali pembaca menambahkan satu nama, sebuah gerbong kecil
+// baru "melompat masuk" dan menyambung ke deretan yang sudah ada. Widget
+// interaktif kecil (bukan animasi "sekali putar saat terlihat"), memakai
+// script sendiri seperti PyodideEditor/PytoJumpGuess.
+---
+
+<div class="dlm">
+  <label class="dlm__label" for="dlm-input">Ketik nama teman atau karakter favoritmu:</label>
+  <div class="dlm__row">
+    <input class="dlm__input" id="dlm-input" type="text" maxlength="16" placeholder="misal: Rangga" />
+    <button class="btn btn-primary dlm__btn" type="button">Tambah +</button>
+  </div>
+
+  <div class="dlm__stage">
+    <span class="dlm__label-list">daftar_teman</span>
+    <div class="dlm__cars" id="dlm-cars">
+      <span class="dlm__empty">(masih kosong — coba tambahkan satu!)</span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .dlm {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .dlm__label {
+    display: block;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .dlm__row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .dlm__input {
+    flex: 1;
+    min-width: 160px;
+    padding: 10px 14px;
+    border-radius: var(--radius-btn);
+    border: 2px solid var(--border);
+    font-family: var(--font-body);
+    font-size: 15px;
+  }
+
+  .dlm__input:focus {
+    outline: none;
+    border-color: var(--pyto-green);
+  }
+
+  .dlm__btn {
+    padding: 10px 20px;
+    white-space: nowrap;
+  }
+
+  .dlm__stage {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .dlm__label-list {
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--slate);
+  }
+
+  .dlm__cars {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    min-height: 44px;
+    align-items: center;
+  }
+
+  .dlm__empty {
+    font-size: 14px;
+    color: var(--slate);
+    font-style: italic;
+  }
+
+  .dlm__car {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--code-green);
+    color: #1e3a16;
+    border: 2px solid #7bae58;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 14px;
+    opacity: 0;
+    transform: translateY(-14px) scale(0.8);
+  }
+
+  .dlm__car.is-in {
+    animation: dlm-car-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  @keyframes dlm-car-in {
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dlm__car.is-in {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll('.dlm').forEach((widget) => {
+    const input = widget.querySelector('.dlm__input');
+    const button = widget.querySelector('.dlm__btn');
+    const cars = widget.querySelector('#dlm-cars');
+    if (!input || !button || !cars) return;
+
+    let count = 0;
+
+    const addCar = () => {
+      const value = input.value.trim();
+      if (!value) return;
+
+      const empty = cars.querySelector('.dlm__empty');
+      if (empty) empty.remove();
+
+      const car = document.createElement('span');
+      car.className = 'dlm__car';
+      car.textContent = value;
+      cars.appendChild(car);
+      void car.offsetWidth;
+      car.classList.add('is-in');
+
+      count += 1;
+      input.value = '';
+      input.focus();
+    };
+
+    button.addEventListener('click', addCar);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addCar();
+      }
+    });
+  });
+</script>
