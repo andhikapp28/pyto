@@ -1,0 +1,111 @@
+---
+// Teaser "Fase 2 — Segera Hadir" di beranda, ditaruh tepat setelah
+// <ChapterList /> (Bab 1-10). Sengaja BUKAN grid 10 kartu penuh di sini —
+// itu berat untuk pengunjung yang bahkan belum mulai Bab 1. Cukup secuil
+// pratinjau (chip topik) + tautan ke /fase2/ untuk rincian lengkap.
+// Sumber konten: src/data/fase2.js (dari plan/Fase2/plan.md).
+import { fase2Meta, fase2Chapters } from '../data/fase2.js';
+
+const base = import.meta.env.BASE_URL;
+---
+
+<section class="fase2-teaser">
+  <div class="container">
+    <div class="fase2-teaser__card" data-reveal>
+      <div class="fase2-teaser__copy">
+        <span class="badge fase2-teaser__badge">🔭 {fase2Meta.label} — Segera Hadir</span>
+        <h2>Bab 1-10 kelar? Petualangan Python-mu belum selesai!</h2>
+        <p>
+          Pyto lagi menyiapkan <strong>{fase2Meta.count} bab lanjutan</strong> — bikin foto,
+          kode QR, kamus data, sampai bot rahasia-rahasian, semuanya pakai Python beneran.
+          Belum bisa dibuka sekarang, tapi boleh diintip dulu topiknya.
+        </p>
+        <a href={`${base}/fase2/`} class="btn btn-secondary fase2-teaser__cta">
+          Intip rencana {fase2Meta.label} →
+        </a>
+      </div>
+
+      <ul class="fase2-teaser__chips" aria-label={`Pratinjau topik ${fase2Meta.label}`}>
+        {
+          fase2Chapters.map((chapter) => (
+            <li class="fase2-teaser__chip">
+              <span aria-hidden="true">{chapter.emoji}</span>
+              {chapter.short}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .fase2-teaser {
+    background: var(--white);
+    padding-block: var(--section-spacing);
+  }
+
+  .fase2-teaser__card {
+    max-width: 880px;
+    margin-inline: auto;
+    background: var(--cloud);
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-card);
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .fase2-teaser__badge {
+    background: var(--white);
+  }
+
+  .fase2-teaser__copy h2 {
+    margin-top: 14px;
+    font-size: 26px;
+  }
+
+  .fase2-teaser__copy p {
+    margin-top: 12px;
+    color: var(--slate);
+    font-size: 17px;
+    max-width: 640px;
+  }
+
+  .fase2-teaser__cta {
+    margin-top: 20px;
+  }
+
+  .fase2-teaser__chips {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .fase2-teaser__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--slate);
+  }
+
+  @media (max-width: 600px) {
+    .fase2-teaser__card {
+      padding: 28px 20px;
+    }
+
+    .fase2-teaser__copy h2 {
+      font-size: 22px;
+    }
+  }
+</style>

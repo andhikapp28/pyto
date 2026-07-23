@@ -1,9 +1,18 @@
 ---
+// Catatan: link-link di sini menunjuk ke section berlabel id pada BERANDA
+// (#editor, #fitur, #bab) — bukan cuma "#editor" polos. Nav.astro dipakai
+// di lebih dari satu halaman sekarang (index.astro DAN fase2/index.astro),
+// dan section-section itu cuma ada di beranda. Href harus diawali
+// `${base}/` supaya tetap menuju beranda + scroll ke section yang benar
+// walau diklik dari halaman lain seperti /fase2/ (kalau cuma "#bab" polos,
+// klik dari /fase2/ tidak melakukan apa-apa karena halaman itu tidak
+// punya elemen id="bab").
+const base = import.meta.env.BASE_URL;
 ---
 
 <header class="nav" id="site-nav">
   <div class="container nav__inner">
-    <a href="#top" class="nav__brand">
+    <a href={`${base}/#top`} class="nav__brand">
       <span class="nav__logo" aria-hidden="true">🐍</span>
       <span class="nav__wordmark">
         <strong>Belajar Python</strong>
@@ -12,13 +21,13 @@
     </a>
 
     <nav class="nav__links" aria-label="Navigasi utama">
-      <a href="#editor">Editor</a>
-      <a href="#fitur">Kenapa Python</a>
-      <a href="#bab">Daftar Bab</a>
+      <a href={`${base}/#editor`}>Editor</a>
+      <a href={`${base}/#fitur`}>Kenapa Python</a>
+      <a href={`${base}/#bab`}>Daftar Bab</a>
     </nav>
 
     <div class="nav__actions">
-      <a href="#bab" class="btn btn-primary nav__cta">Mulai Belajar</a>
+      <a href={`${base}/#bab`} class="btn btn-primary nav__cta">Mulai Belajar</a>
       <button
         type="button"
         class="nav__toggle"
@@ -35,10 +44,10 @@
   </div>
 
   <nav id="nav-mobile-menu" class="nav__mobile" aria-label="Navigasi mobile">
-    <a href="#editor">Editor</a>
-    <a href="#fitur">Kenapa Python</a>
-    <a href="#bab">Daftar Bab</a>
-    <a href="#bab" class="btn btn-primary">Mulai Belajar</a>
+    <a href={`${base}/#editor`}>Editor</a>
+    <a href={`${base}/#fitur`}>Kenapa Python</a>
+    <a href={`${base}/#bab`}>Daftar Bab</a>
+    <a href={`${base}/#bab`} class="btn btn-primary">Mulai Belajar</a>
   </nav>
 </header>
 

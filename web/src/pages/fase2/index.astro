@@ -1,0 +1,330 @@
+---
+// Halaman pengumuman "Fase 2 — Segera Hadir" (Python Lanjutan, Bab 11-20).
+// Ini BUKAN halaman bab sungguhan — belum ada naskah/animasi/implementasi
+// apa pun untuk Fase 2 (lihat plan/Fase2/plan.md, status "Rancangan
+// kurikulum awal"). Tujuannya cuma memberi tahu pembaca yang baru lulus
+// Bab 10 bahwa ada lanjutannya, dan menunjukkan rencana 10 topiknya —
+// semua ditandai "Segera", sama seperti tag bab yang belum tersedia di
+// ChapterList.astro/ChapterLayout.astro. JANGAN tambahkan bab-bab ini ke
+// AVAILABLE_CHAPTERS di data/chapters.js atau bikin route /bab/11/ dst.
+// sebelum kontennya benar-benar ada.
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
+import KotakTahuLebih from '../../components/KotakTahuLebih.astro';
+import { fase2Meta, fase2Chapters } from '../../data/fase2.js';
+
+const base = import.meta.env.BASE_URL;
+const pembuka = fase2Chapters.filter((c) => c.group === 'pembuka');
+const susulan = fase2Chapters.filter((c) => c.group === 'susulan');
+---
+
+<BaseLayout
+  title={`${fase2Meta.label} — Segera Hadir — Belajar Python Bareng Pyto`}
+  description={`${fase2Meta.count} bab lanjutan Python (${fase2Meta.name}) sedang disiapkan Pyto — belum bisa dibuka, tapi sudah bisa diintip rencana topiknya di sini.`}
+>
+  <Nav />
+  <main>
+    <section class="fase2-hero" id="top">
+      <div class="container fase2-hero__inner" data-reveal>
+        <a href={`${base}/`} class="fase2-hero__back">← Kembali ke Beranda</a>
+        <span class="badge">🔭 {fase2Meta.label} · {fase2Meta.name}</span>
+        <span class="fase2-hero__mascot" role="img" aria-label="Pyto sedang menyiapkan sesuatu">
+          🐍✨
+        </span>
+        <h1>Segera Hadir!</h1>
+        <p class="fase2-hero__tagline">
+          Kamu sudah menyelesaikan 10 bab dasar — keren banget! Pyto sekarang lagi menyiapkan
+          <strong>{fase2Meta.count} bab lanjutan</strong> yang menghasilkan sesuatu yang beneran
+          bisa kamu pakai atau pamerkan: foto asli, file Excel rapi, sampai kode QR yang bisa
+          dipindai HP sungguhan. Belum bisa dicoba sekarang, tapi berikut rencananya.
+        </p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <h2>🚪 5 Bab Pembuka</h2>
+          <p>Urutan yang disarankan — tiap bab jadi bekal untuk bab berikutnya.</p>
+        </div>
+
+        <ol class="fase2-grid">
+          {
+            pembuka.map((chapter) => (
+              <li>
+                <div class="fase2-card" data-reveal>
+                  <span class="fase2-card__emoji" aria-hidden="true">
+                    {chapter.emoji}
+                  </span>
+                  <span class="fase2-card__body">
+                    <span class="fase2-card__eyebrow">Bab {chapter.number} · {chapter.short}</span>
+                    <span class="fase2-card__title">{chapter.title}</span>
+                    <span class="fase2-card__desc">{chapter.blurb}</span>
+                  </span>
+                  <span class="fase2-card__tag">Segera</span>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </section>
+
+    <section class="section fase2-susulan">
+      <div class="container">
+        <div class="section-head" data-reveal>
+          <h2>🎒 5 Bab Susulan</h2>
+          <p>Sama serunya, urutannya masih bisa berubah sesuai selera pembaca.</p>
+        </div>
+
+        <ol class="fase2-grid">
+          {
+            susulan.map((chapter) => (
+              <li>
+                <div class="fase2-card" data-reveal>
+                  <span class="fase2-card__emoji" aria-hidden="true">
+                    {chapter.emoji}
+                  </span>
+                  <span class="fase2-card__body">
+                    <span class="fase2-card__eyebrow">Bab {chapter.number} · {chapter.short}</span>
+                    <span class="fase2-card__title">{chapter.title}</span>
+                    <span class="fase2-card__desc">{chapter.blurb}</span>
+                  </span>
+                  <span class="fase2-card__tag">Segera</span>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </section>
+
+    <section class="section fase2-why">
+      <div class="container">
+        <section class="pyto-quote-box" data-reveal>
+          <span class="pyto-quote-box__mascot" role="img" aria-label="Pyto">🐍</span>
+          <p class="pyto-quote-box__text">
+            "Sepuluh bab pertama itu pondasinya. Sekarang giliran bikin sesuatu yang beneran
+            dipakai — sabar ya, aku lagi menyiapkannya sebaik mungkin buat kamu!"
+          </p>
+        </section>
+
+        <div class="fase2-why__note" data-reveal>
+          <KotakTahuLebih title="Tahu Lebih — Kenapa bukan OOP/algoritma dulu?">
+            <p>
+              Kebanyakan tutorial Python lanjutan langsung lompat ke <code>class</code>, struktur
+              data, atau topik akademis lain. Buku ini pilih jalan berbeda: tiap bab {fase2Meta.label}{' '}
+              disaring lewat tiga syarat sekaligus — <strong>unik</strong> (bukan topik lanjutan
+              default), <strong>menarik</strong> (menghasilkan sesuatu yang bisa dipamerkan, bukan
+              cuma teori), dan <strong>dibutuhkan banyak orang</strong> (ada bukti kebutuhan nyata).
+              Topik seperti OOP tetap bisa muncul nanti sebagai "teaser" kecil di salah satu bab,
+              tapi tidak jadi bab tersendiri yang berat di awal.
+            </p>
+          </KotakTahuLebih>
+        </div>
+      </div>
+    </section>
+
+    <section class="fase2-cta">
+      <div class="container fase2-cta__inner" data-reveal>
+        <span class="fase2-cta__emoji" aria-hidden="true">📣</span>
+        <h2>Sambil nunggu, mantapkan dulu Bab 1-10!</h2>
+        <p>
+          Semakin lancar dasar-dasarnya, semakin gampang begitu {fase2Meta.label} dibuka. Yuk baca
+          ulang atau lanjutkan bab yang belum kelar.
+        </p>
+        <div class="fase2-cta__actions">
+          <a href={`${base}/bab/1/`} class="btn btn-white">🔁 Mulai dari Bab 1</a>
+          <a href={`${base}/#bab`} class="btn btn-secondary fase2-cta__ghost">📚 Lihat Semua Bab</a>
+        </div>
+      </div>
+    </section>
+  </main>
+  <Footer />
+
+  <script src="../../scripts/reveal.js"></script>
+</BaseLayout>
+
+<style>
+  .fase2-hero {
+    padding-block: 56px var(--section-spacing);
+    background: linear-gradient(180deg, var(--pyto-green-soft) 0%, var(--cloud) 100%);
+  }
+
+  .fase2-hero__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+    max-width: 640px;
+  }
+
+  .fase2-hero__back {
+    align-self: flex-start;
+    text-decoration: none;
+    font-weight: 700;
+    color: var(--pyto-green-dark);
+    font-size: 15px;
+    margin-bottom: 8px;
+  }
+
+  .fase2-hero__mascot {
+    font-size: 64px;
+    margin-top: 8px;
+    animation: fase2-bob 3.5s ease-in-out infinite;
+  }
+
+  @keyframes fase2-bob {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .fase2-hero__tagline {
+    color: var(--slate);
+    font-size: 18px;
+  }
+
+  /* ---------------- Grid kartu bab (ghost/locked) ---------------- */
+  .fase2-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+  }
+
+  .fase2-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 22px;
+    background: var(--white);
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-card);
+    position: relative;
+  }
+
+  .fase2-card__emoji {
+    font-size: 32px;
+    width: 52px;
+    height: 52px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--cloud);
+    flex-shrink: 0;
+  }
+
+  .fase2-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .fase2-card__eyebrow {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    color: var(--pyto-green-dark);
+    text-transform: uppercase;
+  }
+
+  .fase2-card__title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--ink);
+  }
+
+  .fase2-card__desc {
+    color: var(--slate);
+    font-size: 15px;
+  }
+
+  .fase2-card__tag {
+    align-self: flex-start;
+    margin-top: auto;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: var(--cloud);
+    color: var(--slate);
+  }
+
+  .fase2-susulan {
+    background: var(--white);
+  }
+
+  /* ---------------- Kenapa (pyto quote + tahu lebih) ---------------- */
+  .fase2-why .pyto-quote-box {
+    max-width: 880px;
+    margin-inline: auto;
+  }
+
+  .fase2-why__note {
+    max-width: 880px;
+    margin: 32px auto 0;
+  }
+
+  /* ---------------- CTA penutup ---------------- */
+  .fase2-cta {
+    background: linear-gradient(135deg, var(--pyto-green) 0%, var(--pyto-green-dark) 100%);
+    padding-block: var(--section-spacing);
+  }
+
+  .fase2-cta__inner {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .fase2-cta__emoji {
+    font-size: 48px;
+  }
+
+  .fase2-cta h2 {
+    color: var(--white);
+  }
+
+  .fase2-cta p {
+    color: rgba(255, 255, 255, 0.9);
+    max-width: 520px;
+  }
+
+  .fase2-cta__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+  }
+
+  .fase2-cta__ghost {
+    background: transparent;
+    color: var(--white);
+    border-color: var(--white);
+  }
+
+  .fase2-cta__ghost:hover {
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  @media (max-width: 600px) {
+    .fase2-card {
+      padding: 18px;
+    }
+  }
+</style>

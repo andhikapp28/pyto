@@ -10,9 +10,15 @@
 interface Props {
   homeHref: string;
   firstChapterHref: string;
+  // Opsional: tautan ke pengumuman "Fase 2 — Segera Hadir" (lihat
+  // web/src/pages/fase2/index.astro). Ini adalah titik temu paling wajar
+  // buat pembaca yang baru saja lulus Bab 10 untuk tahu ada lanjutannya —
+  // jangan hardcode URL-nya di komponen ini, biar tetap generik; kalau
+  // Fase 2 belum siap diumumkan, cukup jangan isi prop ini dari pemanggil.
+  fase2Href?: string;
 }
 
-const { homeHref, firstChapterHref } = Astro.props;
+const { homeHref, firstChapterHref, fase2Href } = Astro.props;
 ---
 
 <div class="ccb" data-anim="ccb">
@@ -44,6 +50,14 @@ const { homeHref, firstChapterHref } = Astro.props;
     <a href={homeHref} class="btn btn-primary">🏠 Kembali ke Daftar Bab</a>
     <a href={firstChapterHref} class="btn btn-secondary">🔁 Baca Ulang dari Bab 1</a>
   </div>
+
+  {
+    fase2Href && (
+      <a href={fase2Href} class="ccb__fase2-link">
+        ✨ Intip Fase 2 — Python Lanjutan (Segera Hadir) →
+      </a>
+    )
+  }
 </div>
 
 <style>
@@ -212,6 +226,17 @@ const { homeHref, firstChapterHref } = Astro.props;
     gap: 12px;
     flex-wrap: wrap;
     justify-content: center;
+  }
+
+  .ccb__fase2-link {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--pyto-green-dark);
+    text-decoration: none;
+  }
+
+  .ccb__fase2-link:hover {
+    text-decoration: underline;
   }
 
   @media (prefers-reduced-motion: reduce) {
