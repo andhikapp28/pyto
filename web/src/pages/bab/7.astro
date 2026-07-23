@@ -1,0 +1,153 @@
+---
+// Bab 7 — Ulang-ulang (Loop).
+// Sumber animasi: plan/bab-07-animasi.md.
+// (Tidak ada naskah master terpisah atau mockup Claude Design untuk Bab 7 —
+// animasi.md + bahasa visual Bab 5/6 jadi acuan implementasi.)
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import ChapterHero from '../../components/ChapterHero.astro';
+import PytoLoopHero from '../../components/PytoLoopHero.astro';
+import ForRangeDemo from '../../components/ForRangeDemo.astro';
+import WhileLoopDemo from '../../components/WhileLoopDemo.astro';
+import InfiniteLoopAwas from '../../components/InfiniteLoopAwas.astro';
+import PytoJumpGuess from '../../components/PytoJumpGuess.astro';
+import RangeStepDemo from '../../components/RangeStepDemo.astro';
+import KotakAwas from '../../components/KotakAwas.astro';
+import KotakMainYuk from '../../components/KotakMainYuk.astro';
+import KotakTahuLebih from '../../components/KotakTahuLebih.astro';
+import PyodideEditor from '../../components/PyodideEditor.astro';
+import RangkumanList from '../../components/RangkumanList.astro';
+import Glossary from '../../components/Glossary.astro';
+import ChapterFooterNav from '../../components/ChapterFooterNav.astro';
+
+const base = import.meta.env.BASE_URL;
+
+const rangkuman = [
+  '<code>for angka in range(1, 6):</code> mengulang blok di bawahnya untuk tiap angka dari <code>1</code> sampai <code>5</code> — angka <code>6</code> TIDAK ikut.',
+  '<code>range(a, b)</code> selalu berhenti satu sebelum <code>b</code>.',
+  '<code>while syarat:</code> mengulang <strong>selama</strong> syaratnya <code>True</code> — beda dengan <code>for</code> yang mengulang sebanyak isi yang sudah pasti.',
+  'Syarat pada <code>while</code> harus diperbarui sendiri di dalam blok (misalnya <code>hitung = hitung + 1</code>), kalau tidak, loop bisa mengulang selamanya (infinite loop).',
+  '<code>range()</code> punya parameter ketiga (langkah/step) opsional — defaultnya <code>1</code>, tapi bisa diganti supaya meloncat.',
+];
+
+const glossaryTerms = [
+  { term: 'for', def: 'Mengulang blok kode untuk tiap nilai di dalam suatu daftar angka (atau kumpulan lain).' },
+  { term: 'range()', def: 'Menghasilkan deretan angka mulai dari angka pertama sampai satu sebelum angka kedua.' },
+  { term: 'while', def: 'Mengulang blok kode selama sebuah syarat masih bernilai True.' },
+  { term: 'Infinite loop', def: 'Perulangan yang tidak pernah berhenti karena syaratnya tidak pernah jadi False.' },
+  { term: 'Step (langkah)', def: 'Parameter ketiga range() yang menentukan lompatan antar angka, defaultnya 1.' },
+];
+---
+
+<ChapterLayout
+  currentChapter={7}
+  description="Bab 7: Ulang-ulang (Loop) — belajar membuat komputer mengulang perintah pakai for/range() dan while, ditemani Pyto si robot ular yang melompat tanpa capek."
+>
+  <ChapterHero
+    number={7}
+    title="Ulang-ulang (Loop) 🔁"
+    tagline={'Komputer bisa mengulang perintah yang sama berkali-kali secepat mungkin, tanpa capek — dan yang penting, ia tahu <strong>kapan harus berhenti</strong>.'}
+  >
+    <PytoLoopHero slot="mascot" size={172} />
+  </ChapterHero>
+
+  <section data-reveal>
+    <h2><code>for</code> + <code>range()</code> — Angka Bergilir</h2>
+    <p>
+      Cara paling umum untuk mengulang di Python adalah <code>for</code> ditemani <code>range()</code>.
+      <code>range(1, 6)</code> menghasilkan angka <strong>1 sampai 5</strong> — perhatikan baik-baik,
+      angka <code>6</code> TIDAK ikut:
+    </p>
+    <div class="chapter-media">
+      <ForRangeDemo />
+    </div>
+  </section>
+
+  <section class="pyto-quote-box" data-reveal>
+    <span class="pyto-quote-box__mascot" role="img" aria-label="Pyto">🐍</span>
+    <p class="pyto-quote-box__text">
+      "Ingat baik-baik: <code>range(1, 6)</code> berhenti di angka <code>5</code>, bukan
+      <code>6</code>. Angka keduanya cuma jadi batas, dan tidak pernah ikut dihitung."
+    </p>
+  </section>
+
+  <section data-reveal>
+    <h2><code>while</code> — Mengulang Selama Syaratnya Masih Benar</h2>
+    <p>
+      <code>for</code> cocok kalau kita sudah tahu pasti berapa kali mau mengulang. Tapi ada juga
+      <code>while</code>, yang mengulang <strong>selama</strong> sebuah syarat masih benar:
+    </p>
+    <div class="chapter-media">
+      <WhileLoopDemo />
+    </div>
+    <p>
+      Bedanya penting: pada <code>while</code>, kita sendiri yang harus memperbarui syaratnya di
+      dalam blok (lewat <code>hitung = hitung + 1</code>) — kalau lupa, syaratnya tidak akan pernah
+      berubah jadi <code>False</code>.
+    </p>
+  </section>
+
+  <KotakAwas title="Awas — Loop Tanpa Henti">
+    <p>
+      Kesalahan paling berbahaya di <code>while</code>: lupa memperbarui syaratnya. Lihat apa yang
+      terjadi kalau baris <code>hitung = hitung + 1</code> hilang:
+    </p>
+    <InfiniteLoopAwas />
+  </KotakAwas>
+
+  <KotakMainYuk title="Main Yuk! — Pyto Loncat 5 Kali" icon="🎮" wiggleIcon>
+    <p>Lengkapi kode di bawah supaya Pyto loncat tepat 5 kali, lalu coba tebakanmu:</p>
+    <PytoJumpGuess target={5} />
+  </KotakMainYuk>
+
+  <KotakTahuLebih title="Tahu Lebih — range() Bisa Meloncat-loncat">
+    <p>
+      Selain angka awal dan angka batas, <code>range()</code> punya parameter ketiga: langkahnya
+      (step). Defaultnya <code>1</code> (rapat), tapi bisa diganti supaya meloncat:
+    </p>
+    <RangeStepDemo />
+  </KotakTahuLebih>
+
+  <section data-reveal>
+    <h2>Coba Sendiri: Ulang Sesukamu!</h2>
+    <p>
+      Ini <strong>Python asli</strong> yang jalan di browser-mu. Klik <strong>▶ Jalankan</strong>, lalu
+      tentukan sendiri berapa kali mau diulang:
+    </p>
+    <PyodideEditor
+      mode="interactive"
+      idPrefix="bab7"
+      title="🐍 ulang.py"
+      runLabel="▶ Jalankan"
+      codeAriaLabel="Kotak kode ulang sesukamu"
+      minHeight={140}
+      rows={6}
+      starterCode={`jumlah = input("Mau diulang berapa kali? ")
+jumlah = int(jumlah)
+
+for i in range(jumlah):
+    print("Aku suka Python!")
+`}
+      notes={[
+        '📌 Coba isi angka besar atau kecil — barisnya akan mengikuti persis sebanyak yang kamu tentukan.',
+        '✏️ Coba ganti <code>range(jumlah)</code> jadi <code>range(1, jumlah + 1)</code>, lalu tambahkan <code>print(i)</code> untuk melihat nomor urutannya juga.',
+      ]}
+    />
+  </section>
+
+  <section data-reveal>
+    <h2>Rangkuman Bab 7</h2>
+    <RangkumanList items={rangkuman} />
+  </section>
+
+  <section data-reveal>
+    <h2>📖 Kamus Kata</h2>
+    <Glossary terms={glossaryTerms} />
+  </section>
+
+  <ChapterFooterNav
+    prevHref={`${base}/bab/6/`}
+    prevLabel="← Bab 6: Kalau Begini Maka Begitu"
+    nextHref={`${base}/bab/8/`}
+    nextLabel="Bab 8: Kumpulan Barang (List sederhana)"
+  />
+</ChapterLayout>
