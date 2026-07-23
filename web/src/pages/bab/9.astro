@@ -1,0 +1,165 @@
+---
+// Bab 9 — Salah itu Wajar (Error & memperbaiki).
+// Sumber animasi: plan/bab-09-animasi.md.
+// (Tidak ada naskah master terpisah atau mockup Claude Design untuk Bab 9 —
+// animasi.md + bahasa visual Bab 5/6/7/8 jadi acuan implementasi.)
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import ChapterHero from '../../components/ChapterHero.astro';
+import PytoDetectiveHero from '../../components/PytoDetectiveHero.astro';
+import TracebackAnatomyDemo from '../../components/TracebackAnatomyDemo.astro';
+import NameErrorDemo from '../../components/NameErrorDemo.astro';
+import TypeErrorDemo from '../../components/TypeErrorDemo.astro';
+import ValueErrorDemo from '../../components/ValueErrorDemo.astro';
+import SyntaxErrorDemo from '../../components/SyntaxErrorDemo.astro';
+import ErrorMatchGame from '../../components/ErrorMatchGame.astro';
+import MoreErrorsDemo from '../../components/MoreErrorsDemo.astro';
+import KotakMainYuk from '../../components/KotakMainYuk.astro';
+import KotakTahuLebih from '../../components/KotakTahuLebih.astro';
+import PyodideEditor from '../../components/PyodideEditor.astro';
+import RangkumanList from '../../components/RangkumanList.astro';
+import Glossary from '../../components/Glossary.astro';
+import ChapterFooterNav from '../../components/ChapterFooterNav.astro';
+
+const base = import.meta.env.BASE_URL;
+
+const rangkuman = [
+  'Pesan <strong>error</strong> (traceback) itu wajar — bukan bencana, cuma petunjuk untuk membantu memperbaiki kode.',
+  'Traceback berisi 3 info utama: <strong>di mana</strong> masalahnya, <strong>kode apa</strong> yang bermasalah, dan <strong>kenapa</strong> (jenis + pesan error).',
+  '<code>NameError</code> biasanya berarti salah ketik nama variabel.',
+  '<code>TypeError</code> berarti dua tipe data yang berbeda dicoba digabung, misalnya teks (str) dan angka (int).',
+  '<code>ValueError</code> berarti isi teksnya memang tidak bisa diubah jadi angka.',
+  '<code>SyntaxError</code> berarti Python belum sempat menjalankan kode sama sekali, karena bentuk kalimatnya belum sesuai aturan.',
+  'Cara membaca error: baca <strong>jenisnya</strong> dulu, baca <strong>pesannya</strong>, lalu terjemahkan ke bahasa sederhana.',
+];
+
+const glossaryTerms = [
+  { term: 'Traceback', def: 'Pesan yang ditampilkan Python saat kode gagal, berisi lokasi, kode, dan jenis error.' },
+  { term: 'NameError', def: 'Error saat memakai nama variabel yang belum pernah dibuat/salah ketik.' },
+  { term: 'TypeError', def: 'Error saat mencampur tipe data yang tidak cocok, misal str dan int.' },
+  { term: 'ValueError', def: 'Error saat nilai yang diberikan tidak bisa diproses, misal int("abc").' },
+  { term: 'SyntaxError', def: 'Error karena bentuk kalimat kode belum sesuai aturan Python, misal lupa titik dua.' },
+];
+---
+
+<ChapterLayout
+  currentChapter={9}
+  description="Bab 9: Salah itu Wajar (Error) — belajar membaca traceback, mengenali NameError/TypeError/ValueError/SyntaxError, dan memperbaikinya dengan percaya diri, ditemani Pyto si robot ular berkacamata detektif."
+>
+  <ChapterHero
+    number={9}
+    title="Salah itu Wajar 🔍"
+    tagline={'Semua orang yang ngoding — bahkan yang sudah jago — pasti pernah ketemu error. Yuk belajar membacanya dengan tenang, bukan panik.'}
+  >
+    <PytoDetectiveHero slot="mascot" size={172} />
+  </ChapterHero>
+
+  <section data-reveal>
+    <h2>Anatomi Pesan Error</h2>
+    <p>
+      Pesan error Python (namanya <strong>traceback</strong>) kelihatan menakutkan, padahal isinya
+      cuma tiga info: <strong>di mana</strong> masalahnya, <strong>kode apa</strong> yang bermasalah,
+      dan <strong>kenapa</strong>. Coba kita bedah:
+    </p>
+    <div class="chapter-media">
+      <TracebackAnatomyDemo />
+    </div>
+  </section>
+
+  <section class="pyto-quote-box" data-reveal>
+    <span class="pyto-quote-box__mascot" role="img" aria-label="Pyto">🐍</span>
+    <p class="pyto-quote-box__text">
+      "Triknya sederhana: baca <strong>jenis errornya</strong> dulu, baru baca pesan detailnya. Ayo
+      kita kenalan sama empat jenis error yang paling sering ditemui pemula."
+    </p>
+  </section>
+
+  <section data-reveal>
+    <h2><code>NameError</code> — Salah Ketik Nama Variabel</h2>
+    <p>Error paling umum bagi pemula: salah ketik nama variabel.</p>
+    <div class="chapter-media">
+      <NameErrorDemo />
+    </div>
+  </section>
+
+  <section data-reveal>
+    <h2><code>TypeError</code> — Nyampur Teks dan Angka</h2>
+    <p>Ingat jebakan <code>input()</code> di Bab 4? Sekarang kita bahas tuntas errornya:</p>
+    <div class="chapter-media">
+      <TypeErrorDemo />
+    </div>
+  </section>
+
+  <section data-reveal>
+    <h2><code>ValueError</code> — Teks yang Tidak Bisa Jadi Angka</h2>
+    <p>Ingat teaser <code>int("abc")</code> di Bab 5? Ini penjelasan lengkapnya:</p>
+    <div class="chapter-media">
+      <ValueErrorDemo />
+    </div>
+  </section>
+
+  <section data-reveal>
+    <h2><code>SyntaxError</code> — Lupa Titik Dua</h2>
+    <p>Ingat teaser lupa titik dua di Bab 6? Ini penjelasan lengkapnya:</p>
+    <div class="chapter-media">
+      <SyntaxErrorDemo />
+    </div>
+  </section>
+
+  <KotakMainYuk title="Main Yuk! — Jadi Detektif Bug" icon="🎮" wiggleIcon>
+    <p>Jodohkan jenis error dengan terjemahan bahasa sederhananya:</p>
+    <ErrorMatchGame />
+  </KotakMainYuk>
+
+  <KotakTahuLebih title="Tahu Lebih — Error Lain yang Mungkin Kamu Temui">
+    <p>Masih banyak jenis error lain di Python. Dua contoh lagi:</p>
+    <MoreErrorsDemo />
+  </KotakTahuLebih>
+
+  <section data-reveal>
+    <h2>Coba Sendiri: Beresin Bug Sungguhan!</h2>
+    <p>
+      Kode di bawah ini <strong>sengaja mengandung bug</strong>. Klik <strong>▶ Jalankan</strong> untuk
+      melihat error sungguhan dari Pyodide, lalu coba perbaiki sendiri:
+    </p>
+    <PyodideEditor
+      mode="simple"
+      idPrefix="bab9"
+      title="🐍 bug.py"
+      runLabel="▶ Jalankan"
+      codeAriaLabel="Kotak kode yang sengaja mengandung bug"
+      minHeight={100}
+      rows={3}
+      starterCode={`nama = "Kirana"
+print(nma)
+`}
+      notes={[
+        '🔎 Ada yang salah ketik. Bisa kamu temukan di mana?',
+        '✏️ Perbaiki <code>nma</code> jadi <code>nama</code>, lalu klik <strong>▶ Jalankan</strong> lagi.',
+      ]}
+    />
+  </section>
+
+  <section data-reveal>
+    <h2>Rangkuman Bab 9</h2>
+    <RangkumanList items={rangkuman} />
+  </section>
+
+  <section data-reveal>
+    <h2>📖 Kamus Kata</h2>
+    <Glossary terms={glossaryTerms} />
+  </section>
+
+  <ChapterFooterNav
+    prevHref={`${base}/bab/8/`}
+    prevLabel="← Bab 8: Kumpulan Barang"
+    nextLabel="Bab 10: Proyek Seru"
+    nextDisabled
+  />
+</ChapterLayout>
+
+<style>
+  :global(.chapter-footer-nav .chapter-footer-nav__next) {
+    font-size: 17px;
+    padding-block: 14px;
+  }
+</style>
