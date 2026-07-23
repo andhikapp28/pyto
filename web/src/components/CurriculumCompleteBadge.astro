@@ -1,0 +1,255 @@
+---
+// Animasi #20 (plan/bab-10-animasi.md) — penutup bersama, pengganti tombol
+// "Bab Selanjutnya" karena Bab 10 adalah bab terakhir kurikulum dasar.
+// Lencana-lencana kecil di rompi Pyto (beat #1) menyatu jadi satu medali
+// besar "Selesai 10 Bab!", disertai confetti yang sengaja dibuat lebih besar
+// & lebih lama dari confetti biasa (beberapa ledakan susulan, bukan cuma
+// satu seperti confetti akhir proyek) — menandai ini penutup keseluruhan
+// kurikulum, bukan akhir bab biasa. CTA mengarah ke beranda/daftar bab,
+// bukan "bab selanjutnya", karena Bab 11 belum ada.
+interface Props {
+  homeHref: string;
+  firstChapterHref: string;
+}
+
+const { homeHref, firstChapterHref } = Astro.props;
+---
+
+<div class="ccb" data-anim="ccb">
+  <div class="ccb__stage">
+    <div class="ccb__badges" aria-hidden="true">
+      <span class="ccb__mini-badge ccb__mini-badge--1">💻</span>
+      <span class="ccb__mini-badge ccb__mini-badge--2">🔢</span>
+      <span class="ccb__mini-badge ccb__mini-badge--3">🚦</span>
+      <span class="ccb__mini-badge ccb__mini-badge--4">🔁</span>
+      <span class="ccb__mini-badge ccb__mini-badge--5">🧺</span>
+      <span class="ccb__mini-badge ccb__mini-badge--6">🕵️</span>
+    </div>
+
+    <div class="ccb__medal">
+      <span class="ccb__medal-ribbon" aria-hidden="true"></span>
+      <span class="ccb__medal-disc" aria-hidden="true">🏅</span>
+      <p class="ccb__medal-text">Selesai 10 Bab!</p>
+    </div>
+
+    <div class="ccb__confetti" id="ccb-confetti" aria-hidden="true"></div>
+  </div>
+
+  <p class="ccb__caption">
+    Kamu sudah menyelesaikan seluruh dasar-dasar Python — dari <code>print()</code> pertamamu sampai
+    membangun tiga proyek nyata sendiri. Selamat, Pyto bangga banget sama kamu! 🎉
+  </p>
+
+  <div class="ccb__cta">
+    <a href={homeHref} class="btn btn-primary">🏠 Kembali ke Daftar Bab</a>
+    <a href={firstChapterHref} class="btn btn-secondary">🔁 Baca Ulang dari Bab 1</a>
+  </div>
+</div>
+
+<style>
+  .ccb {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    text-align: center;
+    padding: 8px 0;
+  }
+
+  .ccb__stage {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 360px;
+    height: 180px;
+  }
+
+  .ccb__badges {
+    position: absolute;
+    inset: 0;
+  }
+
+  .ccb__mini-badge {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--pyto-green-soft);
+    border: 2px solid var(--pyto-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    opacity: 0;
+  }
+
+  .ccb__mini-badge--1 {
+    left: 6%;
+    top: 20%;
+  }
+
+  .ccb__mini-badge--2 {
+    left: 78%;
+    top: 12%;
+  }
+
+  .ccb__mini-badge--3 {
+    left: 12%;
+    top: 68%;
+  }
+
+  .ccb__mini-badge--4 {
+    left: 82%;
+    top: 62%;
+  }
+
+  .ccb__mini-badge--5 {
+    left: 46%;
+    top: 4%;
+  }
+
+  .ccb__mini-badge--6 {
+    left: 48%;
+    top: 78%;
+  }
+
+  .ccb.is-in .ccb__mini-badge {
+    animation: ccb-badge-orbit-in 0.7s ease forwards, ccb-badge-merge 0.5s ease 0.9s forwards;
+  }
+
+  @keyframes ccb-badge-orbit-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.5) rotate(0deg);
+    }
+    60% {
+      opacity: 1;
+      transform: scale(1.1) rotate(180deg);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) rotate(360deg);
+    }
+  }
+
+  @keyframes ccb-badge-merge {
+    to {
+      opacity: 0;
+      transform: scale(0.3) translate(calc(50% - 50%), 0);
+    }
+  }
+
+  .ccb__medal {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    opacity: 0;
+    transform: scale(0.5);
+  }
+
+  .ccb.is-in .ccb__medal {
+    animation: ccb-medal-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 1.3s forwards;
+  }
+
+  @keyframes ccb-medal-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.5) rotate(-15deg);
+    }
+    60% {
+      opacity: 1;
+      transform: scale(1.15) rotate(6deg);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) rotate(0);
+    }
+  }
+
+  .ccb__medal-disc {
+    font-size: 64px;
+    line-height: 1;
+    filter: drop-shadow(0 8px 14px rgba(255, 201, 77, 0.45));
+  }
+
+  .ccb__medal-text {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 18px;
+    color: var(--pyto-green-dark);
+    background: var(--pyto-green-soft);
+    padding: 4px 16px;
+    border-radius: 999px;
+  }
+
+  .ccb__confetti {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .ccb__caption {
+    max-width: 480px;
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--ink);
+  }
+
+  .ccb__caption code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  .ccb__cta {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ccb__mini-badge,
+    .ccb__medal {
+      animation: none !important;
+    }
+
+    .ccb__mini-badge {
+      opacity: 0;
+    }
+
+    .ccb__medal {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce } from '../scripts/reveal-anim.js';
+  import { launchConfetti } from '../scripts/confetti.js';
+
+  observeOnce(document.querySelectorAll('[data-anim="ccb"]'), (el) => {
+    el.classList.add('is-in');
+
+    const container = el.querySelector('#ccb-confetti');
+    // Penutup kurikulum dapat perayaan lebih besar dari confetti akhir-bab
+    // biasa: beberapa ledakan susulan dengan jumlah keping lebih banyak,
+    // bukan cuma satu ledakan kecil seperti biasa.
+    const bursts = [
+      { delay: 1300, pieces: 46 },
+      { delay: 1700, pieces: 46 },
+      { delay: 2100, pieces: 46 },
+    ];
+
+    bursts.forEach(({ delay, pieces }) => {
+      setTimeout(() => launchConfetti(container, { pieces }), delay);
+    });
+  });
+</script>

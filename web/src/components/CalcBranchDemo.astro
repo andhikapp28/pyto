@@ -1,0 +1,276 @@
+---
+// Animasi #14 + #15 (plan/bab-10-animasi.md) — Proyek 3: Kalkulator. Panel
+// tombol operator +, -, *, / menempel di dada Pyto (echo hero Bab 5), lalu
+// tiga input() (echo Bab 4) dibungkus float() (echo Bab 5), dan empat jalur
+// if/elif dicoba satu per satu (echo Bab 6) sampai satu cocok dan hasilnya
+// tercetak. Sekali jalan saat terlihat, boleh diulang lewat hover/klik/fokus.
+const operators = ['+', '−', '×', '÷'];
+const branches = [
+  { op: '+', match: false },
+  { op: '-', match: false },
+  { op: '*', match: true },
+  { op: '/', match: false },
+];
+---
+
+<div
+  class="cbd-demo"
+  data-anim="cbd-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi memilih operasi kalkulator lewat percabangan"
+>
+  <div class="cbd-demo__panel">
+    {operators.map((op) => <span class="cbd-demo__panel-btn">{op}</span>)}
+  </div>
+
+  <div class="cbd-demo__code">
+    <div class="cbd-demo__line">
+      <span class="tok-var">angka1</span> = <span class="tok-fn">float</span>(<span class="tok-fn"
+        >input</span
+      >(<span class="tok-str">&quot;Angka pertama: &quot;</span>))
+    </div>
+    <div class="cbd-demo__line">
+      <span class="tok-var">angka2</span> = <span class="tok-fn">float</span>(<span class="tok-fn"
+        >input</span
+      >(<span class="tok-str">&quot;Angka kedua: &quot;</span>))
+    </div>
+    <div class="cbd-demo__line">
+      <span class="tok-var">operator</span> = <span class="tok-fn">input</span>(<span class="tok-str"
+        >&quot;Mau operasi apa? (+, -, *, /): &quot;</span
+      >)
+    </div>
+  </div>
+
+  <div class="cbd-demo__lanes">
+    {
+      branches.map((b, i) => (
+        <div class={`cbd-demo__lane cbd-demo__lane--${i} ${b.match ? 'cbd-demo__lane--match' : ''}`}>
+          <span class="tok-p">{i === 0 ? 'if' : 'elif'}</span> operator == &quot;{b.op}&quot;:
+          {b.match && <span class="cbd-demo__check">✓ cocok!</span>}
+        </div>
+      ))
+    }
+  </div>
+
+  <div class="cbd-demo__result">
+    <span class="tok-fn">print</span>(f&quot;Hasilnya: <span class="cbd-demo__value">8.0</span>&quot;)
+  </div>
+</div>
+
+<p class="cbd-demo__hint">
+  💡 Teks operator yang dipilih (<code>*</code>) dipakai sebagai syarat percabangan untuk memilih
+  rumus hitung yang tepat. <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .cbd-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 22px 24px;
+    cursor: pointer;
+  }
+
+  .cbd-demo__panel {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .cbd-demo__panel-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--pyto-green-soft);
+    border: 2px solid var(--pyto-green);
+    color: var(--pyto-green-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-code);
+    font-weight: 800;
+    font-size: 15px;
+  }
+
+  .cbd-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 14px 16px;
+    font-family: var(--font-code);
+    font-size: 12.5px;
+    line-height: 1.85;
+    color: var(--code-text);
+    overflow-x: auto;
+  }
+
+  .cbd-demo__line {
+    white-space: pre-wrap;
+  }
+
+  .tok-p {
+    color: var(--code-purple);
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .cbd-demo__lanes {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .cbd-demo__lane {
+    font-family: var(--font-code);
+    font-size: 13px;
+    background: var(--cloud);
+    border-radius: 8px;
+    padding: 6px 12px;
+    opacity: 0.3;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cbd-demo.is-in .cbd-demo__lane--0 {
+    animation: cbd-demo-try-fail 0.4s ease 0.3s forwards;
+  }
+
+  .cbd-demo.is-in .cbd-demo__lane--1 {
+    animation: cbd-demo-try-fail 0.4s ease 0.75s forwards;
+  }
+
+  .cbd-demo.is-in .cbd-demo__lane--2 {
+    animation: cbd-demo-try-success 0.4s ease 1.2s forwards;
+  }
+
+  .cbd-demo.is-in .cbd-demo__lane--3 {
+    animation: cbd-demo-fade-more 0.3s ease 1.7s forwards;
+  }
+
+  @keyframes cbd-demo-try-fail {
+    0% {
+      opacity: 0.3;
+    }
+    50% {
+      opacity: 0.8;
+    }
+    100% {
+      opacity: 0.2;
+    }
+  }
+
+  @keyframes cbd-demo-try-success {
+    to {
+      opacity: 1;
+      background: rgba(47, 191, 113, 0.14);
+    }
+  }
+
+  @keyframes cbd-demo-fade-more {
+    to {
+      opacity: 0.15;
+    }
+  }
+
+  .cbd-demo__check {
+    margin-left: auto;
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+    font-size: 12px;
+    opacity: 0;
+  }
+
+  .cbd-demo.is-in .cbd-demo__check {
+    animation: cbd-demo-fade-in 0.3s ease 1.5s forwards;
+  }
+
+  @keyframes cbd-demo-fade-in {
+    to {
+      opacity: 1;
+    }
+  }
+
+  .cbd-demo__result {
+    text-align: center;
+    font-family: var(--font-code);
+    font-size: 14px;
+    color: var(--ink);
+    opacity: 0;
+  }
+
+  .cbd-demo.is-in .cbd-demo__result {
+    animation: cbd-demo-fade-in 0.4s ease 2s forwards;
+  }
+
+  .cbd-demo__value {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  .cbd-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  .cbd-demo__hint code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cbd-demo__lane,
+    .cbd-demo__check,
+    .cbd-demo__result {
+      animation: none !important;
+    }
+
+    .cbd-demo__lane {
+      opacity: 0.2;
+    }
+
+    .cbd-demo__lane--2 {
+      opacity: 1;
+      background: rgba(47, 191, 113, 0.14);
+    }
+
+    .cbd-demo__check,
+    .cbd-demo__result {
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .cbd-demo__code {
+      font-size: 12px;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="cbd-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

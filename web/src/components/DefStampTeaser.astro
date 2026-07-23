@@ -1,0 +1,260 @@
+---
+// Animasi #3 (plan/bab-10-animasi.md) — kotak "Tahu Lebih": sekilas soal
+// fungsi (def). Baris kode yang sama diulang-ulang membentuk tumpukan
+// berantakan, lalu dibungkus jadi satu kotak rapi berlabel sapa lewat def —
+// tutupnya seperti kotak hadiah. Tiap kali sapa() dipanggil, kotak hadiah
+// terbuka sekejap menjalankan isinya, lalu tertutup lagi. Sekali jalan saat
+// terlihat, boleh diulang lewat hover/klik/fokus.
+---
+
+<div
+  class="dst-demo"
+  data-anim="dst-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi membungkus kode berulang jadi fungsi dengan def"
+>
+  <div class="dst-demo__messy" aria-hidden="true">
+    <span class="dst-demo__messy-line dst-demo__messy-line--1">print("Halo!")</span>
+    <span class="dst-demo__messy-line dst-demo__messy-line--2">print("Halo!")</span>
+    <span class="dst-demo__messy-line dst-demo__messy-line--3">print("Halo!")</span>
+  </div>
+
+  <div class="dst-demo__box">
+    <div class="dst-demo__lid" aria-hidden="true">🎁</div>
+    <div class="dst-demo__code">
+      <div class="dst-demo__line"><span class="tok-p">def</span> <span class="tok-fn">sapa</span>():</div>
+      <div class="dst-demo__line dst-demo__indent">
+        <span class="tok-fn">print</span>(<span class="tok-str">&quot;Halo!&quot;</span>)
+      </div>
+      <div class="dst-demo__line">&nbsp;</div>
+      <div class="dst-demo__line dst-demo__call">
+        <span class="tok-fn">sapa</span>()
+      </div>
+    </div>
+    <div class="dst-demo__pop">Halo! 👋</div>
+  </div>
+</div>
+
+<p class="dst-demo__hint">
+  Ini namanya <strong>fungsi</strong> — cara membungkus kode supaya bisa dipanggil ulang tanpa menulis
+  ulang. Baru kenalan sedikit di sini; bahasan lengkapnya menanti kalau kamu lanjut ke tingkat
+  berikutnya. <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .dst-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    cursor: pointer;
+  }
+
+  .dst-demo__messy {
+    position: relative;
+    height: 60px;
+  }
+
+  .dst-demo__messy-line {
+    position: absolute;
+    font-family: var(--font-code);
+    font-size: 13px;
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+
+  .dst-demo__messy-line--1 {
+    top: 0;
+    left: 10%;
+    transform: rotate(-4deg);
+  }
+
+  .dst-demo__messy-line--2 {
+    top: 16px;
+    left: 30%;
+    transform: rotate(2deg);
+  }
+
+  .dst-demo__messy-line--3 {
+    top: 32px;
+    left: 15%;
+    transform: rotate(-2deg);
+  }
+
+  .dst-demo.is-in .dst-demo__messy {
+    animation: dst-demo-messy-out 0.5s ease 0.5s forwards;
+  }
+
+  @keyframes dst-demo-messy-out {
+    to {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+  }
+
+  .dst-demo__box {
+    position: relative;
+    text-align: center;
+  }
+
+  .dst-demo__lid {
+    font-size: 26px;
+    opacity: 0;
+    transform: scale(0.6);
+  }
+
+  .dst-demo.is-in .dst-demo__lid {
+    animation: dst-demo-lid-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 1s forwards;
+  }
+
+  @keyframes dst-demo-lid-in {
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .dst-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 12px 16px;
+    font-family: var(--font-code);
+    font-size: 14px;
+    line-height: 1.85;
+    color: var(--code-text);
+    text-align: left;
+    opacity: 0;
+    transform: scale(0.92);
+  }
+
+  .dst-demo.is-in .dst-demo__code {
+    animation: dst-demo-code-in 0.4s ease 1.2s forwards;
+  }
+
+  @keyframes dst-demo-code-in {
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .dst-demo__line {
+    white-space: pre;
+  }
+
+  .dst-demo__indent {
+    padding-left: 20px;
+  }
+
+  .tok-p {
+    color: var(--code-purple);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .dst-demo__call {
+    border-radius: 6px;
+  }
+
+  .dst-demo.is-in .dst-demo__call {
+    animation: dst-demo-call-glow 0.6s ease 1.9s;
+  }
+
+  @keyframes dst-demo-call-glow {
+    0%,
+    100% {
+      background: transparent;
+    }
+    40% {
+      background: rgba(97, 175, 239, 0.3);
+    }
+  }
+
+  .dst-demo__pop {
+    position: absolute;
+    left: 50%;
+    top: -8px;
+    transform: translate(-50%, 0) scale(0.6);
+    background: var(--pyto-green-soft);
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+    font-size: 13px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    opacity: 0;
+  }
+
+  .dst-demo.is-in .dst-demo__pop {
+    animation: dst-demo-pop 0.6s ease 2s forwards;
+  }
+
+  @keyframes dst-demo-pop {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, 6px) scale(0.6);
+    }
+    40% {
+      opacity: 1;
+      transform: translate(-50%, -14px) scale(1.1);
+    }
+    80% {
+      opacity: 1;
+      transform: translate(-50%, -14px) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(-50%, -20px) scale(0.9);
+    }
+  }
+
+  .dst-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dst-demo__messy,
+    .dst-demo__lid,
+    .dst-demo__code,
+    .dst-demo__call,
+    .dst-demo__pop {
+      animation: none !important;
+    }
+
+    .dst-demo__messy {
+      opacity: 0;
+    }
+
+    .dst-demo__lid,
+    .dst-demo__code {
+      opacity: 1;
+      transform: none;
+    }
+
+    .dst-demo__pop {
+      opacity: 0;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="dst-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

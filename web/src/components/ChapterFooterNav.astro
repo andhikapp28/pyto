@@ -16,6 +16,13 @@ const {
   nextLabel,
   nextDisabled = false,
 } = Astro.props;
+
+// Kalau nextLabel tidak diisi sama sekali (bab terakhir kurikulum, tidak ada
+// bab berikutnya untuk ditautkan), jangan render slot "next" apa pun —
+// baik link maupun span disabled-nya. Tanpa guard ini, ternary di bawah
+// cuma bercabang berdasarkan nextDisabled, jadi <a href={undefined}> kosong
+// tetap muncul kalau prop next* sama sekali tidak diberikan.
+const hasNext = Boolean(nextLabel);
 ---
 
 <nav class="chapter-footer-nav" data-reveal aria-label="Navigasi bab">
@@ -28,24 +35,25 @@ const {
   }
 
   {
-    nextDisabled ? (
-      <span
-        class="btn btn-primary chapter-footer-nav__next chapter-footer-nav__next--disabled"
-        aria-disabled="true"
-      >
-        {nextLabel}
-        <span class="chapter-footer-nav__arrow" aria-hidden="true">
-          →
+    hasNext &&
+      (nextDisabled ? (
+        <span
+          class="btn btn-primary chapter-footer-nav__next chapter-footer-nav__next--disabled"
+          aria-disabled="true"
+        >
+          {nextLabel}
+          <span class="chapter-footer-nav__arrow" aria-hidden="true">
+            →
+          </span>
         </span>
-      </span>
-    ) : (
-      <a href={nextHref} class="btn btn-primary chapter-footer-nav__next">
-        {nextLabel}
-        <span class="chapter-footer-nav__arrow" aria-hidden="true">
-          →
-        </span>
-      </a>
-    )
+      ) : (
+        <a href={nextHref} class="btn btn-primary chapter-footer-nav__next">
+          {nextLabel}
+          <span class="chapter-footer-nav__arrow" aria-hidden="true">
+            →
+          </span>
+        </a>
+      ))
   }
 </nav>
 

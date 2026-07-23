@@ -1,0 +1,288 @@
+---
+// Bab 10 — Proyek Seru.
+// Sumber animasi: plan/bab-10-animasi.md.
+// (Tidak ada naskah master terpisah atau mockup Claude Design untuk Bab 10
+// — animasi.md + bahasa visual Bab 5-9 jadi acuan implementasi. Bab ini
+// beda struktur dari bab lain: bukan satu konsep baru, tapi 3 mini-proyek
+// yang menggabungkan Bab 1-9, didahului satu pembuka bersama dan diakhiri
+// satu penutup bersama — lihat pembagian "Pembuka Bersama" / "Bagian A/B/C"
+// / "Penutup Bersama" di animasi.md.)
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import ChapterHero from '../../components/ChapterHero.astro';
+import PytoToolboxHero from '../../components/PytoToolboxHero.astro';
+import RandomDiceDemo from '../../components/RandomDiceDemo.astro';
+import DefStampTeaser from '../../components/DefStampTeaser.astro';
+import GuessFlowDemo from '../../components/GuessFlowDemo.astro';
+import QuizScoreFlowDemo from '../../components/QuizScoreFlowDemo.astro';
+import CalcBranchDemo from '../../components/CalcBranchDemo.astro';
+import CurriculumCompleteBadge from '../../components/CurriculumCompleteBadge.astro';
+import KotakMainYuk from '../../components/KotakMainYuk.astro';
+import KotakTahuLebih from '../../components/KotakTahuLebih.astro';
+import PyodideEditor from '../../components/PyodideEditor.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import RangkumanList from '../../components/RangkumanList.astro';
+import Glossary from '../../components/Glossary.astro';
+import ChapterFooterNav from '../../components/ChapterFooterNav.astro';
+
+const base = import.meta.env.BASE_URL;
+
+const rangkuman = [
+  '💻 <strong>Bab 1-2:</strong> <code>print()</code> menampilkan tulisan ke layar — pondasi semua proyek di atas.',
+  '📦 <strong>Bab 3:</strong> variabel menyimpan nilai supaya bisa dipakai ulang (<code>skor</code>, <code>rahasia</code>, <code>angka1</code>, dst).',
+  '❓ <strong>Bab 4:</strong> <code>input()</code> membuat program bertanya dan menunggu jawaban.',
+  '🔢 <strong>Bab 5:</strong> <code>int()</code>/<code>float()</code> mengubah teks jadi angka supaya bisa dihitung.',
+  '🚦 <strong>Bab 6:</strong> <code>if</code>/<code>elif</code>/<code>else</code> memilih jalan sesuai syarat — dipakai di ketiga proyek.',
+  '🔁 <strong>Bab 7:</strong> <code>while</code>/<code>for</code> mengulang perintah sampai syaratnya selesai.',
+  '🧺 <strong>Bab 8:</strong> list menyimpan banyak nilai sekaligus.',
+  '🕵️ <strong>Bab 9:</strong> membaca pesan error dengan tenang, bukan panik.',
+  '🧰 <strong>Bab 10:</strong> <code>import random</code> dan <code>random.randint()</code> membuka alat baru — dan semuanya baru saja kamu gabungkan jadi 3 proyek nyata!',
+];
+
+const glossaryTerms = [
+  { term: 'import', def: 'Perintah untuk memakai kotak alat tambahan buatan Python, misalnya random.' },
+  { term: 'random', def: 'Kotak alat siap pakai buatan Python yang isinya cara-cara membuat sesuatu jadi acak.' },
+  { term: 'random.randint(a, b)', def: 'Menghasilkan satu angka acak antara a dan b (keduanya termasuk).' },
+  { term: 'def', def: 'Kata kunci untuk membungkus kode jadi fungsi yang bisa dipanggil ulang (perkenalan singkat, dibahas lengkap di tingkat berikutnya).' },
+];
+---
+
+<ChapterLayout
+  currentChapter={10}
+  description="Bab 10: Proyek Seru — menggabungkan semua yang sudah dipelajari dari Bab 1-9 lewat tiga mini-proyek nyata: Tebak Angka, Kuis, dan Kalkulator, ditemani Pyto si robot ular yang membuka kotak perkakasnya."
+>
+  <ChapterHero
+    number={10}
+    title="Proyek Seru 🚀"
+    tagline={'Bukan konsep baru — ini saatnya <strong>memakai semua yang sudah kamu kuasai</strong> dari Bab 1-9 untuk membangun tiga proyek nyata.'}
+  >
+    <PytoToolboxHero slot="mascot" />
+  </ChapterHero>
+
+  <section data-reveal>
+    <h2>Satu Alat Baru: <code>import random</code></h2>
+    <p>
+      Sebelum mulai, kita kenalan dulu dengan satu alat baru yang dibutuhkan proyek pertama —
+      <code>random</code>, kotak alat siap pakai buatan Python untuk membuat sesuatu jadi acak:
+    </p>
+    <div class="chapter-media">
+      <RandomDiceDemo />
+    </div>
+  </section>
+
+  <section class="pyto-quote-box" data-reveal>
+    <span class="pyto-quote-box__mascot" role="img" aria-label="Pyto">🐍</span>
+    <p class="pyto-quote-box__text">
+      "Semua lencana di rompiku ini dari Bab 1-9 — sekarang kita pakai bareng-bareng buat bikin
+      sesuatu yang seru!"
+    </p>
+  </section>
+
+  <KotakTahuLebih title="Tahu Lebih — Sekilas soal Fungsi (def)">
+    <p>
+      Satu lagi bekal kecil sebelum lanjut: kadang kamu akan lihat kode yang punya kata <code
+        >def</code
+      >. Ini sekadar perkenalan, bukan materi wajib bab ini:
+    </p>
+    <DefStampTeaser />
+  </KotakTahuLebih>
+
+  <section data-reveal>
+    <h2>🎯 Proyek 1: Tebak Angka</h2>
+    <p>
+      Pyto menyembunyikan satu angka rahasia antara 1 sampai 20 — tugasmu menebaknya, dan Pyto akan
+      memberi petunjuk "terlalu kecil" atau "terlalu besar" tiap kali kamu menebak:
+    </p>
+    <div class="chapter-media">
+      <GuessFlowDemo />
+    </div>
+  </section>
+
+  <section data-reveal>
+    <h2>Coba Sendiri: Main Tebak Angka!</h2>
+    <p>
+      Ini <strong>Python asli</strong> yang jalan di browser-mu — angka rahasianya beda tiap kali kamu
+      menjalankan ulang kodenya. Klik <strong>▶ Jalankan</strong>, lalu tebak sampai benar:
+    </p>
+    <PyodideEditor
+      mode="interactive"
+      idPrefix="bab10a"
+      title="🐍 tebak_angka.py"
+      runLabel="▶ Jalankan"
+      codeAriaLabel="Kotak kode proyek tebak angka"
+      minHeight={150}
+      rows={13}
+      starterCode={`import random
+
+rahasia = random.randint(1, 20)
+tebakan = 0
+
+while tebakan != rahasia:
+    tebakan = input("Tebak angka (1-20): ")
+    tebakan = int(tebakan)
+
+    if tebakan < rahasia:
+        print("Terlalu kecil!")
+    elif tebakan > rahasia:
+        print("Terlalu besar!")
+    else:
+        print("Benar! Kamu berhasil menebak!")
+`}
+      notes={[
+        '📌 Tiap kali kode dijalankan ulang, angka rahasianya berubah — coba beberapa kali!',
+        '✏️ Perhatikan: kode ini terus menunggu tebakan baru sampai kamu benar-benar tepat.',
+      ]}
+    />
+  </section>
+
+  <KotakMainYuk title="Main Yuk! — Tebak Angka Bareng Keluarga" icon="🎮" wiggleIcon>
+    <p>
+      Ajak orang rumah main bareng! Coba ubah batas angkanya jadi lebih besar, misalnya dari 1 sampai
+      100, lalu lihat siapa yang paling cepat menebak:
+    </p>
+    <CodeBlock code={'rahasia = random.randint(1, 100)'} />
+  </KotakMainYuk>
+
+  <section data-reveal>
+    <h2>📝 Proyek 2: Kuis</h2>
+    <p>
+      Sekarang kita bangun kuis 3 soal yang menghitung skor — tiap jawaban benar menambah skor lewat
+      <code>skor = skor + 1</code>:
+    </p>
+    <div class="chapter-media">
+      <QuizScoreFlowDemo />
+    </div>
+  </section>
+
+  <section data-reveal>
+    <h2>Coba Sendiri: Kuis 3 Soal!</h2>
+    <p>
+      Klik <strong>▶ Jalankan</strong>, jawab ketiga pertanyaannya, lalu lihat skor akhirmu:
+    </p>
+    <PyodideEditor
+      mode="interactive"
+      idPrefix="bab10b"
+      title="🐍 kuis.py"
+      runLabel="▶ Jalankan"
+      codeAriaLabel="Kotak kode proyek kuis"
+      minHeight={200}
+      rows={22}
+      starterCode={`skor = 0
+
+jawaban1 = input("Ibu kota Indonesia? ")
+if jawaban1 == "Jakarta":
+    skor = skor + 1
+    print("Benar!")
+else:
+    print("Kurang tepat, jawabannya Jakarta.")
+
+jawaban2 = input("2 + 2 sama dengan berapa? ")
+if jawaban2 == "4":
+    skor = skor + 1
+    print("Benar!")
+else:
+    print("Kurang tepat, jawabannya 4.")
+
+jawaban3 = input("Warna daun biasanya apa? ")
+if jawaban3 == "hijau":
+    skor = skor + 1
+    print("Benar!")
+else:
+    print("Kurang tepat, jawabannya hijau.")
+
+print(f"Skormu: {skor} dari 3")
+
+if skor == 3:
+    print("Sempurna! Kamu jagoan kuis!")
+elif skor >= 1:
+    print("Lumayan, terus berlatih ya!")
+else:
+    print("Belum beruntung, coba lagi!")
+`}
+      notes={[
+        '📌 Skormu dihitung otomatis lewat <code>skor = skor + 1</code> tiap kali jawabanmu tepat.',
+        '✏️ Coba ganti pertanyaan dan jawabannya dengan topik favoritmu sendiri di Main Yuk berikutnya!',
+      ]}
+    />
+  </section>
+
+  <KotakMainYuk title="Main Yuk! — Bikin Soal Kuismu Sendiri" icon="🎮" wiggleIcon>
+    <p>
+      Ganti ketiga pertanyaan dan jawaban di kode atas dengan topik favoritmu — film, game, atau
+      pelajaran sekolah — lalu ajak temanmu mencoba kuis buatanmu sendiri!
+    </p>
+  </KotakMainYuk>
+
+  <section data-reveal>
+    <h2>🧮 Proyek 3: Kalkulator</h2>
+    <p>
+      Proyek terakhir: kalkulator 4 operasi yang memilih rumus hitung sesuai simbol yang kamu
+      masukkan:
+    </p>
+    <div class="chapter-media">
+      <CalcBranchDemo />
+    </div>
+  </section>
+
+  <section data-reveal>
+    <h2>Coba Sendiri: Kalkulator 4 Operasi!</h2>
+    <p>
+      Klik <strong>▶ Jalankan</strong>, masukkan dua angka dan satu simbol operasi (<code>+</code>,
+      <code>-</code>, <code>*</code>, atau <code>/</code>):
+    </p>
+    <PyodideEditor
+      mode="interactive"
+      idPrefix="bab10c"
+      title="🐍 kalkulator_proyek.py"
+      runLabel="▶ Jalankan"
+      codeAriaLabel="Kotak kode proyek kalkulator"
+      minHeight={190}
+      rows={16}
+      starterCode={`angka1 = input("Angka pertama: ")
+angka2 = input("Angka kedua: ")
+operator = input("Mau operasi apa? (+, -, *, /): ")
+
+angka1 = float(angka1)
+angka2 = float(angka2)
+
+if operator == "+":
+    print(f"Hasilnya: {angka1 + angka2}")
+elif operator == "-":
+    print(f"Hasilnya: {angka1 - angka2}")
+elif operator == "*":
+    print(f"Hasilnya: {angka1 * angka2}")
+elif operator == "/":
+    print(f"Hasilnya: {angka1 / angka2}")
+else:
+    print("Operasi tidak dikenali, coba +, -, *, atau /.")
+`}
+      notes={[
+        '📌 Coba masukkan simbol yang tidak dikenali (misalnya <code>%</code>) — kode ini menanganinya dengan ramah lewat <code>else</code>, bukan berhenti tiba-tiba dengan error.',
+      ]}
+    />
+  </section>
+
+  <KotakTahuLebih title="Tahu Lebih — Kalkulator yang Belum Sempurna">
+    <p>Coba jalankan kalkulatormu dengan angka kedua <code>0</code> saat memilih operasi <code>/</code>:</p>
+    <CodeBlock code={'print(10.0 / 0.0)   # ini bakal error!'} />
+    <p>
+      Kira-kira error apa yang muncul? Ingat cara membaca error dari <strong>Bab 9</strong> — baca
+      jenisnya, baca pesannya, lalu terjemahkan.
+    </p>
+  </KotakTahuLebih>
+
+  <section data-reveal>
+    <h2>Rangkuman: Napak Tilas Bab 1-10</h2>
+    <RangkumanList items={rangkuman} />
+  </section>
+
+  <section data-reveal>
+    <h2>📖 Kamus Kata</h2>
+    <Glossary terms={glossaryTerms} />
+  </section>
+
+  <section data-reveal>
+    <CurriculumCompleteBadge homeHref={`${base}/`} firstChapterHref={`${base}/bab/1/`} />
+  </section>
+
+  <ChapterFooterNav prevHref={`${base}/bab/9/`} prevLabel="← Bab 9: Salah itu Wajar" />
+</ChapterLayout>

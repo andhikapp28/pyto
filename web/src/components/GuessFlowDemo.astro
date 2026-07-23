@@ -1,0 +1,369 @@
+---
+// Animasi #4 + #5 (plan/bab-10-animasi.md) — Proyek 1: Tebak Angka. Bola
+// bertopeng "?" (angka rahasia) melayang di tengah; while tebakan != rahasia
+// memeriksa syarat berulang (echo Bab 7), input()+int() (echo Bab 4/5)
+// dibandingkan dengan rahasia, panah kecil menandai "Terlalu kecil!" /
+// "Terlalu besar!" (echo if/elif/else Bab 6), sampai tebakan tepat dan
+// topeng terlepas. Sekali jalan saat terlihat, boleh diulang lewat
+// hover/klik/fokus.
+const attempts = [
+  { guess: 12, result: 'kecil', label: 'Terlalu kecil!' },
+  { guess: 17, result: 'besar', label: 'Terlalu besar!' },
+  { guess: 15, result: 'tepat', label: 'Benar! Kamu berhasil menebak!' },
+];
+const stepDuration = 0.9;
+const startDelay = 0.6;
+---
+
+<div
+  class="gfd-demo"
+  data-anim="gfd-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi alur tebak angka rahasia"
+>
+  <div class="gfd-demo__secret">
+    <span class="gfd-demo__mask" aria-hidden="true">?</span>
+    <span class="gfd-demo__reveal" aria-hidden="true">15</span>
+  </div>
+
+  <div class="gfd-demo__code">
+    <div class="gfd-demo__line"><span class="tok-p">import</span> random</div>
+    <div class="gfd-demo__line">&nbsp;</div>
+    <div class="gfd-demo__line">
+      <span class="tok-var">rahasia</span> = random.<span class="tok-fn">randint</span>(<span class="tok-num"
+        >1</span
+      >, <span class="tok-num">20</span>)
+    </div>
+    <div class="gfd-demo__line"><span class="tok-var">tebakan</span> = <span class="tok-num">0</span></div>
+    <div class="gfd-demo__line">&nbsp;</div>
+    <div class="gfd-demo__line">
+      <span class="tok-p">while</span> tebakan != rahasia:
+      <span class="gfd-demo__while-badge">✓ True</span>
+    </div>
+    <div class="gfd-demo__line gfd-demo__indent">
+      tebakan = <span class="tok-fn">input</span>(<span class="tok-str">&quot;Tebak angka (1-20): &quot;</span>)
+    </div>
+    <div class="gfd-demo__line gfd-demo__indent">
+      tebakan = <span class="tok-fn">int</span>(tebakan)
+    </div>
+    <div class="gfd-demo__line gfd-demo__indent">&nbsp;</div>
+    <div class="gfd-demo__line gfd-demo__indent">
+      <span class="tok-p">if</span> tebakan &lt; rahasia: <span class="tok-fn">print</span>(<span
+        class="tok-str">&quot;Terlalu kecil!&quot;</span
+      >)
+    </div>
+    <div class="gfd-demo__line gfd-demo__indent">
+      <span class="tok-p">elif</span> tebakan &gt; rahasia: <span class="tok-fn">print</span>(<span
+        class="tok-str">&quot;Terlalu besar!&quot;</span
+      >)
+    </div>
+    <div class="gfd-demo__line gfd-demo__indent">
+      <span class="tok-p">else</span>: <span class="tok-fn">print</span>(<span class="tok-str"
+        >&quot;Benar! Kamu berhasil menebak!&quot;</span
+      >)
+    </div>
+  </div>
+
+  <div class="gfd-demo__attempts">
+    {
+      attempts.map((a, i) => (
+        <div
+          class={`gfd-demo__attempt gfd-demo__attempt--${a.result}`}
+          style={`animation-delay:${startDelay + i * stepDuration}s`}
+        >
+          <span class="gfd-demo__attempt-guess">{a.guess}</span>
+          <span class="gfd-demo__attempt-arrow" aria-hidden="true">
+            {a.result === 'kecil' ? '↑' : a.result === 'besar' ? '↓' : '✓'}
+          </span>
+          <span class="gfd-demo__attempt-label">{a.label}</span>
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<p class="gfd-demo__hint">
+  💡 <code>while</code> mengulang selama tebakan belum tepat — <code>if</code>/<code>elif</code>/<code
+    >else</code
+  > memberi petunjuk "kurang" atau "lebih". <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .gfd-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 22px 24px;
+    cursor: pointer;
+  }
+
+  .gfd-demo__secret {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    height: 56px;
+  }
+
+  .gfd-demo__mask,
+  .gfd-demo__reveal {
+    position: absolute;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-code);
+    font-weight: 800;
+    font-size: 22px;
+  }
+
+  .gfd-demo__mask {
+    background: var(--ink);
+    color: #fff;
+    animation: gfd-demo-mask-idle 3s ease-in-out infinite;
+  }
+
+  .gfd-demo__reveal {
+    background: radial-gradient(circle at 34% 30%, #ffe08a, var(--sunny-yellow));
+    border: 2px solid #f2b430;
+    color: var(--wood-label-text);
+    opacity: 0;
+  }
+
+  .gfd-demo.is-in .gfd-demo__mask {
+    animation: gfd-demo-mask-idle 3s ease-in-out infinite,
+      gfd-demo-mask-off 0.5s ease calc(0.6s + 3 * 0.9s) forwards;
+  }
+
+  .gfd-demo.is-in .gfd-demo__reveal {
+    animation: gfd-demo-reveal-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) calc(0.6s + 3 * 0.9s) forwards;
+  }
+
+  @keyframes gfd-demo-mask-idle {
+    0%,
+    100% {
+      transform: translateY(0) rotate(0);
+    }
+    50% {
+      transform: translateY(-4px) rotate(-3deg);
+    }
+  }
+
+  @keyframes gfd-demo-mask-off {
+    0% {
+      opacity: 1;
+      transform: translateY(0) rotate(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(24px) rotate(35deg);
+    }
+  }
+
+  @keyframes gfd-demo-reveal-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.6);
+    }
+    60% {
+      opacity: 1;
+      transform: scale(1.15);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .gfd-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 14px 16px;
+    font-family: var(--font-code);
+    font-size: 13.5px;
+    line-height: 1.85;
+    color: var(--code-text);
+    overflow-x: auto;
+  }
+
+  .gfd-demo__line {
+    white-space: pre;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .gfd-demo__indent {
+    padding-left: 20px;
+  }
+
+  .tok-p {
+    color: var(--code-purple);
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .tok-num {
+    color: var(--code-orange);
+  }
+
+  .gfd-demo__while-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 6px;
+    background: var(--pyto-green-soft);
+    color: var(--pyto-green-dark);
+    opacity: 0.5;
+  }
+
+  .gfd-demo.is-in .gfd-demo__while-badge {
+    animation: gfd-demo-badge-pulse 1s ease infinite;
+  }
+
+  @keyframes gfd-demo-badge-pulse {
+    0%,
+    100% {
+      opacity: 0.5;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  .gfd-demo__attempts {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .gfd-demo__attempt {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--cloud);
+    border-radius: 10px;
+    padding: 8px 14px;
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  .gfd-demo.is-in .gfd-demo__attempt {
+    animation: gfd-demo-attempt-in 0.4s ease forwards;
+  }
+
+  @keyframes gfd-demo-attempt-in {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .gfd-demo__attempt-guess {
+    font-family: var(--font-code);
+    font-weight: 800;
+    font-size: 15px;
+    color: var(--ink);
+    min-width: 24px;
+  }
+
+  .gfd-demo__attempt-arrow {
+    font-size: 16px;
+    font-weight: 800;
+  }
+
+  .gfd-demo__attempt--kecil .gfd-demo__attempt-arrow {
+    color: var(--sky-blue);
+  }
+
+  .gfd-demo__attempt--besar .gfd-demo__attempt-arrow {
+    color: var(--coral);
+  }
+
+  .gfd-demo__attempt--tepat .gfd-demo__attempt-arrow {
+    color: var(--pyto-green-dark);
+  }
+
+  .gfd-demo__attempt-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--slate);
+  }
+
+  .gfd-demo__attempt--tepat {
+    background: var(--pyto-green-soft);
+  }
+
+  .gfd-demo__attempt--tepat .gfd-demo__attempt-label {
+    color: var(--pyto-green-dark);
+  }
+
+  .gfd-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  .gfd-demo__hint code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gfd-demo__mask,
+    .gfd-demo__reveal,
+    .gfd-demo__while-badge,
+    .gfd-demo__attempt {
+      animation: none !important;
+    }
+
+    .gfd-demo__mask {
+      opacity: 0;
+    }
+
+    .gfd-demo__reveal,
+    .gfd-demo__attempt {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .gfd-demo__code {
+      font-size: 12.5px;
+    }
+
+    .gfd-demo__line {
+      flex-wrap: wrap;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="gfd-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

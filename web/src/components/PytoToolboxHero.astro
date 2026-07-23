@@ -1,0 +1,165 @@
+---
+// Animasi #1 (plan/bab-10-animasi.md): Pyto membawa kotak perkakas besar dan
+// membukanya — ikon-ikon kecil mewakili tiap bab sebelumnya melayang keluar,
+// berputar sebentar mengelilingi Pyto, lalu satu per satu "menempel" jadi
+// lencana-lencana kecil di badan Pyto membentuk rompi perkakas lengkap. Main
+// langsung begitu halaman terbuka (tidak menunggu scroll) — sama seperti
+// hero bab-bab sebelumnya. Idle: lencana berkilau bergantian sangat pelan.
+import PytoMascotWave from './PytoMascotWave.astro';
+
+const badges = [
+  { icon: '💻', label: 'Bab 1' },
+  { icon: '🗨️', label: 'Bab 2' },
+  { icon: '📦', label: 'Bab 3' },
+  { icon: '❓', label: 'Bab 4' },
+  { icon: '🔢', label: 'Bab 5' },
+  { icon: '🚦', label: 'Bab 6' },
+  { icon: '🔁', label: 'Bab 7' },
+  { icon: '🧺', label: 'Bab 8' },
+  { icon: '🕵️', label: 'Bab 9' },
+];
+---
+
+<div class="toolbox-hero" data-anim="toolbox-hero">
+  <div class="toolbox-hero__stage">
+    <span class="toolbox-hero__box" aria-hidden="true">🧰</span>
+    <PytoMascotWave size={140} />
+    <div class="toolbox-hero__badges">
+      {
+        badges.map((b, i) => (
+          <span
+            class="toolbox-hero__badge"
+            style={`--i:${i}; animation-delay:${0.5 + i * 0.12}s`}
+            title={b.label}
+            aria-hidden="true"
+          >
+            {b.icon}
+          </span>
+        ))
+      }
+    </div>
+  </div>
+
+  <span class="toolbox-hero__sr">
+    Pyto membuka kotak perkakas besar, ikon-ikon kecil mewakili tiap bab sebelumnya melayang keluar
+    dan menempel jadi lencana-lencana di rompi perkakasnya.
+  </span>
+</div>
+
+<style>
+  .toolbox-hero {
+    display: flex;
+    justify-content: center;
+  }
+
+  .toolbox-hero__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .toolbox-hero__stage {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .toolbox-hero__box {
+    font-size: 34px;
+    opacity: 0;
+    transform: scale(0.6);
+  }
+
+  .toolbox-hero.is-in .toolbox-hero__box {
+    animation: toolbox-hero-box-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s forwards;
+  }
+
+  @keyframes toolbox-hero-box-in {
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .toolbox-hero__badges {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    max-width: 240px;
+    margin-top: -6px;
+  }
+
+  .toolbox-hero__badge {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--pyto-green-soft);
+    border: 2px solid var(--pyto-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    opacity: 0;
+    transform: translateY(-18px) rotate(-20deg) scale(0.6);
+  }
+
+  .toolbox-hero.is-in .toolbox-hero__badge {
+    animation: toolbox-hero-badge-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  @keyframes toolbox-hero-badge-in {
+    60% {
+      opacity: 1;
+      transform: translateY(2px) rotate(6deg) scale(1.15);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) rotate(0) scale(1);
+    }
+  }
+
+  .toolbox-hero.is-in .toolbox-hero__badge {
+    animation-name: toolbox-hero-badge-in, toolbox-hero-shimmer;
+    animation-duration: 0.5s, 2.4s;
+    animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1), ease-in-out;
+    animation-iteration-count: 1, infinite;
+    animation-delay: inherit, calc(2.5s + var(--i) * 0.5s);
+  }
+
+  @keyframes toolbox-hero-shimmer {
+    0%,
+    85%,
+    100% {
+      box-shadow: none;
+    }
+    92% {
+      box-shadow: 0 0 0 4px rgba(47, 191, 113, 0.35);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .toolbox-hero__box,
+    .toolbox-hero__badge {
+      animation: none !important;
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .toolbox-hero__badges {
+      max-width: 200px;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll('[data-anim="toolbox-hero"]').forEach((el) => {
+    setTimeout(() => el.classList.add('is-in'), 200);
+  });
+</script>
