@@ -1,0 +1,159 @@
+---
+// Bab 8 — Kumpulan Barang (List sederhana).
+// Sumber animasi: plan/bab-08-animasi.md.
+// (Tidak ada naskah master terpisah atau mockup Claude Design untuk Bab 8 —
+// animasi.md + bahasa visual Bab 5/6/7 jadi acuan implementasi.)
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import ChapterHero from '../../components/ChapterHero.astro';
+import PytoBasketHero from '../../components/PytoBasketHero.astro';
+import ListIndexDemo from '../../components/ListIndexDemo.astro';
+import AppendDemo from '../../components/AppendDemo.astro';
+import ListIndexErrorAwas from '../../components/ListIndexErrorAwas.astro';
+import ForOverListDemo from '../../components/ForOverListDemo.astro';
+import NegativeIndexDemo from '../../components/NegativeIndexDemo.astro';
+import DreamListMainYuk from '../../components/DreamListMainYuk.astro';
+import KotakAwas from '../../components/KotakAwas.astro';
+import KotakMainYuk from '../../components/KotakMainYuk.astro';
+import KotakTahuLebih from '../../components/KotakTahuLebih.astro';
+import PyodideEditor from '../../components/PyodideEditor.astro';
+import RangkumanList from '../../components/RangkumanList.astro';
+import Glossary from '../../components/Glossary.astro';
+import ChapterFooterNav from '../../components/ChapterFooterNav.astro';
+
+const base = import.meta.env.BASE_URL;
+
+const rangkuman = [
+  '<strong>List</strong> adalah wadah untuk menyimpan banyak nilai sekaligus dalam satu variabel, misalnya <code>teman = ["Kirana", "Budi", "Sari"]</code>.',
+  'Tiap isi list punya <strong>nomor urut (index)</strong> yang dimulai dari <code>0</code>, bukan <code>1</code>.',
+  '<code>.append(nilai)</code> selalu menambah barang baru di <strong>ujung akhir</strong> list.',
+  'Mengambil index yang tidak ada (misalnya <code>teman[3]</code> padahal cuma ada 3 barang) menyebabkan <code>IndexError</code>.',
+  '<code>for barang in daftar:</code> mengambil tiap isi list satu per satu tanpa perlu menulis nomor urutnya.',
+  'Index negatif (<code>-1</code>, <code>-2</code>, ...) menghitung dari belakang — <code>-1</code> selalu barang paling akhir.',
+];
+
+const glossaryTerms = [
+  { term: 'List', def: 'Wadah untuk menyimpan banyak nilai sekaligus dalam satu variabel, ditulis dengan kurung siku [ ].' },
+  { term: 'Index', def: 'Nomor urut posisi sebuah nilai di dalam list, dimulai dari 0.' },
+  { term: '.append()', def: 'Menambah satu nilai baru ke ujung akhir list.' },
+  { term: 'IndexError', def: 'Error saat mengambil nomor urut yang tidak ada di dalam list.' },
+  { term: 'len()', def: 'Menghitung berapa banyak isi sebuah list.' },
+];
+---
+
+<ChapterLayout
+  currentChapter={8}
+  description="Bab 8: Kumpulan Barang (List sederhana) — belajar menyimpan banyak nilai sekaligus dalam satu list, mengambil isinya lewat nomor urut (index), dan menambah isi baru pakai append(), ditemani Pyto si robot ular."
+>
+  <ChapterHero
+    number={8}
+    title="Kumpulan Barang 🧺"
+    tagline={'Kalau variabel (Bab 3) cuma menyimpan <strong>satu</strong> nilai, sekarang kita punya cara menyimpan <strong>banyak</strong> nilai sekaligus dalam satu wadah — namanya <code>list</code>.'}
+  >
+    <PytoBasketHero slot="mascot" />
+  </ChapterHero>
+
+  <section data-reveal>
+    <h2>Bikin Daftar &amp; Ambil Isinya Pakai Nomor Urut</h2>
+    <p>
+      Sebuah <code>list</code> ditulis dengan kurung siku <code>[...]</code>, isinya dipisah koma.
+      Untuk mengambil isinya kembali, kita pakai <strong>nomor urut (index)</strong> — dan
+      nomor urutnya <strong>dimulai dari 0</strong>, bukan 1:
+    </p>
+    <div class="chapter-media">
+      <ListIndexDemo />
+    </div>
+  </section>
+
+  <section class="pyto-quote-box" data-reveal>
+    <span class="pyto-quote-box__mascot" role="img" aria-label="Pyto">🐍</span>
+    <p class="pyto-quote-box__text">
+      "Ini penting banget: barang pertama nomornya <code>0</code>, bukan <code>1</code>. Jangan
+      sampai lupa, ya!"
+    </p>
+  </section>
+
+  <section data-reveal>
+    <h2>Nambah Barang ke Daftar: <code>.append()</code></h2>
+    <p>
+      Kalau mau menambah barang baru ke list yang sudah ada, pakai <code>.append(...)</code> —
+      barang barunya selalu masuk di <strong>ujung akhir</strong>:
+    </p>
+    <div class="chapter-media">
+      <AppendDemo />
+    </div>
+  </section>
+
+  <KotakAwas title="Awas — Nomor Urut Dimulai dari 0">
+    <p>Kesalahan paling umum soal list: mencoba mengambil nomor urut yang tidak ada.</p>
+    <ListIndexErrorAwas />
+  </KotakAwas>
+
+  <section data-reveal>
+    <h2>Ambil Semua Isi Sekaligus: <code>for</code> Meloncat di Daftar</h2>
+    <p>
+      Ingat perulangan <code>for</code> di Bab 7? Ternyata <code>for</code> bisa langsung mengambil
+      <strong>tiap isi</strong> list satu per satu, tanpa perlu menulis nomor urutnya manual:
+    </p>
+    <div class="chapter-media">
+      <ForOverListDemo />
+    </div>
+  </section>
+
+  <KotakMainYuk title="Main Yuk! — Daftar Teman Impian" icon="🎮" wiggleIcon>
+    <p>Bikin daftar teman atau karakter favoritmu sendiri — ketik satu nama, lalu klik Tambah:</p>
+    <DreamListMainYuk />
+  </KotakMainYuk>
+
+  <KotakTahuLebih title="Tahu Lebih — Ambil dari Belakang Pakai Index Minus">
+    <p>List juga bisa diambil dari belakang, pakai nomor negatif — cara singkat mengambil barang terakhir:</p>
+    <NegativeIndexDemo />
+  </KotakTahuLebih>
+
+  <section data-reveal>
+    <h2>Coba Sendiri: Daftar Belanja Sungguhan!</h2>
+    <p>
+      Ini <strong>Python asli</strong> yang jalan di browser-mu. Klik <strong>▶ Jalankan</strong> untuk
+      melihat daftar belanjanya dibangun dari nol:
+    </p>
+    <PyodideEditor
+      mode="simple"
+      idPrefix="bab8"
+      title="🐍 belanja.py"
+      runLabel="▶ Jalankan"
+      codeAriaLabel="Kotak kode daftar belanja"
+      minHeight={150}
+      rows={9}
+      starterCode={`belanja = []
+belanja.append("Roti")
+belanja.append("Susu")
+belanja.append("Telur")
+
+print(f"Ada {len(belanja)} barang di daftar belanja:")
+
+for barang in belanja:
+    print(barang)
+`}
+      notes={[
+        '📌 Coba tambah <code>belanja.append("Telur Ayam")</code> di baris baru sebelum <code>print(f"Ada ...")</code>, lalu jalankan lagi.',
+        '✏️ Ganti isi barangnya sesuka hati — <code>len(belanja)</code> akan otomatis menyesuaikan jumlahnya.',
+      ]}
+    />
+  </section>
+
+  <section data-reveal>
+    <h2>Rangkuman Bab 8</h2>
+    <RangkumanList items={rangkuman} />
+  </section>
+
+  <section data-reveal>
+    <h2>📖 Kamus Kata</h2>
+    <Glossary terms={glossaryTerms} />
+  </section>
+
+  <ChapterFooterNav
+    prevHref={`${base}/bab/7/`}
+    prevLabel="← Bab 7: Ulang-ulang (Loop)"
+    nextHref={`${base}/bab/9/`}
+    nextLabel="Bab 9: Salah itu Wajar (Error)"
+  />
+</ChapterLayout>
