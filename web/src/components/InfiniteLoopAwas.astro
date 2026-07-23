@@ -1,0 +1,211 @@
+---
+// Animasi #5 (plan/bab-07-animasi.md): bahaya lupa memperbarui syarat pada
+// while. Baris hitung = hitung + 1 hilang, jadi hitung tetap di angka 1 dan
+// syaratnya selalu True — angka 1 tercetak berulang sangat cepat sampai
+// buram (menandakan "berlangsung selamanya"), lalu berhenti dengan ikon jam
+// pasir dan caption. Dipakai di dalam <KotakAwas>. Sekali jalan saat
+// terlihat, boleh diulang lewat hover/klik/fokus.
+const repeats = Array.from({ length: 10 }, (_, i) => i);
+---
+
+<div
+  class="ila-demo"
+  data-anim="ila-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi loop tanpa henti karena syarat tidak pernah berubah"
+>
+  <div class="ila-demo__code">
+    <div class="ila-demo__line"><span class="tok-var">hitung</span> = <span class="tok-num">1</span></div>
+    <div class="ila-demo__line">&nbsp;</div>
+    <div class="ila-demo__line">
+      <span class="tok-p">while</span> hitung &lt;= <span class="tok-num">5</span>:
+    </div>
+    <div class="ila-demo__line ila-demo__indent">
+      <span class="tok-fn">print</span>(hitung)
+      <span class="ila-demo__comment"># lupa menulis: hitung = hitung + 1</span>
+    </div>
+  </div>
+
+  <div class="ila-demo__stage">
+    <div class="ila-demo__pile" aria-hidden="true">
+      {
+        repeats.map((i) => (
+          <span class="ila-demo__one" style={`animation-delay:${0.2 + i * 0.09}s`}>
+            1
+          </span>
+        ))
+      }
+    </div>
+
+    <div class="ila-demo__resolution">
+      <span class="ila-demo__hourglass" aria-hidden="true">⏳</span>
+      <p class="ila-demo__caption">
+        Kalau syaratnya tidak pernah berubah jadi <code>False</code>, <code>while</code> akan mengulang
+        selamanya — komputer jadi "macet". Ini salah satu bug yang paling sering bikin pemula bingung,
+        kita akan belajar mengenalinya lebih jauh di <strong>Bab 9</strong>.
+      </p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .ila-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    cursor: pointer;
+  }
+
+  .ila-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 14px 16px;
+    font-family: var(--font-code);
+    font-size: 14px;
+    line-height: 1.85;
+    color: var(--code-text);
+    overflow-x: auto;
+  }
+
+  .ila-demo__line {
+    white-space: pre;
+  }
+
+  .ila-demo__indent {
+    padding-left: 18px;
+  }
+
+  .tok-p {
+    color: var(--code-purple);
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .tok-num {
+    color: var(--code-orange);
+  }
+
+  .ila-demo__comment {
+    color: var(--code-comment);
+    margin-left: 8px;
+  }
+
+  .ila-demo__stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .ila-demo__pile {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-content: center;
+    max-width: 320px;
+    min-height: 30px;
+  }
+
+  .ila-demo__one {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    padding: 2px 6px;
+    border-radius: 5px;
+    background: var(--box-awas-bg);
+    color: #c0392b;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 12px;
+    opacity: 0;
+  }
+
+  .ila-demo.is-in .ila-demo__one {
+    animation: ila-demo-pile-in 0.2s ease forwards;
+  }
+
+  .ila-demo.is-in .ila-demo__one:nth-last-child(-n + 4) {
+    filter: blur(1.5px);
+  }
+
+  @keyframes ila-demo-pile-in {
+    from {
+      opacity: 0;
+      transform: scale(0.7);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .ila-demo__resolution {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    opacity: 0;
+  }
+
+  .ila-demo.is-in .ila-demo__resolution {
+    animation: ila-demo-fade-in 0.4s ease 1.3s forwards;
+  }
+
+  .ila-demo__hourglass {
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+
+  .ila-demo__caption {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--ink);
+  }
+
+  .ila-demo__caption code {
+    color: #c0392b;
+    font-weight: 700;
+  }
+
+  @keyframes ila-demo-fade-in {
+    to {
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ila-demo__one,
+    .ila-demo__resolution {
+      animation: none !important;
+    }
+
+    .ila-demo__one {
+      opacity: 1;
+      filter: none !important;
+    }
+
+    .ila-demo__resolution {
+      opacity: 1;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="ila-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

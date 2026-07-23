@@ -1,0 +1,249 @@
+---
+// Animasi #1 (plan/bab-07-animasi.md): Pyto melompat ringan di tempat
+// berkali-kali berturut-turut tanpa jeda, sebuah angka penghitung kecil
+// melayang di sampingnya bertambah tiap kali ia melompat (1, 2, 3...).
+// Setelah beberapa lompatan, gerakan melambat dan berhenti sendiri tepat di
+// angka tertentu, lalu Pyto tersenyum bangga. Idle: sesekali melompat sekali
+// lagi tiap beberapa detik, seperti "pemanasan". Main langsung begitu halaman
+// terbuka (tidak menunggu scroll) — sama seperti hero bab-bab sebelumnya.
+interface Props {
+  size?: number;
+  stopAt?: number;
+}
+
+const { size = 172, stopAt = 6 } = Astro.props;
+const height = Math.round((size * 180) / 188);
+---
+
+<div class="pyto-loop-hero" data-anim="pyto-loop-hero" data-stop-at={stopAt}>
+  <div class="pyto-loop-hero__stage">
+    <div class="pyto-loop-hero__pyto">
+      <svg
+        width={size}
+        height={height}
+        viewBox="0 0 188 180"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        class="pyto-loop-hero__svg"
+        role="img"
+        aria-label="Pyto melompat-lompat ringan di tempat, senang tanpa capek"
+      >
+        <path
+          d="M56 150 C 20 150, 22 110, 60 112 C 104 114, 120 150, 150 140"
+          stroke="var(--pyto-green-dark)"
+          stroke-width="17"
+          stroke-linecap="round"
+          fill="none"></path>
+        <path
+          d="M56 150 C 20 150, 22 110, 60 112 C 104 114, 120 150, 150 140"
+          stroke="var(--pyto-green)"
+          stroke-width="9"
+          stroke-linecap="round"
+          fill="none"></path>
+        <rect x="44" y="30" width="96" height="82" rx="30" fill="var(--pyto-green)"></rect>
+        <line x1="92" y1="30" x2="92" y2="12" stroke="var(--pyto-green-dark)" stroke-width="5" stroke-linecap="round"
+        ></line>
+        <circle cx="92" cy="9" r="6" fill="var(--sunny-yellow)"></circle>
+        <g class="pyto-loop-hero__eyes">
+          <circle cx="74" cy="62" r="14" fill="#FFFFFF"></circle>
+          <circle cx="112" cy="62" r="14" fill="#FFFFFF"></circle>
+          <circle cx="77" cy="64" r="6" fill="var(--ink)"></circle>
+          <circle cx="115" cy="64" r="6" fill="var(--ink)"></circle>
+          <circle cx="79" cy="61" r="2" fill="#FFFFFF"></circle>
+          <circle cx="117" cy="61" r="2" fill="#FFFFFF"></circle>
+        </g>
+        <circle cx="60" cy="86" r="7" fill="var(--coral)" opacity="0.55"></circle>
+        <circle cx="126" cy="86" r="7" fill="var(--coral)" opacity="0.55"></circle>
+        <path
+          class="pyto-loop-hero__mouth-normal"
+          d="M78 88 Q 92 100, 106 88"
+          stroke="var(--ink)"
+          stroke-width="4"
+          stroke-linecap="round"
+          fill="none"></path>
+        <path
+          class="pyto-loop-hero__mouth-proud"
+          d="M74 86 Q 92 106, 110 86"
+          stroke="var(--ink)"
+          stroke-width="4"
+          stroke-linecap="round"
+          fill="none"></path>
+      </svg>
+      <div class="pyto-loop-hero__shadow" aria-hidden="true"></div>
+    </div>
+
+    <div class="pyto-loop-hero__counter" aria-hidden="true">
+      <span class="pyto-loop-hero__counter-num">0</span>
+    </div>
+  </div>
+
+  <span class="pyto-loop-hero__sr">
+    Pyto melompat ringan di tempat berkali-kali, sebuah angka di sampingnya bertambah tiap lompatan,
+    lalu berhenti sendiri dan Pyto tersenyum bangga.
+  </span>
+</div>
+
+<style>
+  .pyto-loop-hero {
+    display: flex;
+    justify-content: center;
+  }
+
+  .pyto-loop-hero__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .pyto-loop-hero__stage {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    gap: 18px;
+    padding-top: 30px;
+  }
+
+  .pyto-loop-hero__pyto {
+    position: relative;
+  }
+
+  .pyto-loop-hero__svg {
+    display: block;
+    filter: drop-shadow(0 12px 18px rgba(30, 42, 50, 0.14));
+  }
+
+  .pyto-loop-hero__pyto.is-jumping .pyto-loop-hero__svg {
+    animation: pyto-loop-hero-jump 0.26s ease-in-out;
+  }
+
+  @keyframes pyto-loop-hero-jump {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    45% {
+      transform: translateY(-22px);
+    }
+  }
+
+  .pyto-loop-hero__shadow {
+    margin: 4px auto 0;
+    width: 76px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(30, 42, 50, 0.12);
+    transition: transform 0.26s ease, opacity 0.26s ease;
+  }
+
+  .pyto-loop-hero__pyto.is-jumping .pyto-loop-hero__shadow {
+    transform: scale(0.6);
+    opacity: 0.6;
+  }
+
+  .pyto-loop-hero__eyes {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: pyto-loop-hero-blink 4.5s infinite;
+  }
+
+  @keyframes pyto-loop-hero-blink {
+    0%,
+    92%,
+    100% {
+      transform: scaleY(1);
+    }
+    96% {
+      transform: scaleY(0.1);
+    }
+  }
+
+  .pyto-loop-hero__mouth-proud {
+    opacity: 0;
+  }
+
+  .pyto-loop-hero.is-done .pyto-loop-hero__mouth-normal {
+    opacity: 0;
+  }
+
+  .pyto-loop-hero.is-done .pyto-loop-hero__mouth-proud {
+    opacity: 1;
+  }
+
+  .pyto-loop-hero__counter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--pyto-green-soft);
+    border: 3px solid var(--pyto-green);
+    box-shadow: 0 4px 10px rgba(47, 191, 113, 0.28);
+    margin-bottom: 34px;
+  }
+
+  .pyto-loop-hero__counter-num {
+    font-family: var(--font-code);
+    font-weight: 800;
+    font-size: 22px;
+    color: var(--pyto-green-dark);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pyto-loop-hero__pyto.is-jumping .pyto-loop-hero__svg,
+    .pyto-loop-hero__eyes {
+      animation: none !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .pyto-loop-hero__stage {
+      gap: 12px;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll('[data-anim="pyto-loop-hero"]').forEach((hero) => {
+    const stopAt = Number(hero.getAttribute('data-stop-at')) || 6;
+    const pytoEl = hero.querySelector('.pyto-loop-hero__pyto');
+    const counterEl = hero.querySelector('.pyto-loop-hero__counter-num');
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (prefersReducedMotion) {
+      if (counterEl) counterEl.textContent = String(stopAt);
+      hero.classList.add('is-done');
+      return;
+    }
+
+    const jumpOnce = (onDone) => {
+      if (!pytoEl) return;
+      pytoEl.classList.remove('is-jumping');
+      void pytoEl.offsetWidth; // paksa reflow supaya animasi bisa diulang
+      pytoEl.classList.add('is-jumping');
+      setTimeout(() => {
+        pytoEl.classList.remove('is-jumping');
+        if (onDone) onDone();
+      }, 260);
+    };
+
+    let count = 0;
+    const jumpSequence = () => {
+      count += 1;
+      if (counterEl) counterEl.textContent = String(count);
+      jumpOnce(() => {
+        if (count < stopAt) {
+          setTimeout(jumpSequence, 90);
+        } else {
+          hero.classList.add('is-done');
+          setInterval(() => jumpOnce(), 6000);
+        }
+      });
+    };
+
+    setTimeout(jumpSequence, 400);
+  });
+</script>

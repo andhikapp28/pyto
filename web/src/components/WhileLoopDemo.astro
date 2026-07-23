@@ -1,0 +1,417 @@
+---
+// Animasi #3 (plan/bab-07-animasi.md): while hitung <= 5. Kotak hitung
+// menampilkan bola angka yang membesar tiap putaran, lencana kecil berkedip
+// memeriksa syaratnya (True → jalankan blok & cetak, False → berhenti) tiap
+// kali kembali ke atas — echo lencana True/False Bab 6. Sekali jalan saat
+// terlihat, boleh diulang lewat hover/klik/fokus.
+const values = [1, 2, 3, 4, 5, 6];
+const stepDuration = 0.5;
+const startDelay = 0.3;
+---
+
+<div
+  class="wld-demo"
+  data-anim="wld-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi while hitung kurang dari sama dengan 5"
+>
+  <div class="wld-demo__code">
+    <div class="wld-demo__line"><span class="tok-var">hitung</span> = <span class="tok-num">1</span></div>
+    <div class="wld-demo__line">&nbsp;</div>
+    <div class="wld-demo__line">
+      <span class="tok-p">while</span> hitung &lt;= <span class="tok-num">5</span>:
+      <span class="wld-demo__badge">
+        {
+          values.map((v, i) => (
+            <span
+              class={`wld-demo__badge-state ${v <= 5 ? 'wld-demo__badge-state--true' : 'wld-demo__badge-state--false'}`}
+              style={`animation-delay:${startDelay + i * stepDuration}s`}
+            >
+              {v <= 5 ? '✓ True' : '✗ False'}
+            </span>
+          ))
+        }
+      </span>
+    </div>
+    <div class="wld-demo__line wld-demo__indent">
+      <span class="tok-fn">print</span>(hitung)
+    </div>
+    <div class="wld-demo__line wld-demo__indent">
+      hitung = hitung + <span class="tok-num">1</span>
+    </div>
+  </div>
+
+  <div class="wld-demo__stage">
+    <div class="wld-demo__slot">
+      <span class="wld-demo__slot-label">hitung</span>
+      <div class="wld-demo__slot-box">
+        {
+          values.map((v, i) => (
+            <span
+              class="wld-demo__slot-value"
+              style={`animation-delay:${startDelay + i * stepDuration + 0.05}s`}
+              data-last={i === values.length - 1 ? 'true' : undefined}
+            >
+              {v}
+            </span>
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="wld-demo__loop-arrow" aria-hidden="true">↻ mengulang ke atas</div>
+
+    <div class="wld-demo__output">
+      <span class="wld-demo__output-label">Hasil:</span>
+      <div class="wld-demo__output-chips">
+        {
+          values
+            .filter((v) => v <= 5)
+            .map((v, i) => (
+              <span class="wld-demo__chip" style={`animation-delay:${startDelay + i * stepDuration + 0.2}s`}>
+                {v}
+              </span>
+            ))
+        }
+      </div>
+    </div>
+
+    <div class="wld-demo__done">🛑 hitung jadi 6 → syarat False → loop berhenti</div>
+  </div>
+</div>
+
+<p class="wld-demo__hint">
+  💡 <code>while</code> mengulang <strong>selama</strong> syaratnya <code>True</code> — dan syaratnya
+  harus diperbarui sendiri lewat <code>hitung = hitung + 1</code>. <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .wld-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 22px 24px;
+    cursor: pointer;
+  }
+
+  .wld-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 16px 18px;
+    font-family: var(--font-code);
+    font-size: 15px;
+    line-height: 1.9;
+    color: var(--code-text);
+    overflow-x: auto;
+  }
+
+  .wld-demo__line {
+    white-space: pre;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .wld-demo__indent {
+    padding-left: 22px;
+  }
+
+  .tok-p {
+    color: var(--code-purple);
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .tok-num {
+    color: var(--code-orange);
+  }
+
+  .wld-demo__badge {
+    position: relative;
+    display: inline-block;
+    min-width: 62px;
+    height: 20px;
+  }
+
+  .wld-demo__badge-state {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+
+  .wld-demo__badge-state--true {
+    background: var(--pyto-green-soft);
+    color: var(--pyto-green-dark);
+  }
+
+  .wld-demo__badge-state--false {
+    background: var(--box-awas-bg);
+    color: #c0392b;
+  }
+
+  .wld-demo.is-in .wld-demo__badge-state {
+    animation: wld-demo-badge-flash 0.45s ease forwards;
+  }
+
+  @keyframes wld-demo-badge-flash {
+    0% {
+      opacity: 0;
+      transform: scale(0.7);
+    }
+    40% {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .wld-demo__stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .wld-demo__slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .wld-demo__slot-label {
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--wood-label-text);
+  }
+
+  .wld-demo__slot-box {
+    position: relative;
+    width: 64px;
+    height: 56px;
+    border-radius: 12px;
+    background: var(--box-main-yuk-bg);
+    border: 2px solid var(--wood-label-border);
+  }
+
+  .wld-demo__slot-value {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-code);
+    font-weight: 800;
+    font-size: 22px;
+    color: var(--wood-label-text);
+    opacity: 0;
+  }
+
+  .wld-demo.is-in .wld-demo__slot-value {
+    animation: wld-demo-slot-in-out 0.45s ease forwards;
+  }
+
+  .wld-demo.is-in .wld-demo__slot-value[data-last='true'] {
+    animation: wld-demo-slot-in-final 0.45s ease forwards;
+  }
+
+  @keyframes wld-demo-slot-in-out {
+    0% {
+      opacity: 0;
+      transform: scale(0.6);
+    }
+    30% {
+      opacity: 1;
+      transform: scale(1.15);
+    }
+    60% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+  }
+
+  @keyframes wld-demo-slot-in-final {
+    0% {
+      opacity: 0;
+      transform: scale(0.6);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.15);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+      color: #c0392b;
+    }
+  }
+
+  .wld-demo__loop-arrow {
+    font-size: 12px;
+    color: var(--slate);
+    font-weight: 700;
+  }
+
+  .wld-demo__output {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    background: var(--cloud);
+    border-radius: 10px;
+    padding: 10px 14px;
+    min-height: 40px;
+  }
+
+  .wld-demo__output-label {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--slate);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  .wld-demo__output-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .wld-demo__chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: var(--pyto-green-soft);
+    color: var(--pyto-green-dark);
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 13px;
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  .wld-demo.is-in .wld-demo__chip {
+    animation: wld-demo-fade-up 0.35s ease forwards;
+  }
+
+  @keyframes wld-demo-fade-up {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes wld-demo-fade-in {
+    to {
+      opacity: 1;
+    }
+  }
+
+  .wld-demo__done {
+    font-size: 13px;
+    font-weight: 700;
+    color: #c0392b;
+    opacity: 0;
+  }
+
+  .wld-demo.is-in .wld-demo__done {
+    animation: wld-demo-fade-in 0.4s ease 3s forwards;
+  }
+
+  .wld-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  .wld-demo__hint code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wld-demo__badge-state,
+    .wld-demo__slot-value,
+    .wld-demo__chip,
+    .wld-demo__done {
+      animation: none !important;
+    }
+
+    .wld-demo__badge-state {
+      opacity: 0;
+    }
+
+    .wld-demo__badge-state--false {
+      opacity: 1;
+    }
+
+    .wld-demo__slot-value {
+      opacity: 0;
+    }
+
+    .wld-demo__slot-value[data-last='true'] {
+      opacity: 1;
+      color: #c0392b;
+    }
+
+    .wld-demo__chip,
+    .wld-demo__done {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .wld-demo__code {
+      font-size: 14px;
+    }
+
+    .wld-demo__line {
+      flex-wrap: wrap;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="wld-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>
