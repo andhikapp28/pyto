@@ -30,6 +30,12 @@ interface Props {
   placeholderText?: string;
   resultLabel?: string;
   notes?: string[];
+  // Bab 12: kode di dalam editor ini benar-benar melakukan network request
+  // (pyfetch) yang bisa jauh lebih lama/variatif daripada sekadar menjalankan
+  // Python lokal. Kalau diisi, teks ini menggantikan "Menjalankan..." biasa
+  // begitu Pyodide sendiri sudah siap (bukan lagi loading pertama kali) —
+  // lihat plan/design/bab-12-desain.md, prop networkPendingLabel.
+  networkPendingLabel?: string;
 }
 
 const {
@@ -46,12 +52,18 @@ const {
   placeholderText = `Klik ${runLabel} untuk menjalankan kode di atas.`,
   resultLabel = 'Hasil:',
   notes = [],
+  networkPendingLabel,
 } = Astro.props;
 
 const isInteractive = mode === 'interactive';
 ---
 
-<div class="pyoed-wrap" data-mode={mode} data-id-prefix={idPrefix}>
+<div
+  class="pyoed-wrap"
+  data-mode={mode}
+  data-id-prefix={idPrefix}
+  data-network-pending-label={networkPendingLabel}
+>
   <div class="pyoed card">
     <div class="pyoed__header">
       <span class="pyoed__title">{title}</span>
@@ -345,6 +357,7 @@ const isInteractive = mode === 'interactive';
   document.querySelectorAll('.pyoed-wrap').forEach((wrap) => {
     const idPrefix = wrap.dataset.idPrefix;
     const mode = wrap.dataset.mode;
+    const networkPendingLabel = wrap.dataset.networkPendingLabel || '';
     if (!idPrefix || wrap.dataset.pyoedWired) return;
     wrap.dataset.pyoedWired = 'true';
 
@@ -550,7 +563,7 @@ const isInteractive = mode === 'interactive';
         if (isFirstPyodideLoad()) {
           showResult(LOADING_MESSAGE, false);
         } else {
-          showResult('Menjalankan...', false);
+          showResult(networkPendingLabel || 'Menjalankan...', false);
         }
 
         try {

@@ -1,0 +1,300 @@
+---
+// Animasi #4 (plan/bab-11-animasi.md): murid["hobi"] = "berenang" mengganti
+// isi laci "hobi" yang sudah ada (isi lama memudar, isi baru masuk
+// bersinar), lalu murid["sekolah"] = "SD Ceria" menempelkan laci BARU
+// berlabel "sekolah" di lemari yang sama. Sekali jalan saat terlihat, boleh
+// diulang lewat hover/klik/fokus.
+---
+
+<div
+  class="dup-demo"
+  data-anim="dup-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi mengubah dan menambah isi dictionary"
+>
+  <div class="dup-demo__code">
+    <div class="dup-demo__line">
+      <span class="dup-demo__glow-a">murid[<span class="tok-str">&quot;hobi&quot;</span>] =
+        <span class="tok-str">&quot;berenang&quot;</span></span>
+    </div>
+    <div class="dup-demo__line">
+      <span class="dup-demo__glow-b">murid[<span class="tok-str">&quot;sekolah&quot;</span>] =
+        <span class="tok-str">&quot;SD Ceria&quot;</span></span>
+    </div>
+    <div class="dup-demo__line">&nbsp;</div>
+    <div class="dup-demo__line"><span class="tok-fn">print</span>(murid)</div>
+  </div>
+
+  <div class="dup-demo__stage">
+    <span class="dup-demo__cabinet-label">murid</span>
+    <div class="dup-demo__cabinet">
+      <div class="dup-demo__drawer">
+        <span class="dup-demo__tag">hobi</span>
+        <span class="dup-demo__box">
+          <span class="dup-demo__isi dup-demo__isi--old">melukis</span>
+          <span class="dup-demo__isi dup-demo__isi--new">berenang</span>
+        </span>
+      </div>
+      <div class="dup-demo__drawer dup-demo__drawer--new">
+        <span class="dup-demo__tag dup-demo__tag--new">sekolah</span>
+        <span class="dup-demo__box dup-demo__box--new">
+          <span class="dup-demo__isi dup-demo__isi--brand-new">SD Ceria</span>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="dup-demo__hint">
+  💡 Label yang <strong>sudah ada</strong> isinya diganti; label yang <strong>belum ada</strong>
+  otomatis jadi laci baru — cara nulisnya sama persis. <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .dup-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 22px 24px;
+    cursor: pointer;
+  }
+
+  .dup-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 16px 18px;
+    font-family: var(--font-code);
+    font-size: 14px;
+    line-height: 1.85;
+    color: var(--code-text);
+    overflow-x: auto;
+  }
+
+  .dup-demo__line {
+    white-space: pre;
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .dup-demo__glow-a,
+  .dup-demo__glow-b {
+    border-radius: 6px;
+    padding: 1px 3px;
+    margin: -1px -3px;
+  }
+
+  .dup-demo.is-in .dup-demo__glow-a {
+    animation: dup-demo-glow 0.6s ease 0.1s;
+  }
+
+  .dup-demo.is-in .dup-demo__glow-b {
+    animation: dup-demo-glow 0.6s ease 1.1s;
+  }
+
+  @keyframes dup-demo-glow {
+    0%,
+    100% {
+      background: transparent;
+    }
+    40% {
+      background: rgba(97, 175, 239, 0.28);
+    }
+  }
+
+  .dup-demo__stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .dup-demo__cabinet-label {
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--slate);
+  }
+
+  .dup-demo__cabinet {
+    display: flex;
+    gap: 10px;
+    padding: 16px 14px;
+    background: linear-gradient(var(--wood), var(--wood-dark));
+    border: 3px solid var(--wood-border);
+    border-radius: 14px;
+    box-shadow: 0 6px 14px rgba(154, 99, 41, 0.28);
+  }
+
+  .dup-demo__drawer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .dup-demo__tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 9px;
+    border-radius: 5px;
+    background: var(--grape);
+    color: #fff;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 11px;
+  }
+
+  .dup-demo__box {
+    position: relative;
+    width: 76px;
+    height: 40px;
+    background: var(--cloud);
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .dup-demo.is-in .dup-demo__box:first-child {
+    animation: dup-demo-jitter 0.3s ease 0.5s;
+  }
+
+  @keyframes dup-demo-jitter {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-2px);
+    }
+    75% {
+      transform: translateX(2px);
+    }
+  }
+
+  .dup-demo__isi {
+    position: absolute;
+    font-family: var(--font-code);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--pyto-green-dark);
+  }
+
+  .dup-demo__isi--old {
+    opacity: 0.7;
+  }
+
+  .dup-demo.is-in .dup-demo__isi--old {
+    animation: dup-demo-fade-out 0.4s ease 0.5s forwards;
+  }
+
+  @keyframes dup-demo-fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+
+  .dup-demo__isi--new {
+    opacity: 0;
+  }
+
+  .dup-demo.is-in .dup-demo__isi--new {
+    animation: dup-demo-fade-in 0.4s ease 0.7s forwards;
+  }
+
+  @keyframes dup-demo-fade-in {
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* --- laci baru "sekolah" --- */
+  .dup-demo__drawer--new {
+    opacity: 0;
+    transform: translateX(36px);
+  }
+
+  .dup-demo.is-in .dup-demo__drawer--new {
+    animation: dup-demo-slide-in 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 1.3s forwards;
+  }
+
+  @keyframes dup-demo-slide-in {
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .dup-demo__isi--brand-new {
+    position: static;
+    opacity: 0;
+  }
+
+  .dup-demo.is-in .dup-demo__isi--brand-new {
+    animation: dup-demo-fade-in 0.4s ease 1.7s forwards;
+  }
+
+  .dup-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dup-demo__glow-a,
+    .dup-demo__glow-b,
+    .dup-demo__box,
+    .dup-demo__isi,
+    .dup-demo__drawer--new,
+    .dup-demo__isi--brand-new {
+      animation: none !important;
+    }
+
+    .dup-demo__isi--old {
+      opacity: 0;
+    }
+
+    .dup-demo__isi--new,
+    .dup-demo__isi--brand-new {
+      opacity: 1;
+    }
+
+    .dup-demo__drawer--new {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .dup-demo__code {
+      font-size: 13px;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="dup-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

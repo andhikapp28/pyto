@@ -1,0 +1,149 @@
+---
+// Animasi #1 (plan/bab-13-animasi.md): Pyto berdiri di depan "bengkel foto"
+// kecil bergaya kios, papan nama "Bengkel Foto Pyto 🖼️" dan slot kosong
+// bertanda 📤. Foto polaroid kosong melayang masuk ke slot, slot berkedip
+// hijau, lalu foto "berubah" jadi versi kecil melayang ke tangan Pyto. Main
+// langsung begitu halaman terbuka. Idle: slot upload berkedip pelan.
+import PytoMascotWave from './PytoMascotWave.astro';
+---
+
+<div class="pbh-hero" data-anim="pbh-hero">
+  <div class="pbh-hero__kiosk">
+    <span class="pbh-hero__signboard">Bengkel Foto Pyto 🖼️</span>
+    <div class="pbh-hero__slot">
+      <span class="pbh-hero__slot-icon" aria-hidden="true">📤</span>
+      <span class="pbh-hero__polaroid" aria-hidden="true">🖼️</span>
+    </div>
+  </div>
+
+  <PytoMascotWave size={140} />
+
+  <span class="pbh-hero__sr">
+    Pyto berdiri di depan bengkel foto kecil — sebuah foto polaroid melayang masuk ke slot upload,
+    slot berkedip hijau, lalu foto berubah jadi versi kecil siap diotak-atik Pyto.
+  </span>
+</div>
+
+<style>
+  .pbh-hero {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+
+  .pbh-hero__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .pbh-hero__kiosk {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .pbh-hero__signboard {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 12px;
+    background: var(--sunny-yellow);
+    color: var(--ink);
+    padding: 4px 12px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .pbh-hero__slot {
+    position: relative;
+    width: 84px;
+    height: 64px;
+    border-radius: 12px;
+    background: var(--cloud);
+    border: 3px dashed var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .pbh-hero.is-in .pbh-hero__slot {
+    animation: pbh-hero-slot-flash 3.4s ease-in-out 2s infinite;
+  }
+
+  @keyframes pbh-hero-slot-flash {
+    0%,
+    85%,
+    100% {
+      border-color: var(--border);
+    }
+    92% {
+      border-color: var(--pyto-green);
+    }
+  }
+
+  .pbh-hero__slot-icon {
+    position: absolute;
+    font-size: 22px;
+    opacity: 1;
+  }
+
+  .pbh-hero.is-in .pbh-hero__slot-icon {
+    animation: pbh-hero-icon-out 0.5s ease 1s forwards;
+  }
+
+  @keyframes pbh-hero-icon-out {
+    to {
+      opacity: 0;
+      transform: scale(0.6);
+    }
+  }
+
+  .pbh-hero__polaroid {
+    position: absolute;
+    font-size: 30px;
+    opacity: 0;
+    transform: translateY(-30px) scale(1.2);
+  }
+
+  .pbh-hero.is-in .pbh-hero__polaroid {
+    animation: pbh-hero-polaroid-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.9s forwards;
+  }
+
+  @keyframes pbh-hero-polaroid-in {
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pbh-hero__slot,
+    .pbh-hero__slot-icon,
+    .pbh-hero__polaroid {
+      animation: none !important;
+    }
+
+    .pbh-hero__slot-icon {
+      opacity: 0;
+    }
+
+    .pbh-hero__polaroid {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll('[data-anim="pbh-hero"]').forEach((el) => {
+    setTimeout(() => el.classList.add('is-in'), 200);
+  });
+</script>

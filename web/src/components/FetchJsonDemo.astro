@@ -1,0 +1,357 @@
+---
+// Animasi #2 (plan/bab-12-animasi.md) — Centerpiece 1: kotak surat melayang
+// keluar dari baris pyfetch(...), terbang ke ikon awan "Open-Meteo", menunggu
+// (jam pasir berputar), lalu amplop balasan JSON terbang kembali dan
+// tersusun jadi lemari berlabel (echo dictionary Bab 11) dengan
+// "current_weather" berisi laci lagi di dalamnya. Ini komponen ilustrasi
+// statis (bukan fetch sungguhan) — fetch sungguhan cuma di PyodideEditor
+// "Coba Sendiri". Sekali jalan saat terlihat, boleh diulang lewat
+// hover/klik/fokus.
+---
+
+<div
+  class="fjd-demo"
+  data-anim="fjd-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi mengambil data cuaca dari internet lewat pyfetch"
+>
+  <div class="fjd-demo__code">
+    <div class="fjd-demo__line"><span class="tok-p">from</span> pyodide.http <span class="tok-p">import</span> pyfetch</div>
+    <div class="fjd-demo__line">&nbsp;</div>
+    <div class="fjd-demo__line">
+      <span class="tok-var">respons</span> = <span class="tok-p">await</span>
+      <span class="fjd-demo__glow tok-fn">pyfetch</span>(
+    </div>
+    <div class="fjd-demo__line fjd-demo__indent">
+      <span class="tok-str">&quot;https://api.open-meteo.com/v1/forecast?...&quot;</span>
+    </div>
+    <div class="fjd-demo__line">)</div>
+    <div class="fjd-demo__line">
+      <span class="tok-var">data</span> = <span class="tok-p">await</span> respons.<span class="tok-fn"
+        >json</span
+      >()
+    </div>
+  </div>
+
+  <div class="fjd-demo__stage">
+    <div class="fjd-demo__route">
+      <span class="fjd-demo__browser" aria-hidden="true">🌐</span>
+      <span class="fjd-demo__letter fjd-demo__letter--out" aria-hidden="true">✉️</span>
+      <span class="fjd-demo__hourglass" aria-hidden="true">⏳</span>
+      <span class="fjd-demo__cloud">☁️ Open-Meteo</span>
+      <span class="fjd-demo__letter fjd-demo__letter--back" aria-hidden="true">📩</span>
+    </div>
+
+    <div class="fjd-demo__cabinet">
+      <div class="fjd-demo__drawer">
+        <span class="fjd-demo__tag">latitude</span>
+        <span class="fjd-demo__box">-6.2</span>
+      </div>
+      <div class="fjd-demo__drawer fjd-demo__drawer--nested">
+        <span class="fjd-demo__tag">current_weather</span>
+        <span class="fjd-demo__box fjd-demo__box--nested">
+          <span class="fjd-demo__mini-tag">temperature</span>
+          <span class="fjd-demo__mini-tag">windspeed</span>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="fjd-demo__hint">
+  💡 Balasan dari internet datang dalam bentuk yang sudah dikenal: <strong>dictionary</strong> — bahkan
+  bisa "kamus di dalam kamus" seperti <code>current_weather</code>. <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .fjd-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 22px 24px;
+    cursor: pointer;
+  }
+
+  .fjd-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 16px 18px;
+    font-family: var(--font-code);
+    font-size: 13px;
+    line-height: 1.85;
+    color: var(--code-text);
+    overflow-x: auto;
+  }
+
+  .fjd-demo__line {
+    white-space: pre;
+  }
+
+  .fjd-demo__indent {
+    padding-left: 22px;
+  }
+
+  .tok-p {
+    color: var(--code-purple);
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .fjd-demo__glow {
+    border-radius: 4px;
+  }
+
+  .fjd-demo.is-in .fjd-demo__glow {
+    animation: fjd-demo-glow 0.6s ease 0.1s;
+  }
+
+  @keyframes fjd-demo-glow {
+    0%,
+    100% {
+      background: transparent;
+    }
+    40% {
+      background: rgba(97, 175, 239, 0.28);
+    }
+  }
+
+  .fjd-demo__stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .fjd-demo__route {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--slate);
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .fjd-demo__browser {
+    font-size: 22px;
+  }
+
+  .fjd-demo__letter {
+    font-size: 18px;
+    opacity: 0;
+  }
+
+  .fjd-demo.is-in .fjd-demo__letter--out {
+    animation: fjd-demo-fly-out 0.5s ease 0.5s forwards;
+  }
+
+  @keyframes fjd-demo-fly-out {
+    0% {
+      opacity: 0;
+      transform: translateX(-14px);
+    }
+    60% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(14px);
+    }
+  }
+
+  .fjd-demo__hourglass {
+    font-size: 18px;
+    opacity: 0;
+  }
+
+  .fjd-demo.is-in .fjd-demo__hourglass {
+    animation: fjd-demo-spin-in 1.2s ease 1s forwards;
+  }
+
+  @keyframes fjd-demo-spin-in {
+    0% {
+      opacity: 0;
+    }
+    15%,
+    85% {
+      opacity: 1;
+      transform: rotate(0deg);
+    }
+    100% {
+      opacity: 0;
+      transform: rotate(180deg);
+    }
+  }
+
+  .fjd-demo__cloud {
+    background: var(--box-tahu-lebih-bg);
+    border: 1px solid var(--sky-blue);
+    border-radius: 999px;
+    padding: 4px 12px;
+  }
+
+  .fjd-demo__letter--back {
+    opacity: 0;
+  }
+
+  .fjd-demo.is-in .fjd-demo__letter--back {
+    animation: fjd-demo-fly-back 0.5s ease 2.2s forwards;
+  }
+
+  @keyframes fjd-demo-fly-back {
+    0% {
+      opacity: 0;
+      transform: translateX(14px);
+    }
+    60% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(-14px);
+    }
+  }
+
+  .fjd-demo__cabinet {
+    display: flex;
+    gap: 10px;
+    padding: 16px 14px;
+    background: linear-gradient(var(--wood), var(--wood-dark));
+    border: 3px solid var(--wood-border);
+    border-radius: 14px;
+    box-shadow: 0 6px 14px rgba(154, 99, 41, 0.28);
+    opacity: 0;
+    transform: scale(0.85);
+  }
+
+  .fjd-demo.is-in .fjd-demo__cabinet {
+    animation: fjd-demo-cabinet-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 2.7s forwards;
+  }
+
+  @keyframes fjd-demo-cabinet-in {
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .fjd-demo__drawer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .fjd-demo__tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 9px;
+    border-radius: 5px;
+    background: var(--grape);
+    color: #fff;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 10px;
+    white-space: nowrap;
+  }
+
+  .fjd-demo__box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--cloud);
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 11px;
+    color: var(--pyto-green-dark);
+  }
+
+  .fjd-demo__box--nested {
+    flex-direction: column;
+    gap: 4px;
+    background: var(--white);
+  }
+
+  .fjd-demo__mini-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: var(--sky-blue);
+    color: #fff;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 9px;
+  }
+
+  .fjd-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  .fjd-demo__hint code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fjd-demo__glow,
+    .fjd-demo__letter,
+    .fjd-demo__hourglass,
+    .fjd-demo__cabinet {
+      animation: none !important;
+    }
+
+    .fjd-demo__letter,
+    .fjd-demo__hourglass {
+      opacity: 0;
+    }
+
+    .fjd-demo__cabinet {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .fjd-demo__code {
+      font-size: 12px;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="fjd-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

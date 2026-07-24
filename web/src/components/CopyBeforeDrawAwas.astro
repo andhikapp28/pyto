@@ -1,0 +1,236 @@
+---
+// Animasi #6 (plan/bab-13-animasi.md): kiri "✗ Jangan begini" — pena menulis
+// langsung di foto asli, sebuah gembok muncul menandakan berubah permanen.
+// Kanan "✓ Begini lebih aman" — foto digandakan dulu (efek fotokopi)
+// sebelum pena menulis di duplikatnya, foto asli tetap bersih. Dipakai di
+// dalam <KotakAwas>. Sekali jalan saat terlihat, boleh diulang lewat
+// hover/klik/fokus.
+---
+
+<div
+  class="cbd-demo"
+  data-anim="cbd-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi pentingnya .copy() sebelum menggambar"
+>
+  <div class="cbd-demo__code">
+    <div class="cbd-demo__line"><span class="tok-comment"># ✗ Jangan begini</span></div>
+    <div class="cbd-demo__line">gambar = ImageDraw.Draw(foto)</div>
+    <div class="cbd-demo__line">&nbsp;</div>
+    <div class="cbd-demo__line"><span class="tok-comment"># ✓ Begini lebih aman</span></div>
+    <div class="cbd-demo__line">
+      foto_watermark = foto.<span class="tok-fn">copy</span>()
+    </div>
+    <div class="cbd-demo__line">gambar = ImageDraw.Draw(foto_watermark)</div>
+  </div>
+
+  <div class="cbd-demo__cols">
+    <div class="cbd-demo__col">
+      <span class="cbd-demo__label cbd-demo__label--bad">✗ Jangan begini</span>
+      <div class="cbd-demo__photo cbd-demo__photo--bad" aria-hidden="true">
+        <span class="cbd-demo__sun"></span>
+        <span class="cbd-demo__mark">✏️</span>
+        <span class="cbd-demo__lock">🔒</span>
+      </div>
+      <span class="cbd-demo__caption">foto asli ikut berubah selamanya</span>
+    </div>
+
+    <div class="cbd-demo__col">
+      <span class="cbd-demo__label cbd-demo__label--good">✓ Begini lebih aman</span>
+      <div class="cbd-demo__pair">
+        <div class="cbd-demo__photo cbd-demo__photo--clean" aria-hidden="true">
+          <span class="cbd-demo__sun"></span>
+        </div>
+        <div class="cbd-demo__photo cbd-demo__photo--copy" aria-hidden="true">
+          <span class="cbd-demo__sun"></span>
+          <span class="cbd-demo__mark">✏️</span>
+        </div>
+      </div>
+      <span class="cbd-demo__caption">foto asli tetap bersih</span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .cbd-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    cursor: pointer;
+  }
+
+  .cbd-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 14px 16px;
+    font-family: var(--font-code);
+    font-size: 12px;
+    line-height: 1.75;
+    color: var(--code-text);
+    overflow-x: auto;
+  }
+
+  .cbd-demo__line {
+    white-space: pre;
+  }
+
+  .tok-comment {
+    color: var(--code-comment);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .cbd-demo__cols {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .cbd-demo__col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cbd-demo__label {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  .cbd-demo__label--bad {
+    color: var(--coral);
+  }
+
+  .cbd-demo__label--good {
+    color: var(--pyto-green-dark);
+  }
+
+  .cbd-demo__photo {
+    position: relative;
+    width: 70px;
+    height: 54px;
+    border-radius: 6px;
+    background: linear-gradient(180deg, var(--sky-blue) 0%, #cfe9ff 100%);
+    border: 1px solid var(--border);
+  }
+
+  .cbd-demo__sun {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--sunny-yellow);
+  }
+
+  .cbd-demo__mark {
+    position: absolute;
+    bottom: 2px;
+    left: 4px;
+    font-size: 14px;
+    opacity: 0;
+  }
+
+  .cbd-demo.is-in .cbd-demo__photo--bad .cbd-demo__mark {
+    animation: cbd-demo-fade-in 0.4s ease 0.6s forwards;
+  }
+
+  .cbd-demo__lock {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    font-size: 18px;
+    opacity: 0;
+    transform: scale(0.6);
+  }
+
+  .cbd-demo.is-in .cbd-demo__lock {
+    animation: cbd-demo-lock-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 1.1s forwards;
+  }
+
+  @keyframes cbd-demo-lock-in {
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .cbd-demo__pair {
+    display: flex;
+    gap: 8px;
+  }
+
+  .cbd-demo__photo--copy {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+
+  .cbd-demo.is-in .cbd-demo__photo--copy {
+    animation: cbd-demo-copy-in 0.5s ease 1.4s forwards;
+  }
+
+  @keyframes cbd-demo-copy-in {
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .cbd-demo.is-in .cbd-demo__photo--copy .cbd-demo__mark {
+    animation: cbd-demo-fade-in 0.4s ease 2s forwards;
+  }
+
+  @keyframes cbd-demo-fade-in {
+    to {
+      opacity: 1;
+    }
+  }
+
+  .cbd-demo__caption {
+    font-size: 12px;
+    color: var(--ink);
+    text-align: center;
+    max-width: 150px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cbd-demo__mark,
+    .cbd-demo__lock,
+    .cbd-demo__photo--copy {
+      animation: none !important;
+    }
+
+    .cbd-demo__mark {
+      opacity: 1;
+    }
+
+    .cbd-demo__lock {
+      opacity: 1;
+      transform: none;
+    }
+
+    .cbd-demo__photo--copy {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="cbd-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

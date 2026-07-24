@@ -1,0 +1,182 @@
+---
+// Animasi #1 (plan/bab-12-animasi.md): Pyto berdiri di depan sebuah
+// "jendela" bulat kecil menampilkan awan + sinyal wifi berkedip. Pyto
+// mengetuk jendela itu, jendela terbuka, amplop kecil bertuliskan JSON
+// melayang keluar menuju Pyto, lalu isinya berubah jadi lemari berlabel
+// kecil (echo dictionary Bab 11). Main langsung begitu halaman terbuka.
+// Idle: sinyal wifi berkedip pelan tiap beberapa detik.
+import PytoMascotWave from './PytoMascotWave.astro';
+---
+
+<div class="net-hero" data-anim="net-hero">
+  <div class="net-hero__window">
+    <span class="net-hero__cloud" aria-hidden="true">☁️</span>
+    <span class="net-hero__wifi" aria-hidden="true">📶</span>
+  </div>
+
+  <PytoMascotWave size={140} />
+
+  <div class="net-hero__envelope-stage">
+    <span class="net-hero__envelope" aria-hidden="true">✉️</span>
+    <div class="net-hero__cabinet">
+      <span class="net-hero__tag">nama</span>
+      <span class="net-hero__tag">cuaca</span>
+    </div>
+  </div>
+
+  <span class="net-hero__sr">
+    Pyto mengetuk jendela internet, sebuah amplop bertuliskan JSON terbang keluar dan berubah jadi
+    lemari berlabel kecil.
+  </span>
+</div>
+
+<style>
+  .net-hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+
+  .net-hero__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .net-hero__window {
+    position: relative;
+    width: 74px;
+    height: 74px;
+    border-radius: 50%;
+    background: var(--sky-blue);
+    border: 4px solid var(--pyto-green-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 14px rgba(77, 166, 255, 0.35);
+  }
+
+  .net-hero__cloud {
+    font-size: 26px;
+  }
+
+  .net-hero__wifi {
+    position: absolute;
+    bottom: -8px;
+    right: -8px;
+    font-size: 20px;
+    opacity: 0.5;
+  }
+
+  .net-hero.is-in .net-hero__wifi {
+    animation: net-hero-wifi-blink 3.2s ease-in-out 1.5s infinite;
+  }
+
+  @keyframes net-hero-wifi-blink {
+    0%,
+    80%,
+    100% {
+      opacity: 0.5;
+    }
+    90% {
+      opacity: 1;
+    }
+  }
+
+  .net-hero__envelope-stage {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .net-hero__envelope {
+    font-size: 28px;
+    opacity: 0;
+    transform: translateX(-30px) scale(0.7);
+  }
+
+  .net-hero.is-in .net-hero__envelope {
+    animation: net-hero-envelope-fly 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s forwards,
+      net-hero-envelope-out 0.4s ease 1.3s forwards;
+  }
+
+  @keyframes net-hero-envelope-fly {
+    to {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+    }
+  }
+
+  @keyframes net-hero-envelope-out {
+    to {
+      opacity: 0;
+      transform: scale(0.6);
+    }
+  }
+
+  .net-hero__cabinet {
+    display: flex;
+    gap: 6px;
+    padding: 8px 10px;
+    background: linear-gradient(var(--wood), var(--wood-dark));
+    border: 2px solid var(--wood-border);
+    border-radius: 10px;
+    opacity: 0;
+    transform: scale(0.7);
+  }
+
+  .net-hero.is-in .net-hero__cabinet {
+    animation: net-hero-cabinet-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 1.5s forwards;
+  }
+
+  @keyframes net-hero-cabinet-in {
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .net-hero__tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 8px;
+    border-radius: 5px;
+    background: var(--grape);
+    color: #fff;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 10px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .net-hero__wifi,
+    .net-hero__envelope,
+    .net-hero__cabinet {
+      animation: none !important;
+    }
+
+    .net-hero__envelope {
+      opacity: 0;
+    }
+
+    .net-hero__cabinet {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll('[data-anim="net-hero"]').forEach((el) => {
+    setTimeout(() => el.classList.add('is-in'), 200);
+  });
+</script>

@@ -1,0 +1,188 @@
+---
+// Animasi #5 (plan/bab-12-animasi.md): kotak surat mencoba terbang ke
+// gedung "Situs X" yang gerbangnya tertutup 🚫, memantul balik dengan
+// "Failed to fetch" — sementara gedung Open-Meteo di sebelahnya berdiri
+// dengan gerbang terbuka ✅. Dipakai di dalam <KotakAwas>. Sekali jalan
+// saat terlihat, boleh diulang lewat hover/klik/fokus.
+---
+
+<div
+  class="cad-demo"
+  data-anim="cad-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi batasan CORS: situs yang mengizinkan vs tidak"
+>
+  <div class="cad-demo__code">
+    <span class="tok-comment"
+      ># Kalau situsnya BELUM mengizinkan CORS, permintaannya bisa gagal:</span
+    >
+    <br />
+    <span class="tok-comment"># JsException: TypeError: Failed to fetch</span>
+  </div>
+
+  <div class="cad-demo__buildings">
+    <div class="cad-demo__building cad-demo__building--closed">
+      <span class="cad-demo__letter" aria-hidden="true">✉️</span>
+      <span class="cad-demo__gate">🚫</span>
+      <span class="cad-demo__label">Situs X</span>
+      <span class="cad-demo__bounce-msg">Failed to fetch</span>
+    </div>
+
+    <div class="cad-demo__building cad-demo__building--open">
+      <span class="cad-demo__gate">✅</span>
+      <span class="cad-demo__label">Open-Meteo</span>
+    </div>
+  </div>
+
+  <p class="cad-demo__caption">
+    Bukan salah kodemu — situsnya memang belum mengizinkan tamu dari halaman lain. Aturan ini
+    namanya <strong>CORS</strong>.
+  </p>
+</div>
+
+<style>
+  .cad-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    cursor: pointer;
+  }
+
+  .cad-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 14px 16px;
+    font-family: var(--font-code);
+    font-size: 12px;
+    line-height: 1.7;
+    overflow-x: auto;
+  }
+
+  .tok-comment {
+    color: var(--code-comment);
+  }
+
+  .cad-demo__buildings {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+
+  .cad-demo__building {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    width: 110px;
+    padding: 14px 10px;
+    background: var(--cloud);
+    border-radius: 10px;
+  }
+
+  .cad-demo__letter {
+    font-size: 18px;
+    opacity: 0;
+  }
+
+  .cad-demo.is-in .cad-demo__building--closed .cad-demo__letter {
+    animation: cad-demo-bounce 0.7s ease 0.4s forwards;
+  }
+
+  @keyframes cad-demo-bounce {
+    0% {
+      opacity: 0;
+      transform: translateY(-16px);
+    }
+    40% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    70% {
+      opacity: 1;
+      transform: translateY(-10px);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+  }
+
+  .cad-demo__gate {
+    font-size: 28px;
+  }
+
+  .cad-demo__label {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--ink);
+  }
+
+  .cad-demo__bounce-msg {
+    font-family: var(--font-code);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--coral);
+    background: var(--code-error-bg);
+    border: 1px solid var(--code-error-border);
+    border-radius: 6px;
+    padding: 3px 8px;
+    opacity: 0;
+  }
+
+  .cad-demo.is-in .cad-demo__bounce-msg {
+    animation: cad-demo-fade-in 0.4s ease 1.1s forwards;
+  }
+
+  @keyframes cad-demo-fade-in {
+    to {
+      opacity: 1;
+    }
+  }
+
+  .cad-demo__building--open {
+    background: var(--pyto-green-soft);
+  }
+
+  .cad-demo__caption {
+    max-width: 460px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--ink);
+    margin: 0 auto;
+  }
+
+  .cad-demo__caption strong {
+    color: var(--coral);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cad-demo__letter,
+    .cad-demo__bounce-msg {
+      animation: none !important;
+    }
+
+    .cad-demo__letter {
+      opacity: 0;
+    }
+
+    .cad-demo__bounce-msg {
+      opacity: 1;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="cad-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

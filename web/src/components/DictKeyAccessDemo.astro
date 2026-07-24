@@ -1,0 +1,397 @@
+---
+// Animasi #2 (plan/bab-11-animasi.md) — momen utama Bab 11: murid = {"nama":
+// "Kirana", "kelas": 5, "hobi": "melukis"} tersusun jadi tiga laci berlabel,
+// lalu murid["nama"], murid["kelas"], murid["hobi"] bergiliran dituliskan dan
+// menghubungkan ke laci dengan label yang persis sama — laci berkedip
+// terbuka, isinya melayang keluar dan tercetak. Sekali jalan saat terlihat,
+// boleh diulang lewat hover/klik/fokus.
+const entries = [
+  { key: 'nama', value: 'Kirana' },
+  { key: 'kelas', value: '5' },
+  { key: 'hobi', value: 'melukis' },
+];
+const stepDuration = 0.7;
+const startDelay = 0.9;
+---
+
+<div
+  class="dka-demo"
+  data-anim="dka-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi membuat dictionary dan mengambil isinya lewat label"
+>
+  <div class="dka-demo__code">
+    <div class="dka-demo__line">
+      <span class="tok-var">murid</span> = {'{'}
+    </div>
+    {
+      entries.map((e, i) => (
+        <div class="dka-demo__line dka-demo__indent">
+          <span class={`dka-demo__key dka-demo__key--${i}`}>&quot;{e.key}&quot;</span>:{' '}
+          <span class="tok-str">
+            {isNaN(Number(e.value)) ? `"${e.value}"` : e.value}
+          </span>
+          {i < entries.length - 1 ? ',' : ''}
+        </div>
+      ))
+    }
+    <div class="dka-demo__line">{'}'}</div>
+    <div class="dka-demo__line">&nbsp;</div>
+    {
+      entries.map((e, i) => (
+        <div class="dka-demo__line">
+          <span class="tok-fn">print</span>(murid[
+          <span class={`dka-demo__call dka-demo__call--${i}`}>&quot;{e.key}&quot;</span>])
+        </div>
+      ))
+    }
+  </div>
+
+  <div class="dka-demo__stage">
+    <span class="dka-demo__cabinet-label">murid</span>
+    <div class="dka-demo__cabinet">
+      {
+        entries.map((e, i) => (
+          <div class={`dka-demo__drawer dka-demo__drawer--${i}`}>
+            <span class="dka-demo__tag">{e.key}</span>
+            <span class="dka-demo__box">
+              <span class="dka-demo__isi">{e.value}</span>
+            </span>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="dka-demo__output">
+      <span class="dka-demo__output-label">Hasil:</span>
+      <div class="dka-demo__output-chips">
+        {
+          entries.map((e, i) => (
+            <span class={`dka-demo__chip dka-demo__chip--${i}`}>{e.value}</span>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="dka-demo__hint">
+  💡 Setiap label (<strong>key</strong>) dipasangkan satu isi (<strong>value</strong>) — ambil
+  isinya lewat nama labelnya, bukan nomor urut. <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .dka-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 22px 24px;
+    cursor: pointer;
+  }
+
+  .dka-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 16px 18px;
+    font-family: var(--font-code);
+    font-size: 14px;
+    line-height: 1.85;
+    color: var(--code-text);
+    overflow-x: auto;
+  }
+
+  .dka-demo__line {
+    white-space: pre;
+  }
+
+  .dka-demo__indent {
+    padding-left: 22px;
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .dka-demo__key,
+  .dka-demo__call {
+    color: var(--grape);
+    font-weight: 700;
+  }
+
+  .dka-demo.is-in .dka-demo__call--0 {
+    animation: dka-demo-glow 0.5s ease calc(1s * 0 + 1.6s);
+  }
+
+  .dka-demo.is-in .dka-demo__call--1 {
+    animation: dka-demo-glow 0.5s ease 2.3s;
+  }
+
+  .dka-demo.is-in .dka-demo__call--2 {
+    animation: dka-demo-glow 0.5s ease 3s;
+  }
+
+  @keyframes dka-demo-glow {
+    0%,
+    100% {
+      background: transparent;
+    }
+    40% {
+      background: rgba(139, 111, 224, 0.35);
+      border-radius: 4px;
+    }
+  }
+
+  .dka-demo__stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .dka-demo__cabinet-label {
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--slate);
+  }
+
+  .dka-demo__cabinet {
+    display: flex;
+    gap: 10px;
+    padding: 16px 14px;
+    background: linear-gradient(var(--wood), var(--wood-dark));
+    border: 3px solid var(--wood-border);
+    border-radius: 14px;
+    box-shadow: 0 6px 14px rgba(154, 99, 41, 0.28);
+  }
+
+  .dka-demo__drawer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+
+  .dka-demo.is-in .dka-demo__drawer--0 {
+    animation: dka-demo-drawer-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s forwards;
+  }
+
+  .dka-demo.is-in .dka-demo__drawer--1 {
+    animation: dka-demo-drawer-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.28s forwards;
+  }
+
+  .dka-demo.is-in .dka-demo__drawer--2 {
+    animation: dka-demo-drawer-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.46s forwards;
+  }
+
+  @keyframes dka-demo-drawer-in {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .dka-demo__tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 9px;
+    border-radius: 5px;
+    background: var(--grape);
+    color: #fff;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 11px;
+  }
+
+  .dka-demo__box {
+    position: relative;
+    width: 62px;
+    height: 40px;
+    background: var(--cloud);
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .dka-demo__isi {
+    font-family: var(--font-code);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--pyto-green-dark);
+    opacity: 0.35;
+  }
+
+  .dka-demo.is-in .dka-demo__drawer--0 .dka-demo__box {
+    animation: dka-demo-box-open 0.5s ease 1.6s;
+  }
+
+  .dka-demo.is-in .dka-demo__drawer--1 .dka-demo__box {
+    animation: dka-demo-box-open 0.5s ease 2.3s;
+  }
+
+  .dka-demo.is-in .dka-demo__drawer--2 .dka-demo__box {
+    animation: dka-demo-box-open 0.5s ease 3s;
+  }
+
+  @keyframes dka-demo-box-open {
+    0%,
+    100% {
+      box-shadow: none;
+    }
+    50% {
+      box-shadow: 0 0 0 4px rgba(139, 111, 224, 0.35);
+    }
+  }
+
+  .dka-demo.is-in .dka-demo__drawer--0 .dka-demo__isi {
+    animation: dka-demo-isi-flash 0.5s ease 1.6s;
+  }
+
+  .dka-demo.is-in .dka-demo__drawer--1 .dka-demo__isi {
+    animation: dka-demo-isi-flash 0.5s ease 2.3s;
+  }
+
+  .dka-demo.is-in .dka-demo__drawer--2 .dka-demo__isi {
+    animation: dka-demo-isi-flash 0.5s ease 3s;
+  }
+
+  @keyframes dka-demo-isi-flash {
+    0%,
+    100% {
+      opacity: 0.35;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  .dka-demo__output {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    background: var(--cloud);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-top: 4px;
+  }
+
+  .dka-demo__output-label {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--slate);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  .dka-demo__output-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .dka-demo__chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 10px;
+    border-radius: 6px;
+    background: var(--pyto-green-soft);
+    color: var(--pyto-green-dark);
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 13px;
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  .dka-demo.is-in .dka-demo__chip--0 {
+    animation: dka-demo-chip-in 0.35s ease 1.9s forwards;
+  }
+
+  .dka-demo.is-in .dka-demo__chip--1 {
+    animation: dka-demo-chip-in 0.35s ease 2.6s forwards;
+  }
+
+  .dka-demo.is-in .dka-demo__chip--2 {
+    animation: dka-demo-chip-in 0.35s ease 3.3s forwards;
+  }
+
+  @keyframes dka-demo-chip-in {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .dka-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dka-demo__key,
+    .dka-demo__call,
+    .dka-demo__drawer,
+    .dka-demo__box,
+    .dka-demo__isi,
+    .dka-demo__chip {
+      animation: none !important;
+    }
+
+    .dka-demo__drawer {
+      opacity: 1;
+      transform: none;
+    }
+
+    .dka-demo__isi {
+      opacity: 1;
+    }
+
+    .dka-demo__chip {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .dka-demo__code {
+      font-size: 13px;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="dka-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

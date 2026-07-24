@@ -1,0 +1,357 @@
+---
+// Animasi #6 (plan/bab-11-animasi.md): murid = {"nama": "Kirana", "kelas":
+// 5, "hobi": "melukis"}; for label, isi in murid.items(): print(f"{label}:
+// {isi}") — jembatan cahaya melompat dari laci ke laci, tiap mendarat
+// labelnya turun ke kotak "label" dan isinya turun ke kotak "isi", lalu
+// tercetak berdampingan. Sekali jalan saat terlihat, boleh diulang lewat
+// hover/klik/fokus.
+const entries = [
+  { key: 'nama', value: 'Kirana' },
+  { key: 'kelas', value: '5' },
+  { key: 'hobi', value: 'melukis' },
+];
+const stepDuration = 0.8;
+const startDelay = 0.4;
+---
+
+<div
+  class="fod-demo"
+  data-anim="fod-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi for label, isi in murid.items()"
+>
+  <div class="fod-demo__code">
+    <div class="fod-demo__line">
+      <span class="tok-var">murid</span> = {'{'}<span class="tok-str">&quot;nama&quot;</span>:
+      <span class="tok-str">&quot;Kirana&quot;</span>, <span class="tok-str">&quot;kelas&quot;</span>:
+      5, <span class="tok-str">&quot;hobi&quot;</span>: <span class="tok-str">&quot;melukis&quot;</span
+      >{'}'}
+    </div>
+    <div class="fod-demo__line">&nbsp;</div>
+    <div class="fod-demo__line">
+      <span class="tok-p">for</span> <span class="tok-var">label</span>,
+      <span class="tok-var">isi</span> <span class="tok-p">in</span> murid.<span class="tok-fn"
+        >items</span
+      >():
+    </div>
+    <div class="fod-demo__line fod-demo__indent">
+      <span class="tok-fn">print</span>(f<span class="tok-str">&quot;{'{'}label{'}'}: {'{'}isi{'}'}&quot;</span>)
+    </div>
+  </div>
+
+  <div class="fod-demo__stage">
+    <span class="fod-demo__cabinet-label">murid</span>
+    <div class="fod-demo__cabinet">
+      {
+        entries.map((e, i) => (
+          <div class="fod-demo__col">
+            <span class="fod-demo__bridge" style={`animation-delay:${startDelay + i * stepDuration}s`}>
+              ✨
+            </span>
+            <span
+              class="fod-demo__tag"
+              style={`animation-delay:${startDelay + i * stepDuration}s`}
+            >
+              {e.key}
+            </span>
+            <span
+              class="fod-demo__box"
+              style={`animation-delay:${startDelay + i * stepDuration}s`}
+            >
+              {e.value}
+            </span>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="fod-demo__output">
+      <span class="fod-demo__output-label">Hasil:</span>
+      <div class="fod-demo__output-chips">
+        {
+          entries.map((e, i) => (
+            <span
+              class="fod-demo__chip"
+              style={`animation-delay:${startDelay + i * stepDuration + 0.3}s`}
+            >
+              {e.key}: {e.value}
+            </span>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="fod-demo__hint">
+  💡 <code>.items()</code> mengambil <strong>tiap pasangan label-isi</strong> satu per satu, otomatis
+  lompat ke laci berikutnya. <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .fod-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 22px 24px;
+    cursor: pointer;
+  }
+
+  .fod-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 16px 18px;
+    font-family: var(--font-code);
+    font-size: 13px;
+    line-height: 1.9;
+    color: var(--code-text);
+    overflow-x: auto;
+  }
+
+  .fod-demo__line {
+    white-space: pre;
+  }
+
+  .fod-demo__indent {
+    padding-left: 22px;
+  }
+
+  .tok-p {
+    color: var(--code-purple);
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .fod-demo__stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .fod-demo__cabinet-label {
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--slate);
+  }
+
+  .fod-demo__cabinet {
+    display: flex;
+    gap: 10px;
+    padding: 16px 14px;
+    background: linear-gradient(var(--wood), var(--wood-dark));
+    border: 3px solid var(--wood-border);
+    border-radius: 14px;
+    box-shadow: 0 6px 14px rgba(154, 99, 41, 0.28);
+  }
+
+  .fod-demo__col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    position: relative;
+  }
+
+  .fod-demo__bridge {
+    font-size: 16px;
+    opacity: 0;
+  }
+
+  .fod-demo.is-in .fod-demo__bridge {
+    animation: fod-demo-bridge-in 0.4s ease forwards;
+  }
+
+  @keyframes fod-demo-bridge-in {
+    0% {
+      opacity: 0;
+      transform: translateY(4px) scale(0.7);
+    }
+    50% {
+      opacity: 1;
+      transform: translateY(-4px) scale(1.2);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .fod-demo__tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 9px;
+    border-radius: 5px;
+    background: var(--grape);
+    color: #fff;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 10px;
+    opacity: 0.5;
+  }
+
+  .fod-demo.is-in .fod-demo__tag {
+    animation: fod-demo-highlight 0.5s ease forwards;
+  }
+
+  .fod-demo__box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--cloud);
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--pyto-green-dark);
+    opacity: 0.5;
+  }
+
+  .fod-demo.is-in .fod-demo__box {
+    animation: fod-demo-highlight 0.5s ease forwards;
+  }
+
+  @keyframes fod-demo-highlight {
+    0%,
+    100% {
+      opacity: 0.5;
+      transform: scale(1);
+      box-shadow: none;
+    }
+    40% {
+      opacity: 1;
+      transform: scale(1.08);
+      box-shadow: 0 0 0 4px rgba(139, 111, 224, 0.3);
+    }
+  }
+
+  .fod-demo__output {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    background: var(--cloud);
+    border-radius: 10px;
+    padding: 10px 14px;
+    min-height: 40px;
+  }
+
+  .fod-demo__output-label {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--slate);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  .fod-demo__output-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .fod-demo__chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 10px;
+    border-radius: 6px;
+    background: var(--pyto-green-soft);
+    color: var(--pyto-green-dark);
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 12px;
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  .fod-demo.is-in .fod-demo__chip {
+    animation: fod-demo-fade-up 0.35s ease forwards;
+  }
+
+  @keyframes fod-demo-fade-up {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .fod-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  .fod-demo__hint code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fod-demo__bridge,
+    .fod-demo__tag,
+    .fod-demo__box,
+    .fod-demo__chip {
+      animation: none !important;
+    }
+
+    .fod-demo__bridge {
+      opacity: 0;
+    }
+
+    .fod-demo__tag,
+    .fod-demo__box {
+      opacity: 1;
+    }
+
+    .fod-demo__chip {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .fod-demo__code {
+      font-size: 12px;
+    }
+
+    .fod-demo__cabinet {
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="fod-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

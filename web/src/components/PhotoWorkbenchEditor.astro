@@ -1,0 +1,556 @@
+---
+// Jembatan Upload/Jalankan/Unduh — lihat spesifikasi lengkap di
+// plan/design/bab-13-desain.md ("Spesifikasi Jembatan Upload/Jalankan/Unduh").
+// Komponen infrastruktur paling baru/penting di Bab 13, dibangun generik
+// (nama variabel Python dan label bisa diganti lewat prop) supaya bisa
+// dipakai ulang di Bab 14 (QR Code) dan Bab 15 (Excel/PDF) tanpa fork.
+//
+// Alurnya: Slot Upload -> Pratinjau Foto Asli -> Kotak Kode (mirip
+// PyodideEditor secara visual, tapi logika jalannya sendiri lewat
+// runPhotoWorkbench() di pyodide-runner.js, karena harus menyuntik file
+// upload sebagai variabel Python sebelum menjalankan kode reader dan
+// membaca variabel hasil sesudahnya — bukan sekadar runPython() biasa) ->
+// tombol Jalankan -> Pratinjau Hasil + Unduh + confetti sekali.
+interface Props {
+  idPrefix?: string;
+  title: string;
+  runLabel?: string;
+  resetLabel?: string;
+  starterCode: string;
+  rows?: number;
+  minHeight?: number;
+  codeAriaLabel: string;
+  notes?: string[];
+  uploadLabel?: string;
+  changeLabel?: string;
+  downloadLabel?: string;
+  downloadFileName?: string;
+  inputVarName?: string;
+  outputVarName?: string;
+  maxFileSizeMB?: number;
+  noResultMessage?: string;
+}
+
+const {
+  idPrefix = 'pwe',
+  title,
+  runLabel = '▶ Jalankan',
+  resetLabel = '↺ Reset',
+  starterCode,
+  rows = 10,
+  minHeight = 160,
+  codeAriaLabel,
+  notes = [],
+  uploadLabel = 'Klik atau seret foto ke sini',
+  changeLabel = 'Ganti Foto',
+  downloadLabel = '⬇ Unduh Hasil',
+  downloadFileName = 'hasil-bengkel-foto.png',
+  inputVarName = 'foto',
+  outputVarName = 'hasil',
+  maxFileSizeMB = 8,
+  noResultMessage = `Programmu berhasil jalan, tapi belum ada foto hasil untuk ditampilkan — pastikan ada variabel bernama \`${outputVarName}\` berisi gambar.`,
+} = Astro.props;
+---
+
+<div
+  class="pwe-wrap"
+  data-id-prefix={idPrefix}
+  data-input-var={inputVarName}
+  data-output-var={outputVarName}
+  data-max-file-size-mb={maxFileSizeMB}
+  data-download-file-name={downloadFileName}
+  data-no-result-message={noResultMessage}
+>
+  <div class="pwe card">
+    <div class="pwe__section" id={`${idPrefix}-upload-section`}>
+      <label class="pwe__upload-slot" for={`${idPrefix}-file-input`} tabindex="0">
+        <span class="pwe__upload-icon" aria-hidden="true">📤</span>
+        <span class="pwe__upload-text">{uploadLabel}</span>
+        <span class="pwe__upload-hint">JPG/PNG, maksimal {maxFileSizeMB} MB</span>
+      </label>
+      <input
+        type="file"
+        accept="image/*"
+        id={`${idPrefix}-file-input`}
+        class="pwe__file-input"
+        aria-label="Upload foto untuk diolah"
+      />
+    </div>
+
+    <div class="pwe__previews" id={`${idPrefix}-previews`} hidden>
+      <div class="pwe__preview-card">
+        <span class="pwe__preview-label">Foto asli</span>
+        <img class="pwe__preview-img" id={`${idPrefix}-original-img`} alt="Pratinjau foto asli" />
+        <span class="pwe__preview-dims" id={`${idPrefix}-original-dims`}>&nbsp;</span>
+        <button type="button" class="btn btn-secondary pwe__change-btn" id={`${idPrefix}-change-btn`}>
+          {changeLabel}
+        </button>
+      </div>
+
+      <div
+        class="pwe__preview-card pwe__preview-card--result"
+        id={`${idPrefix}-result-card`}
+        hidden
+      >
+        <span class="pwe__preview-label">Hasil olahan</span>
+        <img class="pwe__preview-img" id={`${idPrefix}-result-img`} alt="Pratinjau hasil olahan" />
+        <a
+          class="btn btn-download pwe__download-btn"
+          id={`${idPrefix}-download-btn`}
+          download={downloadFileName}
+        >
+          {downloadLabel}
+        </a>
+      </div>
+    </div>
+
+    <div class="pwe__editor">
+      <div class="pwe__header">
+        <span class="pwe__title">{title}</span>
+        <div class="pwe__buttons">
+          <button type="button" class="btn btn-secondary pwe__reset" id={`${idPrefix}-reset`}>
+            {resetLabel}
+          </button>
+          <button type="button" class="btn btn-primary pwe__run" id={`${idPrefix}-run`} disabled>
+            {runLabel}
+          </button>
+        </div>
+      </div>
+
+      <textarea
+        id={`${idPrefix}-code`}
+        class="pwe__code"
+        style={`min-height: ${minHeight}px;`}
+        spellcheck="false"
+        autocomplete="off"
+        autocapitalize="off"
+        rows={rows}
+        aria-label={codeAriaLabel}>{starterCode}</textarea
+      >
+
+      <div class="pwe__status" id={`${idPrefix}-status`} aria-live="polite">
+        Upload fotomu dulu di atas, baru tombol {runLabel} aktif.
+      </div>
+    </div>
+  </div>
+
+  <div class="pwe__confetti" id={`${idPrefix}-confetti`} aria-hidden="true"></div>
+</div>
+
+{notes.map((note) => <p class="pwe__note" set:html={note} />)}
+
+<style>
+  .pwe-wrap {
+    position: relative;
+  }
+
+  .pwe {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .pwe__section {
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .pwe__upload-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 28px 20px;
+    background: var(--cloud);
+    border: 3px dashed var(--border);
+    border-radius: var(--radius-card);
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+  }
+
+  .pwe__upload-slot:hover,
+  .pwe__upload-slot:focus-visible {
+    border-color: var(--pyto-green);
+    background: var(--pyto-green-soft);
+    outline: none;
+  }
+
+  .pwe__upload-icon {
+    font-size: 32px;
+  }
+
+  .pwe__upload-text {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .pwe__upload-hint {
+    font-size: 13px;
+    color: var(--slate);
+  }
+
+  .pwe__file-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .pwe__previews {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--cloud);
+  }
+
+  .pwe__preview-card {
+    flex: 1;
+    min-width: 160px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 16px;
+  }
+
+  .pwe__preview-label {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--slate);
+  }
+
+  .pwe__preview-img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+    display: none;
+  }
+
+  .pwe__preview-img[src] {
+    display: block;
+  }
+
+  .pwe__preview-dims {
+    font-family: var(--font-code);
+    font-size: 13px;
+    color: var(--slate);
+  }
+
+  .pwe__change-btn {
+    font-size: 13px;
+    padding: 8px 16px;
+    min-height: 36px;
+  }
+
+  .pwe__download-btn {
+    font-size: 14px;
+    padding: 10px 18px;
+    min-height: 40px;
+  }
+
+  .pwe__download-btn[aria-disabled='true'] {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .pwe__editor {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .pwe__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 16px 20px;
+    background: var(--cloud);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .pwe__title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 16px;
+  }
+
+  .pwe__buttons {
+    display: flex;
+    gap: 10px;
+  }
+
+  .pwe__buttons .btn {
+    padding: 10px 18px;
+    font-size: 14px;
+    min-height: 40px;
+  }
+
+  .pwe__run:disabled,
+  .pwe__reset:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .pwe__code {
+    display: block;
+    width: 100%;
+    resize: vertical;
+    border: none;
+    outline: none;
+    background: var(--code-bg);
+    color: var(--code-text);
+    font-family: var(--font-code);
+    font-size: 15px;
+    line-height: 1.7;
+    padding: 20px;
+    tab-size: 4;
+  }
+
+  .pwe__status {
+    padding: 14px 20px 18px;
+    background: var(--white);
+    font-size: 15px;
+    color: var(--slate);
+  }
+
+  .pwe__status.is-loading {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  .pwe__status.is-error {
+    background: var(--box-awas-bg);
+    color: #b3392f;
+    font-weight: 700;
+  }
+
+  .pwe__status.is-note {
+    background: var(--box-tahu-lebih-bg);
+    color: var(--ink);
+  }
+
+  .pwe__confetti {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .pwe__note {
+    margin-top: 16px;
+    color: var(--slate);
+  }
+
+  .pwe__note :global(code) {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (max-width: 600px) {
+    .pwe__header {
+      justify-content: center;
+      text-align: center;
+    }
+
+    .pwe__code {
+      font-size: 14px;
+    }
+
+    .pwe__previews {
+      flex-direction: column;
+    }
+  }
+</style>
+
+<script>
+  import {
+    LOADING_MESSAGE,
+    PILLOW_LOADING_MESSAGE,
+    isFirstPyodideLoad,
+    isFirstPillowLoad,
+    runPhotoWorkbench,
+    bytesToBase64,
+    base64ToBytes,
+    friendlyError,
+  } from '../scripts/pyodide-runner.js';
+  import { launchConfetti } from '../scripts/confetti.js';
+
+  // Bab 13: perkecil foto secara otomatis di sisi browser sebelum diserahkan
+  // ke Python, supaya tetap ringan di HP low-end (lihat catatan
+  // plan/bab-13-animasi.md, "Ringan untuk HP"). Kalau createImageBitmap tidak
+  // tersedia, foto asli dipakai apa adanya (fallback aman, bukan blocker).
+  async function downscaleImage(file, maxSide = 1400) {
+    try {
+      const bitmap = await createImageBitmap(file);
+      const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+      const width = Math.max(1, Math.round(bitmap.width * scale));
+      const height = Math.max(1, Math.round(bitmap.height * scale));
+
+      if (scale >= 1) {
+        bitmap.close?.();
+        return file;
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(bitmap, 0, 0, width, height);
+      bitmap.close?.();
+
+      const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+      return blob || file;
+    } catch {
+      return file;
+    }
+  }
+
+  document.querySelectorAll('.pwe-wrap').forEach((wrap) => {
+    const idPrefix = wrap.dataset.idPrefix;
+    if (!idPrefix || wrap.dataset.pweWired) return;
+    wrap.dataset.pweWired = 'true';
+
+    const inputVarName = wrap.dataset.inputVar || 'foto';
+    const outputVarName = wrap.dataset.outputVar || 'hasil';
+    const maxFileSizeMB = Number(wrap.dataset.maxFileSizeMb) || 8;
+    const downloadFileName = wrap.dataset.downloadFileName || 'hasil.png';
+    const noResultMessage = wrap.dataset.noResultMessage || 'Belum ada hasil untuk ditampilkan.';
+
+    const fileInput = document.getElementById(`${idPrefix}-file-input`);
+    const previews = document.getElementById(`${idPrefix}-previews`);
+    const originalImg = document.getElementById(`${idPrefix}-original-img`);
+    const originalDims = document.getElementById(`${idPrefix}-original-dims`);
+    const changeBtn = document.getElementById(`${idPrefix}-change-btn`);
+    const resultCard = document.getElementById(`${idPrefix}-result-card`);
+    const resultImg = document.getElementById(`${idPrefix}-result-img`);
+    const downloadBtn = document.getElementById(`${idPrefix}-download-btn`);
+    const codeEl = document.getElementById(`${idPrefix}-code`);
+    const runBtn = document.getElementById(`${idPrefix}-run`);
+    const resetBtn = document.getElementById(`${idPrefix}-reset`);
+    const statusEl = document.getElementById(`${idPrefix}-status`);
+    const confettiEl = document.getElementById(`${idPrefix}-confetti`);
+
+    const STARTER_CODE = codeEl ? codeEl.value : '';
+    let pendingBase64 = null;
+    let confettiFired = false;
+
+    const setStatus = (text, kind) => {
+      if (!statusEl) return;
+      statusEl.textContent = text;
+      statusEl.classList.toggle('is-loading', kind === 'loading');
+      statusEl.classList.toggle('is-error', kind === 'error');
+      statusEl.classList.toggle('is-note', kind === 'note');
+    };
+
+    changeBtn?.addEventListener('click', () => fileInput?.click());
+
+    fileInput?.addEventListener('change', async () => {
+      const file = fileInput.files?.[0];
+      if (!file) return;
+
+      if (file.size > maxFileSizeMB * 1024 * 1024) {
+        setStatus(
+          `Ukuran filenya kelewat besar (maksimal ${maxFileSizeMB} MB) — coba pilih foto lain, ya.`,
+          'error'
+        );
+        fileInput.value = '';
+        return;
+      }
+
+      setStatus('📥 Menyiapkan fotomu...', 'loading');
+
+      const workingFile = await downscaleImage(file);
+      const buffer = await workingFile.arrayBuffer();
+      pendingBase64 = bytesToBase64(new Uint8Array(buffer));
+
+      const objectUrl = URL.createObjectURL(workingFile);
+      if (originalImg) {
+        originalImg.onload = () => {
+          if (originalDims) {
+            originalDims.textContent = `${originalImg.naturalWidth} × ${originalImg.naturalHeight}`;
+          }
+        };
+        originalImg.src = objectUrl;
+      }
+
+      if (previews) previews.hidden = false;
+      if (resultCard) resultCard.hidden = true;
+      if (runBtn) runBtn.disabled = false;
+      confettiFired = false;
+      setStatus(`Foto siap! Klik "${runBtn?.textContent?.trim() ?? '▶ Jalankan'}" untuk mengolahnya.`, null);
+    });
+
+    runBtn?.addEventListener('click', async () => {
+      if (!codeEl || !runBtn || !pendingBase64) return;
+      const code = codeEl.value;
+
+      runBtn.disabled = true;
+      if (resetBtn) resetBtn.disabled = true;
+
+      if (isFirstPyodideLoad()) {
+        setStatus(LOADING_MESSAGE, 'loading');
+      } else if (isFirstPillowLoad()) {
+        setStatus(PILLOW_LOADING_MESSAGE, 'loading');
+      } else {
+        setStatus('Menjalankan...', 'loading');
+      }
+
+      try {
+        const { resultBase64 } = await runPhotoWorkbench(code, pendingBase64, {
+          inputVarName,
+          outputVarName,
+        });
+
+        if (!resultBase64) {
+          if (resultCard) resultCard.hidden = true;
+          setStatus(noResultMessage, 'note');
+        } else {
+          const bytes = base64ToBytes(resultBase64);
+          const blob = new Blob([bytes], { type: 'image/png' });
+          const url = URL.createObjectURL(blob);
+
+          if (resultImg) resultImg.src = url;
+          if (resultCard) resultCard.hidden = false;
+          if (downloadBtn) {
+            downloadBtn.href = url;
+            downloadBtn.setAttribute('download', downloadFileName);
+          }
+          setStatus('✅ Foto berhasil diolah!', null);
+
+          if (!confettiFired) {
+            confettiFired = true;
+            launchConfetti(confettiEl);
+          }
+        }
+      } catch (err) {
+        setStatus(`⚠️ ${friendlyError(err)}`, 'error');
+      } finally {
+        runBtn.disabled = false;
+        if (resetBtn) resetBtn.disabled = false;
+      }
+    });
+
+    resetBtn?.addEventListener('click', () => {
+      if (!codeEl) return;
+      codeEl.value = STARTER_CODE;
+      if (pendingBase64) {
+        setStatus(`Kode dikembalikan seperti semula. Klik "${runBtn?.textContent?.trim() ?? '▶ Jalankan'}" untuk mencoba lagi.`, null);
+      } else {
+        setStatus('Upload fotomu dulu di atas, baru tombol Jalankan aktif.', null);
+      }
+    });
+  });
+</script>

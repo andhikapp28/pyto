@@ -1,0 +1,251 @@
+---
+// Animasi #5 (plan/bab-13-animasi.md): sebuah "pena" melayang masuk dari
+// pojok kiri atas, mengetuk titik (10, 10) — ditandai garis bantu tipis —
+// lalu "menulis" teks Foto: Kirana di titik itu. Sekali jalan saat terlihat,
+// boleh diulang lewat hover/klik/fokus.
+---
+
+<div
+  class="wmd-demo"
+  data-anim="wmd-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi menulis watermark di atas foto"
+>
+  <div class="wmd-demo__code">
+    <div class="wmd-demo__line"><span class="tok-p">from</span> PIL <span class="tok-p">import</span> ImageDraw</div>
+    <div class="wmd-demo__line">&nbsp;</div>
+    <div class="wmd-demo__line"><span class="tok-var">foto_watermark</span> = foto.<span class="tok-fn">copy</span>()</div>
+    <div class="wmd-demo__line">
+      <span class="tok-var">gambar</span> = ImageDraw.<span class="tok-fn">Draw</span>(foto_watermark)
+    </div>
+    <div class="wmd-demo__line">
+      gambar.<span class="tok-fn">text</span>((10, 10), <span class="tok-str">&quot;Foto: Kirana&quot;</span>, fill=<span
+        class="tok-str">&quot;white&quot;</span
+      >)
+    </div>
+  </div>
+
+  <div class="wmd-demo__stage">
+    <div class="wmd-demo__polaroid">
+      <span class="wmd-demo__photo" aria-hidden="true">
+        <span class="wmd-demo__sun"></span>
+        <span class="wmd-demo__mountain"></span>
+        <span class="wmd-demo__guide-h"></span>
+        <span class="wmd-demo__guide-v"></span>
+        <span class="wmd-demo__pen" aria-hidden="true">✒️</span>
+        <span class="wmd-demo__text">Foto: Kirana</span>
+      </span>
+    </div>
+  </div>
+</div>
+
+<p class="wmd-demo__hint">
+  💡 <code>.text((10, 10), teks, fill=warna)</code> menulis di posisi 10 piksel dari kiri, 10 piksel
+  dari atas. <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .wmd-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 22px 24px;
+    cursor: pointer;
+  }
+
+  .wmd-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 16px 18px;
+    font-family: var(--font-code);
+    font-size: 13px;
+    line-height: 1.85;
+    color: var(--code-text);
+    overflow-x: auto;
+  }
+
+  .wmd-demo__line {
+    white-space: pre;
+  }
+
+  .tok-p {
+    color: var(--code-purple);
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .wmd-demo__stage {
+    display: flex;
+    justify-content: center;
+  }
+
+  .wmd-demo__polaroid {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .wmd-demo__photo {
+    position: relative;
+    display: block;
+    width: 140px;
+    height: 100px;
+    overflow: hidden;
+    border-radius: 4px;
+    background: linear-gradient(180deg, var(--sky-blue) 0%, #cfe9ff 100%);
+  }
+
+  .wmd-demo__sun {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--sunny-yellow);
+  }
+
+  .wmd-demo__mountain {
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 0;
+    height: 0;
+    border-left: 40px solid transparent;
+    border-right: 40px solid transparent;
+    border-bottom: 40px solid var(--pyto-green-dark);
+  }
+
+  .wmd-demo__guide-h,
+  .wmd-demo__guide-v {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.7);
+    opacity: 0;
+  }
+
+  .wmd-demo__guide-h {
+    top: 10px;
+    left: 0;
+    width: 100%;
+    height: 1px;
+  }
+
+  .wmd-demo__guide-v {
+    top: 0;
+    left: 10px;
+    width: 1px;
+    height: 100%;
+  }
+
+  .wmd-demo.is-in .wmd-demo__guide-h,
+  .wmd-demo.is-in .wmd-demo__guide-v {
+    animation: wmd-demo-fade-in 0.3s ease 0.5s forwards;
+  }
+
+  @keyframes wmd-demo-fade-in {
+    to {
+      opacity: 1;
+    }
+  }
+
+  .wmd-demo__pen {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    font-size: 18px;
+    opacity: 0;
+    transform: translate(-10px, -10px) rotate(-30deg);
+  }
+
+  .wmd-demo.is-in .wmd-demo__pen {
+    animation: wmd-demo-pen-in 0.5s ease 0.2s forwards;
+  }
+
+  @keyframes wmd-demo-pen-in {
+    to {
+      opacity: 1;
+      transform: translate(0, 0) rotate(-30deg);
+    }
+  }
+
+  .wmd-demo__text {
+    position: absolute;
+    top: 8px;
+    left: 12px;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 11px;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    clip-path: inset(0 100% 0 0);
+  }
+
+  .wmd-demo.is-in .wmd-demo__text {
+    animation: wmd-demo-write 0.9s steps(12, end) 0.8s forwards;
+  }
+
+  @keyframes wmd-demo-write {
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+
+  .wmd-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wmd-demo__guide-h,
+    .wmd-demo__guide-v,
+    .wmd-demo__pen,
+    .wmd-demo__text {
+      animation: none !important;
+    }
+
+    .wmd-demo__guide-h,
+    .wmd-demo__guide-v {
+      opacity: 1;
+    }
+
+    .wmd-demo__pen {
+      opacity: 1;
+      transform: none;
+    }
+
+    .wmd-demo__text {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="wmd-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

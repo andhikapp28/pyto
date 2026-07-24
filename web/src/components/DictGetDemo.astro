@@ -1,0 +1,226 @@
+---
+// Animasi #9 (plan/bab-11-animasi.md, kotak "Tahu Lebih"): murid.get("umur",
+// "belum diisi") — tangan kecil (echo beat #5) mengetuk laci "umur" yang
+// tidak ada lagi, tapi kali ini muncul gelembung ramah "belum diisi", tanpa
+// getar error. Sekali jalan saat terlihat, boleh diulang lewat hover/klik/fokus.
+---
+
+<div
+  class="dgt-demo"
+  data-anim="dgt-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi .get() dengan nilai cadangan"
+>
+  <div class="dgt-demo__code">
+    <div class="dgt-demo__line">
+      <span class="tok-var">murid</span> = {'{'}<span class="tok-str">&quot;nama&quot;</span>:
+      <span class="tok-str">&quot;Kirana&quot;</span>, <span class="tok-str">&quot;kelas&quot;</span>: 5{'}'}
+    </div>
+    <div class="dgt-demo__line">&nbsp;</div>
+    <div class="dgt-demo__line">
+      <span class="tok-fn">print</span>(murid.<span class="tok-fn">get</span>(<span class="tok-str"
+        >&quot;umur&quot;</span
+      >, <span class="tok-str">&quot;belum diisi&quot;</span>))
+    </div>
+  </div>
+
+  <div class="dgt-demo__stage">
+    <div class="dgt-demo__cabinet">
+      <div class="dgt-demo__drawer dgt-demo__drawer--ghost">
+        <span class="dgt-demo__tag">umur?</span>
+        <span class="dgt-demo__box">?</span>
+      </div>
+    </div>
+
+    <div class="dgt-demo__answer-row">
+      <span class="dgt-demo__hand" aria-hidden="true">👆</span>
+      <span class="dgt-demo__bubble">"belum diisi"</span>
+    </div>
+
+    <p class="dgt-demo__caption">
+      "<code>.get()</code> itu cara nanya baik-baik — kalau lacinya nggak ada, dia kasih jawaban
+      cadangan, bukan bikin program berhenti."
+    </p>
+  </div>
+</div>
+
+<style>
+  .dgt-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    cursor: pointer;
+  }
+
+  .dgt-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 14px 16px;
+    font-family: var(--font-code);
+    font-size: 13px;
+    line-height: 1.85;
+    color: var(--code-text);
+    overflow-x: auto;
+  }
+
+  .dgt-demo__line {
+    white-space: pre;
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .dgt-demo__stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .dgt-demo__cabinet {
+    display: flex;
+    gap: 10px;
+    padding: 14px;
+    background: linear-gradient(var(--wood), var(--wood-dark));
+    border: 3px solid var(--wood-border);
+    border-radius: 14px;
+    box-shadow: 0 6px 14px rgba(154, 99, 41, 0.28);
+  }
+
+  .dgt-demo__drawer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .dgt-demo__tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 9px;
+    border-radius: 5px;
+    background: transparent;
+    border: 2px dashed var(--border);
+    color: var(--sky-blue);
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 11px;
+  }
+
+  .dgt-demo__box {
+    width: 62px;
+    height: 36px;
+    background: transparent;
+    border: 2px dashed var(--border);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--border);
+    font-family: var(--font-code);
+    font-weight: 700;
+  }
+
+  .dgt-demo__answer-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+  }
+
+  .dgt-demo.is-in .dgt-demo__answer-row {
+    animation: dgt-demo-fade-in 0.4s ease 0.6s forwards;
+  }
+
+  .dgt-demo.is-in .dgt-demo__hand {
+    animation: dgt-demo-tap 0.4s ease 0.6s;
+  }
+
+  @keyframes dgt-demo-tap {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(6px);
+    }
+  }
+
+  .dgt-demo__hand {
+    font-size: 20px;
+  }
+
+  .dgt-demo__bubble {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--pyto-green-soft);
+    border: 1px solid var(--pyto-green);
+    border-radius: 8px;
+    padding: 5px 12px;
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+    font-size: 13px;
+    font-family: var(--font-code);
+  }
+
+  .dgt-demo__caption {
+    max-width: 420px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--ink);
+    margin: 0;
+    opacity: 0;
+  }
+
+  .dgt-demo.is-in .dgt-demo__caption {
+    animation: dgt-demo-fade-in 0.4s ease 1s forwards;
+  }
+
+  @keyframes dgt-demo-fade-in {
+    to {
+      opacity: 1;
+    }
+  }
+
+  .dgt-demo__caption code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dgt-demo__answer-row,
+    .dgt-demo__hand,
+    .dgt-demo__caption {
+      animation: none !important;
+    }
+
+    .dgt-demo__answer-row,
+    .dgt-demo__caption {
+      opacity: 1;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="dgt-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

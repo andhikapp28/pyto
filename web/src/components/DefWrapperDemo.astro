@@ -1,0 +1,234 @@
+---
+// Animasi #4 (plan/bab-12-animasi.md) — Centerpiece 2: baris pengambilan
+// data cuaca "dibungkus" jadi satu kotak rapi berlabel ambil_cuaca lewat
+// def, dengan dua slot kosong (parameter) lintang/bujur di tutupnya. Kotak
+// itu dipanggil dua kali dengan keping berbeda (Jakarta, lalu Bandung),
+// masing-masing mengeluarkan hasil lewat celah return. Sekali jalan saat
+// terlihat, boleh diulang lewat hover/klik/fokus.
+---
+
+<div
+  class="dwd-demo"
+  data-anim="dwd-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi membungkus kode jadi fungsi ambil_cuaca dengan def"
+>
+  <div class="dwd-demo__box">
+    <div class="dwd-demo__lid" aria-hidden="true">📦</div>
+    <div class="dwd-demo__code">
+      <div class="dwd-demo__line">
+        <span class="tok-p">async def</span> <span class="tok-fn">ambil_cuaca</span>(<span
+          class="dwd-demo__param"
+          >lintang</span
+        >, <span class="dwd-demo__param">bujur</span>):
+      </div>
+      <div class="dwd-demo__line dwd-demo__indent">...</div>
+      <div class="dwd-demo__line dwd-demo__indent">
+        <span class="tok-p">return</span> data[<span class="tok-str">&quot;current_weather&quot;</span
+        >]
+      </div>
+    </div>
+
+    <div class="dwd-demo__calls">
+      <div class="dwd-demo__call dwd-demo__call--1">
+        <span class="dwd-demo__call-code">ambil_cuaca(-6.2, 106.8)</span>
+        <span class="dwd-demo__arrow" aria-hidden="true">→</span>
+        <span class="dwd-demo__result">Jakarta: 29.7°C</span>
+      </div>
+      <div class="dwd-demo__call dwd-demo__call--2">
+        <span class="dwd-demo__call-code">ambil_cuaca(-6.9, 107.6)</span>
+        <span class="dwd-demo__arrow" aria-hidden="true">→</span>
+        <span class="dwd-demo__result">Bandung: 24.1°C</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="dwd-demo__hint">
+  💡 <code>def</code> membungkus kode berulang jadi satu mantra — dipanggil ulang berkali-kali
+  dengan bahan (parameter) berbeda-beda, tanpa menulis ulang isinya. <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .dwd-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 22px 24px;
+    cursor: pointer;
+  }
+
+  .dwd-demo__box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .dwd-demo__lid {
+    font-size: 26px;
+    opacity: 0;
+    transform: scale(0.6);
+  }
+
+  .dwd-demo.is-in .dwd-demo__lid {
+    animation: dwd-demo-lid-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s forwards;
+  }
+
+  @keyframes dwd-demo-lid-in {
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .dwd-demo__code {
+    width: 100%;
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 14px 16px;
+    font-family: var(--font-code);
+    font-size: 13px;
+    line-height: 1.85;
+    color: var(--code-text);
+    opacity: 0;
+    transform: scale(0.94);
+  }
+
+  .dwd-demo.is-in .dwd-demo__code {
+    animation: dwd-demo-code-in 0.4s ease 0.4s forwards;
+  }
+
+  @keyframes dwd-demo-code-in {
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .dwd-demo__line {
+    white-space: pre;
+  }
+
+  .dwd-demo__indent {
+    padding-left: 22px;
+  }
+
+  .tok-p {
+    color: var(--code-purple);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .dwd-demo__param {
+    display: inline-block;
+    border: 1px dashed var(--sunny-yellow);
+    border-radius: 4px;
+    padding: 0 4px;
+    color: var(--sunny-yellow);
+  }
+
+  .dwd-demo__calls {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .dwd-demo__call {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    font-family: var(--font-code);
+    font-size: 12px;
+    background: var(--cloud);
+    border-radius: 8px;
+    padding: 8px 12px;
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  .dwd-demo.is-in .dwd-demo__call--1 {
+    animation: dwd-demo-call-in 0.45s ease 1s forwards;
+  }
+
+  .dwd-demo.is-in .dwd-demo__call--2 {
+    animation: dwd-demo-call-in 0.45s ease 1.7s forwards;
+  }
+
+  @keyframes dwd-demo-call-in {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .dwd-demo__call-code {
+    color: var(--ink);
+    font-weight: 700;
+  }
+
+  .dwd-demo__arrow {
+    color: var(--slate);
+  }
+
+  .dwd-demo__result {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+    background: var(--pyto-green-soft);
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+
+  .dwd-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  .dwd-demo__hint code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dwd-demo__lid,
+    .dwd-demo__code,
+    .dwd-demo__call {
+      animation: none !important;
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .dwd-demo__code {
+      font-size: 12px;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="dwd-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>
