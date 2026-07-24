@@ -1,0 +1,249 @@
+---
+// Bab 12 — Data dari Internet (API & JSON).
+// Sumber naskah: plan/naskah/bab-12-data-dari-internet.md.
+// Sumber animasi: plan/bab-12-animasi.md.
+// Sumber desain: plan/design/bab-12-desain.md.
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import ChapterHero from '../../components/ChapterHero.astro';
+import PytoInternetWindowHero from '../../components/PytoInternetWindowHero.astro';
+import FetchJsonDemo from '../../components/FetchJsonDemo.astro';
+import DefWrapperDemo from '../../components/DefWrapperDemo.astro';
+import CorsAwasDemo from '../../components/CorsAwasDemo.astro';
+import DogApiDemo from '../../components/DogApiDemo.astro';
+import KotakAwas from '../../components/KotakAwas.astro';
+import KotakMainYuk from '../../components/KotakMainYuk.astro';
+import KotakTahuLebih from '../../components/KotakTahuLebih.astro';
+import PyodideEditor from '../../components/PyodideEditor.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import RangkumanList from '../../components/RangkumanList.astro';
+import Glossary from '../../components/Glossary.astro';
+import ChapterFooterNav from '../../components/ChapterFooterNav.astro';
+
+const base = import.meta.env.BASE_URL;
+
+const kotaList = [
+  { kota: 'Jakarta', lat: -6.2, lon: 106.8 },
+  { kota: 'Bandung', lat: -6.9, lon: 107.6 },
+  { kota: 'Surabaya', lat: -7.25, lon: 112.75 },
+  { kota: 'Medan', lat: 3.6, lon: 98.7 },
+  { kota: 'Yogyakarta', lat: -7.8, lon: 110.4 },
+];
+
+const rangkuman = [
+  '<strong>API</strong> adalah cara meminta data dari layanan online lain dengan sopan, seperti memesan ke pelayan restoran.',
+  'Data yang dibalas biasanya berformat <strong>JSON</strong> — begitu diambil lewat <code>.json()</code> di Python, otomatis jadi <code>dictionary</code> biasa (Bab 11).',
+  '<code>def nama_mantra(parameter):</code> membungkus kode jadi mantra yang bisa dipanggil ulang tanpa menulis ulang — <code>return</code> mengirim balik hasilnya.',
+  '<code>async</code>/<code>await</code> adalah kata tambahan yang dibutuhkan khusus untuk mantra yang menunggu jawaban dari internet.',
+  'Tidak semua situs mengizinkan diminta datanya dari browser — aturan ini namanya <strong>CORS</strong>. Pakai API yang memang ramah-CORS seperti Open-Meteo.',
+  'Sekali polanya dipahami (fetch → <code>.json()</code> → dictionary), kamu bisa "ngobrol" dengan API ramah-CORS lain juga.',
+];
+
+const glossaryTerms = [
+  { term: 'API', def: 'Cara sebuah layanan online membagikan datanya ke program lain lewat permintaan (request) dan balasan (response).' },
+  { term: 'JSON', def: 'Format data yang dipakai kebanyakan API — begitu diambil di Python, berubah jadi dictionary.' },
+  { term: 'pyfetch', def: 'Perintah Pyodide untuk mengirim permintaan data ke internet.' },
+  { term: 'def', def: 'Kata kunci untuk membuat fungsi (mantra) baru yang bisa dipanggil ulang.' },
+  { term: 'Parameter', def: 'Bahan/masukan yang dibutuhkan sebuah fungsi, ditulis di dalam kurung setelah nama fungsinya.' },
+  { term: 'return', def: 'Kata kunci di dalam fungsi untuk mengirim balik hasil, supaya bisa ditampung variabel di luar fungsi.' },
+  { term: 'CORS', def: 'Aturan yang menentukan situs mana yang boleh diminta datanya dari browser lain.' },
+];
+---
+
+<ChapterLayout
+  currentChapter={12}
+  description="Bab 12: Data dari Internet (API & JSON) — belajar mengambil data cuaca sungguhan dari Open-Meteo lewat pyfetch, JSON yang jadi dictionary, dan membungkus kode jadi fungsi pakai def, ditemani Pyto si robot ular."
+>
+  <ChapterHero
+    number={12}
+    title="Data dari Internet 🌐"
+    tagline={'Banyak website mau membagikan data GRATIS — cuaca, kutipan, bahkan foto anjing acak — asal kamu tahu cara memintanya dengan sopan lewat <strong>API</strong>.'}
+  >
+    <PytoInternetWindowHero slot="mascot" />
+  </ChapterHero>
+
+  <section data-reveal>
+    <h2>Minta Data dengan Sopan: API</h2>
+    <p>
+      <strong>API</strong> itu seperti pelayan restoran: kamu <strong>pesan</strong> (request), dia
+      bawakan <strong>makanan</strong> (data) dari dapur (server) — kamu tidak perlu tahu cara
+      masaknya, cukup tahu cara memesan. Kita akan minta data cuaca dari <strong>Open-Meteo</strong>,
+      layanan cuaca gratis yang memang mengizinkan website mana pun memintanya.
+    </p>
+    <div class="chapter-media">
+      <FetchJsonDemo />
+    </div>
+    <p>
+      Alamat panjang setelah <code>forecast?</code> itu isinya: <code>latitude</code>/<code
+        >longitude</code
+      > (koordinat kota) dan <code>current_weather=true</code> (minta cuaca saat ini juga). Format
+      data yang dikirim balik ini namanya <strong>JSON</strong> — dan begitu masuk ke Python lewat
+      <code>.json()</code>, dia langsung berubah jadi <code>dictionary</code> biasa. Artinya, semua
+      yang kamu pelajari di Bab 11 langsung bisa dipakai di sini:
+    </p>
+    <CodeBlock
+      code={`cuaca_sekarang = data["current_weather"]\n\nprint(cuaca_sekarang["temperature"])\nprint(cuaca_sekarang["windspeed"])`}
+    />
+    <p>
+      Karena <code>current_weather</code> isinya kamus <strong>di dalam</strong> kamus, kita tinggal
+      panggil labelnya dua kali berurutan: <code>data["current_weather"]["temperature"]</code>.
+    </p>
+  </section>
+
+  <section data-reveal>
+    <h2>Bungkus Jadi Mantra Sendiri, Pakai <code>def</code></h2>
+    <p>
+      Sedikit disinggung di Bab 10 — sekarang saatnya <code>def</code> beraksi sungguhan. Daripada
+      menulis ulang kode pengambilan cuaca tiap kali ganti kota, kita bungkus jadi
+      <strong>mantra sendiri</strong> yang bisa dipanggil ulang berkali-kali:
+    </p>
+    <div class="chapter-media">
+      <DefWrapperDemo />
+    </div>
+    <p>
+      <code>def ambil_cuaca(lintang, bujur):</code> artinya: "buat mantra baru bernama
+      <code>ambil_cuaca</code>, yang butuh dua bahan (<strong>parameter</strong>) — koordinat
+      lintang dan bujur." Baris <code>return data["current_weather"]</code> artinya: "kirim balik
+      hasilnya, supaya bisa ditampung ke variabel di luar." Sekarang, mau tanya cuaca kota mana pun,
+      tinggal panggil <code>ambil_cuaca(...)</code> — tidak perlu menulis ulang lima baris kode
+      tiap kali.
+    </p>
+  </section>
+
+  <section class="pyto-quote-box" data-reveal>
+    <span class="pyto-quote-box__mascot" role="img" aria-label="Pyto">🐍</span>
+    <p class="pyto-quote-box__text">
+      "Perhatikan ada kata <code>async</code> sebelum <code>def</code>, dan <code>await</code>
+      sebelum <code>pyfetch(...)</code>. Itu kata sihir khusus yang Python butuhkan tiap kali
+      sebuah mantra harus <strong>menunggu jawaban dari internet</strong> — jangan terlalu dipikirkan
+      dulu, cukup ikuti polanya persis seperti contoh. Yang penting kamu pahami dulu:
+      <code>def</code> membungkus kode jadi mantra yang bisa dipanggil ulang, itu sudah cukup untuk
+      sekarang!"
+    </p>
+  </section>
+
+  <KotakAwas title="Awas — Nggak Semua Situs Mau Diajak Ngobrol">
+    <p>
+      Browser (dan Pyodide di dalamnya) cuma boleh "ngobrol" dengan situs yang memang
+      <strong>mengizinkan tamu dari halaman lain</strong> — aturan ini namanya <strong>CORS</strong>.
+      Open-Meteo sengaja mengizinkan ini, makanya kita pakai dia.
+    </p>
+    <CorsAwasDemo />
+  </KotakAwas>
+
+  <KotakMainYuk title="Main Yuk! — Cuaca Kotamu Sendiri" icon="🎮" wiggleIcon>
+    <p>
+      Ganti koordinat di kode supaya cuaca yang muncul adalah cuaca <strong>kotamu sendiri</strong>.
+      Apa yang harus diisi di bagian kosong?
+    </p>
+    <CodeBlock
+      code={`cuaca_kotaku = await ambil_cuaca(____, ____)\nprint(f"Suhu di kotaku sekarang: {cuaca_kotaku['temperature']} °C")`}
+    />
+    <table class="chapter-table">
+      <thead>
+        <tr><th>Kota</th><th>Lintang</th><th>Bujur</th></tr>
+      </thead>
+      <tbody>
+        {
+          kotaList.map((k) => (
+            <tr>
+              <td>{k.kota}</td>
+              <td>{k.lat}</td>
+              <td>{k.lon}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+    <details class="jawaban">
+      <summary>🔎 Lihat jawaban</summary>
+      <p>
+        Isi dengan lintang dan bujur kotamu, dipisah koma — misalnya untuk Surabaya:
+        <code>await ambil_cuaca(-7.25, 112.75)</code>.
+      </p>
+    </details>
+  </KotakMainYuk>
+
+  <KotakTahuLebih title="Tahu Lebih — API Lain: Foto Anjing Acak!">
+    <p>
+      Open-Meteo bukan satu-satunya API ramah pemula. Ini contoh lain: Dog CEO API, yang membalas
+      dengan alamat foto anjing acak tiap kali dipanggil — juga lewat dictionary yang sama caranya:
+    </p>
+    <DogApiDemo />
+  </KotakTahuLebih>
+
+  <section data-reveal>
+    <h2>Coba Sendiri, Yuk!</h2>
+    <p>
+      Coba langsung di kolom editor — kode ini benar-benar mengambil data cuaca ASLI dari internet
+      (pastikan kamu terkoneksi internet), klik <strong>Run</strong> dan lihat hasilnya:
+    </p>
+    <PyodideEditor
+      mode="simple"
+      idPrefix="bab12"
+      title="🐍 cuaca.py"
+      runLabel="▶ Jalankan"
+      codeAriaLabel="Kotak kode mengambil data cuaca dari internet"
+      minHeight={170}
+      rows={12}
+      networkPendingLabel="🌐 Mengambil data cuaca..."
+      starterCode={`from pyodide.http import pyfetch
+
+async def ambil_cuaca(lintang, bujur):
+    url = f"https://api.open-meteo.com/v1/forecast?latitude={lintang}&longitude={bujur}&current_weather=true"
+    respons = await pyfetch(url)
+    data = await respons.json()
+    return data["current_weather"]
+
+cuaca = await ambil_cuaca(-6.2, 106.8)
+
+print(f"Suhu: {cuaca['temperature']} °C")
+print(f"Kecepatan angin: {cuaca['windspeed']} km/jam")
+`}
+      notes={[
+        '✏️ Ganti angka koordinatnya dengan kota lain dari tabel di "Main Yuk", atau tambah baris <code>print(cuaca[\'winddirection\'])</code> untuk melihat arah anginnya juga!',
+        '🎉 Kalau layar menampilkan suhu dan kecepatan angin sungguhan — kamu baru saja bikin program yang "ngobrol" dengan internet, pakai mantra bikinanmu sendiri!',
+      ]}
+    />
+  </section>
+
+  <section data-reveal>
+    <h2>Rangkuman Bab 12</h2>
+    <RangkumanList items={rangkuman} />
+  </section>
+
+  <section data-reveal>
+    <h2>📖 Kamus Kata</h2>
+    <Glossary terms={glossaryTerms} />
+  </section>
+
+  <ChapterFooterNav
+    prevHref={`${base}/bab/11/`}
+    prevLabel="← Bab 11: Kamus / Kotak Berlabel"
+    nextHref={`${base}/bab/13/`}
+    nextLabel="Bab 13: Bengkel Foto Mini"
+  />
+</ChapterLayout>
+
+<style>
+  .chapter-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 15px;
+  }
+
+  .chapter-table th,
+  .chapter-table td {
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .chapter-table th {
+    font-family: var(--font-heading);
+    color: var(--slate);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+</style>

@@ -1,0 +1,190 @@
+---
+// Bab 11 — Kamus / Kotak Berlabel (Dictionary). Bab pembuka Fase 2.
+// Sumber naskah: plan/naskah/bab-11-kamus-kotak-berlabel.md.
+// Sumber animasi: plan/bab-11-animasi.md.
+// Sumber desain: plan/design/bab-11-desain.md.
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import ChapterHero from '../../components/ChapterHero.astro';
+import PytoLabeledCabinetHero from '../../components/PytoLabeledCabinetHero.astro';
+import DictKeyAccessDemo from '../../components/DictKeyAccessDemo.astro';
+import DictUpdateDemo from '../../components/DictUpdateDemo.astro';
+import DictKeyErrorAwas from '../../components/DictKeyErrorAwas.astro';
+import ForOverDictDemo from '../../components/ForOverDictDemo.astro';
+import DictGetDemo from '../../components/DictGetDemo.astro';
+import KotakAwas from '../../components/KotakAwas.astro';
+import KotakMainYuk from '../../components/KotakMainYuk.astro';
+import KotakTahuLebih from '../../components/KotakTahuLebih.astro';
+import PyodideEditor from '../../components/PyodideEditor.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import RangkumanList from '../../components/RangkumanList.astro';
+import Glossary from '../../components/Glossary.astro';
+import ChapterFooterNav from '../../components/ChapterFooterNav.astro';
+
+const base = import.meta.env.BASE_URL;
+
+const rangkuman = [
+  '<code>dictionary</code> (dict) adalah wadah untuk menyimpan data berpasangan <strong>label: isi</strong>, ditulis dengan kurung kurawal <code>{...}</code>.',
+  'Tiap pasangan disebut <strong>key</strong> (label) dan <strong>value</strong> (isi) — kamu mengambil isinya lewat labelnya, bukan nomor urut.',
+  'Isi dictionary bisa diubah dan ditambah kapan saja, cukup tulis <code>kamus["label"] = isi_baru</code>.',
+  'Memanggil label yang tidak ada menyebabkan <code>KeyError</code>.',
+  '<code>for label, isi in kamus.items():</code> mengunjungi setiap pasangan label-isi satu per satu.',
+  '<code>.get("label", cadangan)</code> cara aman mengambil isi tanpa risiko <code>KeyError</code>.',
+];
+
+const glossaryTerms = [
+  { term: 'Dictionary (dict)', def: 'Wadah data berpasangan label-isi, ditulis dengan {...}.' },
+  { term: 'Key', def: 'Label/nama pasangan data di dalam dictionary — harus persis sama untuk diambil kembali.' },
+  { term: 'Value', def: 'Isi yang tersimpan di balik sebuah key.' },
+  { term: 'KeyError', def: 'Error saat memanggil label (key) yang tidak ada di dictionary.' },
+  { term: '.items()', def: 'Cara mengambil semua pasangan key-isi dictionary sekaligus, biasa dipakai bareng for.' },
+  { term: '.get()', def: 'Cara mengambil isi dictionary dengan aman — kalau labelnya tidak ada, tidak error, cukup kasih nilai cadangan.' },
+];
+---
+
+<ChapterLayout
+  currentChapter={11}
+  description="Bab 11: Kamus / Kotak Berlabel (Dictionary) — belajar menyimpan data berpasangan label-isi, mengambil isi lewat key, KeyError, for label, isi in kamus.items(), dan .get(), ditemani Pyto si robot ular."
+>
+  <ChapterHero
+    number={11}
+    title="Kamus / Kotak Berlabel 🗂️"
+    tagline={'Di Bab 8 kita punya <code>list</code> — rak dengan nomor urut. Sekarang kenalan dengan <code>dictionary</code> — lemari dengan <strong>LABEL</strong> di tiap laci, tinggal panggil namanya.'}
+  >
+    <PytoLabeledCabinetHero slot="mascot" />
+  </ChapterHero>
+
+  <section data-reveal>
+    <h2>Lemari dengan Label, Bukan Nomor</h2>
+    <p>
+      Bayangkan lemari kecil dengan beberapa laci. Setiap laci punya <strong>label</strong> tertulis
+      di depannya — bukan nomor. Mau ambil isi laci "hobi"? Tinggal panggil <code>"hobi"</code>,
+      tidak perlu tahu itu laci keberapa. Itulah <code>dictionary</code> (sering disingkat
+      <strong>dict</strong>) — ditulis dengan kurung kurawal <code>{'{...}'}</code>, isinya pasangan
+      <strong>label: isi</strong>.
+    </p>
+    <div class="chapter-media">
+      <DictKeyAccessDemo />
+    </div>
+    <p>
+      Setiap label (dinamakan <strong>key</strong>) dipasangkan dengan satu isi (dinamakan
+      <strong>value</strong>), dipisah titik dua <code>:</code>. Untuk mengambil isinya, tulis nama
+      kamusnya lalu labelnya di dalam kurung siku — mirip list, tapi isinya nama, bukan nomor.
+    </p>
+  </section>
+
+  <section data-reveal>
+    <h2>Ubah &amp; Tambah Isi Kamus</h2>
+    <p>
+      Sama seperti list, isi dictionary <strong>bisa diubah</strong> kapan saja — dan kita juga bisa
+      menambah laci baru begitu saja:
+    </p>
+    <div class="chapter-media">
+      <DictUpdateDemo />
+    </div>
+    <p>
+      Kalau labelnya <strong>sudah ada</strong>, isinya diganti. Kalau labelnya <strong>belum
+      ada</strong>, Python otomatis membuatkan laci baru untukmu — tidak perlu "mendaftar" dulu.
+    </p>
+  </section>
+
+  <section class="pyto-quote-box" data-reveal>
+    <span class="pyto-quote-box__mascot" role="img" aria-label="Pyto">🐍</span>
+    <p class="pyto-quote-box__text">
+      "Ingat, ya — label di kamus itu HARUS persis sama, huruf besar-kecil pun dihitung beda.
+      <code>"Nama"</code> dan <code>"nama"</code> itu dua laci yang berbeda buat Python!"
+    </p>
+  </section>
+
+  <KotakAwas title="Awas — Manggil Label yang Belum Ada">
+    <p>
+      Kalau kamu memanggil label yang <strong>tidak ada</strong> di dalam kamus, Python tidak akan
+      diam saja — dia langsung menolak dengan error:
+    </p>
+    <DictKeyErrorAwas />
+  </KotakAwas>
+
+  <section data-reveal>
+    <h2>Jalan-jalan ke Semua Laci: <code>for</code> Meloncat di Kamus</h2>
+    <p>
+      Ingat <code>for</code> yang meloncati tiap isi list satu-satu di Bab 8? Ternyata
+      <code>for</code> juga bisa meloncati <strong>setiap pasangan label-isi</strong> dalam
+      dictionary, lewat <code>.items()</code>:
+    </p>
+    <div class="chapter-media">
+      <ForOverDictDemo />
+    </div>
+  </section>
+
+  <KotakMainYuk title="Main Yuk! — Bikin Profil Sendiri" icon="🎮" wiggleIcon>
+    <p>Buat kamus profil dirimu sendiri, lalu cetak salah satu bagiannya. Apa yang harus diisi di bagian kosong?</p>
+    <CodeBlock code={`profil = {"nama": "Made", ____: "Bandung"}\nprint(f"Aku dari {profil['kota']}")`} />
+    <details class="jawaban">
+      <summary>🔎 Lihat jawaban</summary>
+      <p>
+        Isi dengan <code>"kota"</code> (lengkap dengan tanda kutip, karena label kamus selalu
+        berupa teks). Kalau namamu "Made" dan kotamu "Bandung", layar menampilkan:
+        <strong>Aku dari Bandung</strong>
+      </p>
+    </details>
+  </KotakMainYuk>
+
+  <KotakTahuLebih title="Tahu Lebih — Nanya Baik-baik Pakai .get()">
+    <p>
+      Daripada kena <code>KeyError</code> yang menghentikan program, kamu bisa "nanya baik-baik"
+      pakai <code>.get()</code> — kalau labelnya tidak ada, dia kasih jawaban cadangan, bukan error.
+    </p>
+    <DictGetDemo />
+  </KotakTahuLebih>
+
+  <section data-reveal>
+    <h2>Coba Sendiri, Yuk!</h2>
+    <p>
+      Coba langsung di kolom editor — bikin buku kontak mini, ubah salah satu isinya, lalu lihat
+      semua isinya lewat <code>for</code>:
+    </p>
+    <PyodideEditor
+      mode="simple"
+      idPrefix="bab11"
+      title="🐍 kontak.py"
+      runLabel="▶ Jalankan"
+      codeAriaLabel="Kotak kode buku kontak mini"
+      minHeight={160}
+      rows={12}
+      starterCode={`kontak = {
+    "nama": "Bunda",
+    "telepon": "0812-3456-7890",
+    "kota": "Bandung"
+}
+
+print(f"Nama: {kontak['nama']}")
+print(f"Telepon: {kontak['telepon']}")
+
+kontak["kota"] = "Surabaya"
+
+for label, isi in kontak.items():
+    print(f"{label}: {isi}")
+`}
+      notes={[
+        '✏️ Kode di atas bisa kamu ubah bebas — ganti isi kontaknya, tambah label baru seperti <code>kontak["email"] = "..."</code>, atau coba panggil <code>kontak["alamat"]</code> yang belum ada untuk melihat sendiri <code>KeyError</code> dari bagian sebelumnya!',
+        '🎉 Kalau layar menampilkan semua label dan isi kontakmu satu per satu — kamu baru saja bikin kamus data sungguhan!',
+      ]}
+    />
+  </section>
+
+  <section data-reveal>
+    <h2>Rangkuman Bab 11</h2>
+    <RangkumanList items={rangkuman} />
+  </section>
+
+  <section data-reveal>
+    <h2>📖 Kamus Kata</h2>
+    <Glossary terms={glossaryTerms} />
+  </section>
+
+  <ChapterFooterNav
+    prevHref={`${base}/bab/10/`}
+    prevLabel="← Bab 10: Proyek Seru"
+    nextHref={`${base}/bab/12/`}
+    nextLabel="Bab 12: Data dari Internet"
+  />
+</ChapterLayout>

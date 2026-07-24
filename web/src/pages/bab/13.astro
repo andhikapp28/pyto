@@ -1,0 +1,192 @@
+---
+// Bab 13 — Bengkel Foto Mini (Olah Gambar).
+// Sumber naskah: plan/naskah/bab-13-bengkel-foto-mini.md.
+// Sumber animasi: plan/bab-13-animasi.md.
+// Sumber desain: plan/design/bab-13-desain.md (termasuk kontrak jembatan
+// Upload/Jalankan/Unduh — lihat PhotoWorkbenchEditor.astro dan
+// runPhotoWorkbench()/ensurePillow() di scripts/pyodide-runner.js).
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import ChapterHero from '../../components/ChapterHero.astro';
+import PytoPhotoBenchHero from '../../components/PytoPhotoBenchHero.astro';
+import PhotoResizeDemo from '../../components/PhotoResizeDemo.astro';
+import GrayscaleDemo from '../../components/GrayscaleDemo.astro';
+import WatermarkDemo from '../../components/WatermarkDemo.astro';
+import CopyBeforeDrawAwas from '../../components/CopyBeforeDrawAwas.astro';
+import CollageDemo from '../../components/CollageDemo.astro';
+import KotakAwas from '../../components/KotakAwas.astro';
+import KotakMainYuk from '../../components/KotakMainYuk.astro';
+import KotakTahuLebih from '../../components/KotakTahuLebih.astro';
+import PhotoWorkbenchEditor from '../../components/PhotoWorkbenchEditor.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import RangkumanList from '../../components/RangkumanList.astro';
+import Glossary from '../../components/Glossary.astro';
+import ChapterFooterNav from '../../components/ChapterFooterNav.astro';
+
+const base = import.meta.env.BASE_URL;
+
+const rangkuman = [
+  '<strong>Pillow</strong> (<code>PIL</code>) adalah kotak alat Python untuk mengolah gambar — foto yang diupload otomatis siap dipakai lewat variabel <code>foto</code>.',
+  '<code>.resize((lebar, tinggi))</code> membuat salinan foto dengan ukuran baru.',
+  '<code>ImageOps.grayscale(foto)</code> mengubah foto jadi hitam-putih.',
+  '<code>ImageDraw.Draw(...)</code> dan <code>.text((x, y), teks, fill=warna)</code> menulis watermark di atas foto.',
+  'PENTING: selalu <code>.copy()</code> dulu sebelum menggambar, supaya foto aslinya tidak ikut berubah permanen.',
+  '<code>Image.new(...)</code> + <code>.paste(...)</code> bisa menggabungkan beberapa gambar jadi satu kolase.',
+];
+
+const glossaryTerms = [
+  { term: 'Pillow (PIL)', def: 'Kotak alat Python untuk mengolah gambar — resize, warna, watermark, dan lainnya.' },
+  { term: '.size', def: 'Ukuran foto (lebar, tinggi) dalam piksel.' },
+  { term: '.resize()', def: 'Membuat salinan foto dengan ukuran baru.' },
+  { term: 'ImageOps.grayscale()', def: 'Mengubah foto berwarna jadi hitam-putih.' },
+  { term: 'ImageDraw', def: 'Alat untuk menggambar/menulis di atas sebuah foto.' },
+  { term: '.copy()', def: 'Membuat salinan foto, supaya foto aslinya tidak ikut berubah saat diedit.' },
+  { term: 'Image.new() / .paste()', def: 'Membuat kanvas kosong dan menempelkan gambar ke dalamnya — dasar membuat kolase.' },
+];
+---
+
+<ChapterLayout
+  currentChapter={13}
+  description="Bab 13: Bengkel Foto Mini (Olah Gambar) — upload foto sendiri lalu resize, ubah hitam-putih, dan kasih watermark pakai Pillow, ditemani Pyto si robot ular."
+>
+  <ChapterHero
+    number={13}
+    title="Bengkel Foto Mini 🖼️"
+    tagline={'Foto liburanmu kegedean? Mau kasih watermark nama? Sekarang kita bikin "bengkel foto" sendiri pakai kode — upload foto sungguhan, lalu ubah lewat Python.'}
+  >
+    <PytoPhotoBenchHero slot="mascot" />
+  </ChapterHero>
+
+  <section data-reveal>
+    <h2>Foto yang Sudah Siap Diolah</h2>
+    <p>
+      Klik tombol <strong>Upload Foto</strong> di bagian "Coba Sendiri" bab ini, pilih foto dari HP
+      atau komputermu. Begitu diupload, halaman ini otomatis menyiapkan fotonya sebagai variabel
+      bernama <code>foto</code> — kamu tidak perlu menulis kode untuk membukanya, tinggal langsung
+      memakainya:
+    </p>
+    <div class="chapter-media">
+      <PhotoResizeDemo />
+    </div>
+    <p>
+      <code>foto.size</code> memberi tahu lebar dan tinggi foto dalam piksel, mis.
+      <code>(1200, 900)</code>. <code>.resize((300, 300))</code> membuat <strong>salinan baru</strong>
+      foto itu, tapi dengan ukuran yang kamu tentukan sendiri.
+    </p>
+  </section>
+
+  <section class="pyto-quote-box" data-reveal>
+    <span class="pyto-quote-box__mascot" role="img" aria-label="Pyto">🐍</span>
+    <p class="pyto-quote-box__text">
+      "Foto itu diolah pakai <strong>Pillow</strong>, kotak alat khusus gambar buatan Python —
+      namanya <code>PIL</code> kalau dipanggil di kode. Kamu tidak perlu memasangnya sendiri,
+      halaman ini sudah menyiapkannya."
+    </p>
+  </section>
+
+  <section data-reveal>
+    <h2>Ubah Jadi Hitam-Putih</h2>
+    <p>
+      Salah satu efek paling klasik: ubah foto berwarna jadi hitam-putih, pakai
+      <code>ImageOps.grayscale()</code>:
+    </p>
+    <div class="chapter-media">
+      <GrayscaleDemo />
+    </div>
+  </section>
+
+  <section data-reveal>
+    <h2>Kasih Watermark: Tulisan di Atas Foto</h2>
+    <p>Mau kasih nama atau tanda di pojok foto? Pakai <code>ImageDraw</code>:</p>
+    <div class="chapter-media">
+      <WatermarkDemo />
+    </div>
+    <p>
+      <code>ImageDraw.Draw(foto_watermark)</code> membuka "pena" untuk menggambar di atas foto itu.
+      <code>.text((10, 10), "...", fill="white")</code> menulis teks di posisi 10 piksel dari kiri,
+      10 piksel dari atas, warna putih.
+    </p>
+  </section>
+
+  <KotakAwas title="Awas — Selalu .copy() Dulu Sebelum Menggambar">
+    <p>
+      <code>ImageDraw</code> menggambar <strong>langsung</strong> di atas foto yang diberikan —
+      bukan bikin salinan otomatis. Kalau kamu lupa <code>.copy()</code>, foto <strong>aslinya</strong>
+      ikut berubah permanen!
+    </p>
+    <CopyBeforeDrawAwas />
+  </KotakAwas>
+
+  <KotakMainYuk title="Main Yuk! — Ganti Ukuran &amp; Tulisan Watermark" icon="🎮" wiggleIcon>
+    <p>
+      Ubah ukuran foto jadi 500x500, dan ganti tulisan watermarknya jadi namamu sendiri. Apa yang
+      harus diisi di bagian kosong?
+    </p>
+    <CodeBlock
+      code={`foto_kecil = foto.resize((____, ____))\n\nhasil = foto_kecil.copy()\ngambar = ImageDraw.Draw(hasil)\ngambar.text((10, 10), ____, fill="white")`}
+    />
+    <details class="jawaban">
+      <summary>🔎 Lihat jawaban</summary>
+      <p>
+        Dua bagian pertama diisi <code>500, 500</code>. Bagian terakhir diisi namamu di dalam tanda
+        kutip, misalnya <code>"Foto: Made"</code>.
+      </p>
+    </details>
+  </KotakMainYuk>
+
+  <KotakTahuLebih title="Tahu Lebih — Bikin Kolase Sebelum/Sesudah">
+    <p>
+      Kamu bisa menggabungkan beberapa versi fotomu jadi satu kolase, pakai <code>Image.new()</code>
+      (kanvas kosong) lalu <code>.paste()</code> (tempel):
+    </p>
+    <CollageDemo />
+  </KotakTahuLebih>
+
+  <section data-reveal>
+    <h2>Coba Sendiri, Yuk!</h2>
+    <p>
+      Upload fotomu di tombol yang tersedia, lalu coba kode ini — menggabungkan resize,
+      hitam-putih, dan watermark sekaligus. Klik <strong>▶ Jalankan</strong>, dan foto hasilnya akan
+      muncul (plus tombol unduh) begitu variabel <code>hasil</code> selesai dibuat:
+    </p>
+    <PhotoWorkbenchEditor
+      idPrefix="bab13"
+      title="🐍 bengkel_foto.py"
+      runLabel="▶ Jalankan"
+      codeAriaLabel="Kotak kode bengkel foto"
+      rows={11}
+      minHeight={190}
+      downloadFileName="hasil-bengkel-foto.png"
+      starterCode={`from PIL import ImageOps, ImageDraw
+
+# 'foto' sudah otomatis terisi dari foto yang kamu upload di atas.
+
+foto_kecil = foto.resize((400, 400))
+hasil = ImageOps.grayscale(foto_kecil).convert("RGB")
+
+gambar = ImageDraw.Draw(hasil)
+gambar.text((10, 10), "Dibuat dengan Python", fill="yellow")
+`}
+      notes={[
+        '✏️ Kode di atas bisa kamu ubah bebas — ganti ukuran resize-nya, warna tulisan (<code>fill="red"</code>, <code>fill="black"</code>, dst.), atau lewati baris <code>ImageOps.grayscale(...)</code> kalau ingin hasilnya tetap berwarna.',
+        '🎉 Kalau foto hasil olahanmu muncul lengkap dengan tombol unduh — kamu baru saja bikin bengkel foto sendiri pakai kode!',
+      ]}
+    />
+  </section>
+
+  <section data-reveal>
+    <h2>Rangkuman Bab 13</h2>
+    <RangkumanList items={rangkuman} />
+  </section>
+
+  <section data-reveal>
+    <h2>📖 Kamus Kata</h2>
+    <Glossary terms={glossaryTerms} />
+  </section>
+
+  <ChapterFooterNav
+    prevHref={`${base}/bab/12/`}
+    prevLabel="← Bab 12: Data dari Internet"
+    nextLabel="Bab 14: Bikin Barcode Ajaib"
+    nextDisabled
+  />
+</ChapterLayout>

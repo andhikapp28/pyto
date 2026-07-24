@@ -1,13 +1,11 @@
 ---
-// Halaman pengumuman "Fase 2 — Segera Hadir" (Python Lanjutan, Bab 11-20).
-// Ini BUKAN halaman bab sungguhan — belum ada naskah/animasi/implementasi
-// apa pun untuk Fase 2 (lihat plan/Fase2/plan.md, status "Rancangan
-// kurikulum awal"). Tujuannya cuma memberi tahu pembaca yang baru lulus
-// Bab 10 bahwa ada lanjutannya, dan menunjukkan rencana 10 topiknya —
-// semua ditandai "Segera", sama seperti tag bab yang belum tersedia di
-// ChapterList.astro/ChapterLayout.astro. JANGAN tambahkan bab-bab ini ke
-// AVAILABLE_CHAPTERS di data/chapters.js atau bikin route /bab/11/ dst.
-// sebelum kontennya benar-benar ada.
+// Halaman pengumuman Fase 2 (Python Lanjutan, Bab 11-20). Bab 11-13 sekarang
+// sudah live (naskah + implementasi sungguhan ada, lihat AVAILABLE_CHAPTERS
+// di data/chapters.js) — kartunya jadi tautan sungguhan dengan tag "Sudah
+// bisa dicoba →". Bab 14-20 masih rancangan kurikulum saja (plan/Fase2/plan.md)
+// dan tetap tampil sebagai kartu ghost bertanda "Segera", sama seperti
+// perlakuan Bab 7-10 dulu sebelum halamannya ada. JANGAN bikin route
+// /bab/14/ dst. sebelum kontennya benar-benar ada.
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Nav from '../../components/Nav.astro';
 import Footer from '../../components/Footer.astro';
@@ -34,10 +32,11 @@ const susulan = fase2Chapters.filter((c) => c.group === 'susulan');
         </span>
         <h1>Segera Hadir!</h1>
         <p class="fase2-hero__tagline">
-          Kamu sudah menyelesaikan 10 bab dasar — keren banget! Pyto sekarang lagi menyiapkan
+          Kamu sudah menyelesaikan 10 bab dasar — keren banget! Pyto sudah menyiapkan
           <strong>{fase2Meta.count} bab lanjutan</strong> yang menghasilkan sesuatu yang beneran
           bisa kamu pakai atau pamerkan: foto asli, file Excel rapi, sampai kode QR yang bisa
-          dipindai HP sungguhan. Belum bisa dicoba sekarang, tapi berikut rencananya.
+          dipindai HP sungguhan. <strong>3 bab pertama (11-13) sudah bisa dicoba sekarang</strong> —
+          7 bab sisanya masih disiapkan, tapi berikut rencananya.
         </p>
       </div>
     </section>
@@ -51,21 +50,30 @@ const susulan = fase2Chapters.filter((c) => c.group === 'susulan');
 
         <ol class="fase2-grid">
           {
-            pembuka.map((chapter) => (
-              <li>
-                <div class="fase2-card" data-reveal>
-                  <span class="fase2-card__emoji" aria-hidden="true">
-                    {chapter.emoji}
-                  </span>
-                  <span class="fase2-card__body">
-                    <span class="fase2-card__eyebrow">Bab {chapter.number} · {chapter.short}</span>
-                    <span class="fase2-card__title">{chapter.title}</span>
-                    <span class="fase2-card__desc">{chapter.blurb}</span>
-                  </span>
-                  <span class="fase2-card__tag">Segera</span>
-                </div>
-              </li>
-            ))
+            pembuka.map((chapter) => {
+              const Tag = chapter.live ? 'a' : 'div';
+              return (
+                <li>
+                  <Tag
+                    href={chapter.live ? `${base}/bab/${chapter.number}/` : undefined}
+                    class={`fase2-card ${chapter.live ? 'fase2-card--live' : ''}`}
+                    data-reveal
+                  >
+                    <span class="fase2-card__emoji" aria-hidden="true">
+                      {chapter.emoji}
+                    </span>
+                    <span class="fase2-card__body">
+                      <span class="fase2-card__eyebrow">Bab {chapter.number} · {chapter.short}</span>
+                      <span class="fase2-card__title">{chapter.title}</span>
+                      <span class="fase2-card__desc">{chapter.blurb}</span>
+                    </span>
+                    <span class="fase2-card__tag">
+                      {chapter.live ? 'Sudah bisa dicoba →' : 'Segera'}
+                    </span>
+                  </Tag>
+                </li>
+              );
+            })
           }
         </ol>
       </div>
@@ -212,6 +220,25 @@ const susulan = fase2Chapters.filter((c) => c.group === 'susulan');
     border: 2px dashed var(--border);
     border-radius: var(--radius-card);
     position: relative;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .fase2-card--live {
+    border-style: solid;
+    border-color: var(--pyto-green);
+    background: var(--pyto-green-soft);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+  }
+
+  a.fase2-card--live:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(30, 42, 50, 0.1);
+  }
+
+  .fase2-card--live .fase2-card__tag {
+    background: var(--pyto-green);
+    color: var(--white);
   }
 
   .fase2-card__emoji {
