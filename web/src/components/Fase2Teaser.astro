@@ -13,22 +13,25 @@ const base = import.meta.env.BASE_URL;
   <div class="container">
     <div class="fase2-teaser__card" data-reveal>
       <div class="fase2-teaser__copy">
-        <span class="badge fase2-teaser__badge">🔭 {fase2Meta.label} — Segera Hadir</span>
+        <span class="badge fase2-teaser__badge">🚀 {fase2Meta.label} — 3 Bab Sudah Bisa Dicoba</span>
         <h2>Bab 1-10 kelar? Petualangan Python-mu belum selesai!</h2>
         <p>
-          Pyto lagi menyiapkan <strong>{fase2Meta.count} bab lanjutan</strong> — bikin foto,
-          kode QR, kamus data, sampai bot rahasia-rahasian, semuanya pakai Python beneran.
-          Belum bisa dibuka sekarang, tapi boleh diintip dulu topiknya.
+          Pyto sudah menyiapkan <strong>{fase2Meta.count} bab lanjutan</strong> — kamus data, ambil
+          data cuaca dari internet, sampai bengkel foto pakai Python beneran.
+          <strong>Bab 11-13 sudah bisa dicoba sekarang</strong>, 7 bab sisanya masih disiapkan.
         </p>
+        <a href={`${base}/bab/11/`} class="btn btn-primary fase2-teaser__cta">
+          Mulai Bab 11 →
+        </a>
         <a href={`${base}/fase2/`} class="btn btn-secondary fase2-teaser__cta">
-          Intip rencana {fase2Meta.label} →
+          Intip semua rencana {fase2Meta.label} →
         </a>
       </div>
 
       <ul class="fase2-teaser__chips" aria-label={`Pratinjau topik ${fase2Meta.label}`}>
         {
           fase2Chapters.map((chapter) => (
-            <li class="fase2-teaser__chip">
+            <li class={`fase2-teaser__chip ${chapter.live ? 'fase2-teaser__chip--live' : ''}`}>
               <span aria-hidden="true">{chapter.emoji}</span>
               {chapter.short}
             </li>
@@ -97,6 +100,12 @@ const base = import.meta.env.BASE_URL;
     font-size: 14px;
     font-weight: 700;
     color: var(--slate);
+  }
+
+  .fase2-teaser__chip--live {
+    background: var(--pyto-green-soft);
+    border-color: var(--pyto-green);
+    color: var(--pyto-green-dark);
   }
 
   @media (max-width: 600px) {

@@ -1,5 +1,6 @@
 ---
 import { chapters, isChapterAvailable, AVAILABLE_CHAPTERS } from '../data/chapters.js';
+import { fase2Chapters } from '../data/fase2.js';
 
 // Deskripsi singkat tiap bab untuk kartu di beranda. Judul & ketersediaan
 // datang dari data/chapters.js (sumber tunggal, dipakai juga oleh sidebar
@@ -15,7 +16,19 @@ const descriptions = {
   8: 'Daftar teman, daftar belanja — kumpulan data dalam satu kotak.',
   9: 'Cara membaca pesan error tanpa panik, lalu memperbaikinya.',
   10: '3 mini-project seru: Tebak Angka, Kuis, dan Kalkulator.',
+  11: 'Lemari dengan LABEL di tiap laci — kenalan sama dictionary.',
+  12: 'Ambil data cuaca sungguhan dari internet, sekalian kenalan sama def.',
+  13: 'Upload foto sendiri, lalu resize, watermark, atau ubah hitam-putih pakai kode.',
 };
+
+// Bab 14-20 belum ditulis deskripsi khususnya di sini — daripada render
+// "undefined", jatuhkan ke blurb yang sudah ada di data/fase2.js (satu
+// sumber blurb untuk seluruh Fase 2) supaya kartunya tetap ada teksnya.
+const fase2BlurbByNumber = Object.fromEntries(fase2Chapters.map((c) => [c.number, c.blurb]));
+
+function descriptionFor(number) {
+  return descriptions[number] ?? fase2BlurbByNumber[number] ?? '';
+}
 
 const totalChapters = chapters.length;
 const availableCount = AVAILABLE_CHAPTERS.length;
@@ -47,7 +60,7 @@ const availableCount = AVAILABLE_CHAPTERS.length;
                 <span class="chapter-card__number">{chapter.number}</span>
                 <span class="chapter-card__body">
                   <span class="chapter-card__title">{chapter.title}</span>
-                  <span class="chapter-card__desc">{descriptions[chapter.number]}</span>
+                  <span class="chapter-card__desc">{descriptionFor(chapter.number)}</span>
                 </span>
                 <span class="chapter-card__tag">
                   {available ? 'Mulai di sini →' : 'Segera'}

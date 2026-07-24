@@ -1,12 +1,13 @@
 // Kurikulum Fase 2 ("Python Lanjutan") — Bab 11-20. Sumber: plan/Fase2/plan.md
 // (draf kurikulum, riset lengkap di plan/Fase2/riset-topik-fase2.md).
 //
-// PENTING: ini pengumuman "Segera Hadir" saja — belum ada satu pun halaman
-// bab sungguhan untuk Fase 2. Jangan tambahkan nomor-nomor ini ke
-// AVAILABLE_CHAPTERS di chapters.js atau bikin route /bab/11/ dst. sebelum
-// naskah + implementasinya benar-benar ada. Kalau urutan/judul di
-// plan/Fase2/plan.md berubah, cukup sunting array di bawah ini — dipakai
-// bareng oleh Fase2Teaser.astro dan halaman /fase2/.
+// Bab 11-13 sekarang sudah punya halaman sungguhan (`live: true`) — lihat
+// AVAILABLE_CHAPTERS di chapters.js dan src/pages/bab/11.astro, 12.astro,
+// 13.astro. Bab 14-20 masih pengumuman "Segera Hadir" saja: belum ada
+// halaman bab sungguhan, jangan tambahkan ke AVAILABLE_CHAPTERS atau bikin
+// route /bab/14/ dst. sebelum naskah + implementasinya benar-benar ada.
+// Ini tetap satu-satunya sumber judul/blurb untuk seluruh Bab 11-20 — dipakai
+// bareng oleh chapters.js, Fase2Teaser.astro, dan halaman /fase2/.
 
 export const fase2Meta = {
   label: 'Fase 2',
@@ -24,6 +25,7 @@ export const fase2Chapters = [
     blurb:
       'Kalau List itu rak dengan nomor urut, Dictionary itu lemari dengan LABEL di tiap laci — tinggal panggil namanya.',
     group: 'pembuka',
+    live: true,
   },
   {
     number: 12,
@@ -33,6 +35,7 @@ export const fase2Chapters = [
     blurb:
       'Belajar "ngobrol" sopan dengan layanan online gratis — ambil data cuaca, kutipan, sampai foto hewan asli.',
     group: 'pembuka',
+    live: true,
   },
   {
     number: 13,
@@ -42,6 +45,7 @@ export const fase2Chapters = [
     blurb:
       'Upload foto sendiri, lalu resize, kasih watermark, ubah hitam-putih, atau gabung jadi kolase.',
     group: 'pembuka',
+    live: true,
   },
   {
     number: 14,
