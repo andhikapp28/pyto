@@ -1,0 +1,199 @@
+---
+// Bab 14 — Bikin Barcode Ajaib (QR Code).
+// Sumber naskah: plan/naskah/bab-14-bikin-barcode-ajaib.md.
+// Sumber animasi: plan/bab-14-animasi.md.
+// Sumber desain: plan/design/bab-14-desain.md (termasuk kontrak jembatan
+// Teks/Jalankan/Unduh + logo opsional — lihat QrCodeWorkbenchEditor.astro
+// dan runQrWorkbench()/ensurePackageViaMicropip() di scripts/pyodide-runner.js).
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import ChapterHero from '../../components/ChapterHero.astro';
+import PytoQrHero from '../../components/PytoQrHero.astro';
+import QrTextToImageDemo from '../../components/QrTextToImageDemo.astro';
+import QrWebsiteLinkDemo from '../../components/QrWebsiteLinkDemo.astro';
+import QrDensityAwas from '../../components/QrDensityAwas.astro';
+import QrLogoDemo from '../../components/QrLogoDemo.astro';
+import KotakAwas from '../../components/KotakAwas.astro';
+import KotakMainYuk from '../../components/KotakMainYuk.astro';
+import KotakTahuLebih from '../../components/KotakTahuLebih.astro';
+import QrCodeWorkbenchEditor from '../../components/QrCodeWorkbenchEditor.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import RangkumanList from '../../components/RangkumanList.astro';
+import Glossary from '../../components/Glossary.astro';
+import ChapterFooterNav from '../../components/ChapterFooterNav.astro';
+
+const base = import.meta.env.BASE_URL;
+
+const rangkuman = [
+  '<strong>qrcode</strong> adalah kotak alat Python untuk mengubah teks jadi kode QR — gambar kotak-kotak yang bisa dipindai kamera.',
+  '<code>qrcode.make(teks)</code> membuat kode QR paling sederhana dari teks atau alamat apa pun.',
+  'Semakin panjang teksnya, semakin padat &amp; rumit pola QR-nya — dan semakin gampang gagal dipindai kalau dicetak kecil.',
+  '<code>qrcode.QRCode(...)</code> + <code>error_correction=ERROR_CORRECT_H</code> bikin kode QR tahan sampai ~30% areanya rusak/tertutup, sehingga aman ditempeli logo kecil di tengah.',
+  'Karena hasil <code>qrcode</code> berupa gambar biasa, semua skill Pillow dari Bab 13 (<code>.resize()</code>, <code>.paste()</code>, dst.) bisa dipakai lagi di sini.',
+];
+
+const glossaryTerms = [
+  { term: 'QR Code', def: 'Kode kotak-kotak hitam-putih yang bisa dibaca kamera dan diubah balik jadi teks/alamat.' },
+  { term: 'qrcode', def: 'Kotak alat Python untuk membuat kode QR dari teks.' },
+  { term: 'qrcode.make()', def: 'Cara paling sederhana membuat kode QR dari sebuah teks.' },
+  { term: 'error_correction', def: 'Pengaturan seberapa tahan kode QR terhadap kerusakan atau area yang tertutup.' },
+  { term: 'ERROR_CORRECT_H', def: 'Tingkat ketahanan tertinggi (~30%) — dipakai kalau mau menempel logo di tengah kode QR.' },
+];
+---
+
+<ChapterLayout
+  currentChapter={14}
+  description="Bab 14: Bikin Barcode Ajaib (QR Code) — ubah teks atau alamat website jadi kode QR yang bisa dipindai kamera HP sungguhan, ditemani Pyto si robot ular."
+>
+  <ChapterHero
+    number={14}
+    title="Bikin Barcode Ajaib 📱"
+    tagline={'Pernah scan kode kotak-kotak di kemasan atau meja restoran? Itu <strong>QR Code</strong> — dan bikinnya cuma butuh beberapa baris Python.'}
+  >
+    <PytoQrHero slot="mascot" />
+  </ChapterHero>
+
+  <section data-reveal>
+    <h2>Ketik Teks, Jadi Kode Kotak-Kotak</h2>
+    <p>
+      Ada kotak alat Python namanya <code>qrcode</code>. Kasih dia teks apa saja, dia balikin gambar
+      kode QR yang menyimpan teks itu di dalam pola kotak-kotaknya:
+    </p>
+    <div class="chapter-media">
+      <QrTextToImageDemo />
+    </div>
+    <p>
+      <code>qrcode.make(pesan)</code> mengambil teks di variabel <code>pesan</code>, lalu mengubahnya
+      jadi gambar kotak-kotak hitam-putih. Begitu kamera HP diarahkan dan berhasil membaca pola itu,
+      dia akan menampilkan balik teks yang sama persis — <code>"Halo, aku Pyto!"</code>.
+    </p>
+  </section>
+
+  <section class="pyto-quote-box" data-reveal>
+    <span class="pyto-quote-box__mascot" role="img" aria-label="Pyto">🐍</span>
+    <p class="pyto-quote-box__text">
+      "<code>qrcode</code> itu kotak alat khusus buat bikin kode QR — halaman ini sudah
+      menyiapkannya otomatis, kamu tidak perlu memasangnya sendiri. Tapi ada rahasia kecil: di balik
+      layar, gambar kotak-kotaknya sebenarnya digambar pakai <strong>Pillow</strong> juga — kotak
+      alat gambar yang sama seperti di Bab 13! Jadi <code>kode_qr</code> itu sebenarnya foto juga,
+      cuma isinya pola QR, bukan foto liburan."
+    </p>
+  </section>
+
+  <section data-reveal>
+    <h2>QR Code buat Alamat Website</h2>
+    <p>
+      <code>qrcode.make()</code> tidak peduli apa isi teksnya — dia cuma menyimpan teks itu apa
+      adanya. Tapi kalau teksnya kebetulan sebuah <strong>alamat website</strong>, kebanyakan kamera
+      HP otomatis menawarkan "buka tautan" begitu berhasil memindai:
+    </p>
+    <div class="chapter-media">
+      <QrWebsiteLinkDemo />
+    </div>
+    <p>
+      Coba bayangkan: kamu bisa taruh kode ini di kartu nama, poster, atau stiker warungmu, dan
+      siapa pun yang memindainya langsung diantar ke website atau nomor WhatsApp-mu — tanpa perlu
+      mengetik apa-apa.
+    </p>
+  </section>
+
+  <KotakAwas title="Awas — Teks Kepanjangan Bikin Kode Susah Dipindai">
+    <p>
+      Semakin panjang teks yang kamu masukkan, semakin <strong>padat dan rumit</strong> pola
+      kotak-kotak QR-nya — dan itu bikin kamera lebih gampang gagal membacanya, apalagi kalau
+      kodenya dicetak kecil atau difoto dari jarak jauh:
+    </p>
+    <QrDensityAwas />
+    <p>
+      <code>kode_qr_pendek</code> polanya rapi dan longgar — gampang dipindai dari HP mana pun.
+      <code>kode_qr_panjang</code> polanya jauh lebih rapat dan detail — masih <em>bisa</em>
+      dipindai di layar komputer, tapi begitu dicetak kecil di stiker, banyak kamera HP akan
+      kesulitan. Aturan aman: kalau mau taruh alamat website, singkat dulu (banyak layanan
+      pemendek tautan gratis), dan kalau berupa pesan, usahakan seperlunya saja.
+    </p>
+  </KotakAwas>
+
+  <KotakMainYuk title="Main Yuk! — Bikin Kode QR dengan Pesanmu Sendiri" icon="🎮" wiggleIcon>
+    <p>
+      Ganti pesannya jadi kalimat pilihanmu sendiri — nama, ucapan, atau apa saja. Apa yang harus
+      diisi di bagian kosong?
+    </p>
+    <CodeBlock code={`pesan_ku = ____\nkode_qr = qrcode.make(pesan_ku)`} />
+    <details class="jawaban">
+      <summary>🔎 Lihat jawaban</summary>
+      <p>
+        Isi dengan kalimat pilihanmu <strong>di dalam tanda kutip</strong>, misalnya
+        <code>"Ini kode QR buatan Made!"</code>.
+      </p>
+    </details>
+  </KotakMainYuk>
+
+  <KotakTahuLebih title="Tahu Lebih — Tempel Logo di Tengah Kode QR">
+    <p>
+      Pernah lihat kode QR yang punya logo kecil di tengahnya, tapi tetap bisa dipindai? Rahasianya:
+      kode QR punya pengaturan "tahan rusak" bernama <code>error_correction</code>. Kalau diset ke
+      level tertinggi (<code>ERROR_CORRECT_H</code>), kode itu tetap bisa terbaca meski sampai
+      sekitar 30% areanya rusak atau tertutup — cukup aman untuk ditempeli logo kecil di tengah:
+    </p>
+    <QrLogoDemo />
+    <CodeBlock
+      code={`import qrcode\nfrom qrcode.constants import ERROR_CORRECT_H\n\nqr = qrcode.QRCode(error_correction=ERROR_CORRECT_H, box_size=10, border=4)\nqr.add_data("https://www.python.org")\nqr.make(fit=True)\n\nkode_qr = qr.make_image(fill_color="black", back_color="white").convert("RGB")\n\n# 'logo' sudah otomatis terisi dari gambar kecil yang kamu upload di kotak paling bawah.\nlogo_kecil = logo.resize((60, 60))\n\nposisi_x = (kode_qr.size[0] - 60) // 2\nposisi_y = (kode_qr.size[1] - 60) // 2\nkode_qr.paste(logo_kecil, (posisi_x, posisi_y))\n\nhasil = kode_qr`}
+    />
+    <p>
+      <code>qrcode.QRCode(...)</code> itu cara yang lebih rinci untuk bikin kode QR (dibanding
+      <code>qrcode.make()</code>) — <code>qr.add_data(...)</code> mengisi teksnya,
+      <code>qr.make(fit=True)</code> menyusun polanya, lalu <code>qr.make_image(...)</code>
+      menghasilkan gambarnya. Karena <code>kode_qr</code> itu gambar biasa (persis seperti
+      <code>foto</code> di Bab 13), kita bisa <code>.resize()</code> dan <code>.paste()</code> logo
+      tepat di posisi tengahnya — skill yang sama persis dengan bab lalu!
+    </p>
+    <p>
+      Mau coba sendiri? Di kotak "Coba Sendiri" di bawah, ada slot opsional untuk upload logo kecil
+      — centang dulu, upload gambarnya, lalu tiru kode di atas.
+    </p>
+  </KotakTahuLebih>
+
+  <section data-reveal>
+    <h2>Coba Sendiri, Yuk!</h2>
+    <p>
+      Ketik pesan atau alamat website apa pun di kotak teks yang tersedia, lalu jalankan kode ini.
+      Kode QR hasilnya bakal muncul lengkap dengan tombol unduh, siap dicetak atau dibagikan:
+    </p>
+    <QrCodeWorkbenchEditor
+      idPrefix="bab14"
+      title="🐍 kios_qr.py"
+      runLabel="▶ Jalankan"
+      codeAriaLabel="Kotak kode kios QR"
+      rows={5}
+      minHeight={110}
+      textLabel="Ketik pesan atau alamat website"
+      textPlaceholder="Halo, aku Pyto!"
+      downloadFileName="kode-qr-pyto.png"
+      starterCode={`import qrcode
+
+# 'teks_qr' sudah otomatis terisi dari teks yang kamu ketik di kotak di atas.
+hasil = qrcode.make(teks_qr)
+`}
+      notes={[
+        '✏️ Ganti isi teksnya bebas — nama, ucapan ulang tahun, atau alamat website. Mau coba bonus tempel logo di tengah? Centang kotak "Tambahkan logo (opsional)" di atas, upload gambar kecil, lalu ubah kodenya meniru contoh di kotak Tahu Lebih — variabel <code>logo</code> akan otomatis tersedia begitu kamu mengaktifkannya.',
+        '🎉 Kalau kode QR hasil olahanmu muncul lengkap dengan tombol unduh — coba deh foto pakai kamera HP sungguhan. Kalau berhasil kebaca, kamu baru saja bikin kode digital yang benar-benar "hidup" di dunia nyata!',
+      ]}
+    />
+  </section>
+
+  <section data-reveal>
+    <h2>Rangkuman Bab 14</h2>
+    <RangkumanList items={rangkuman} />
+  </section>
+
+  <section data-reveal>
+    <h2>📖 Kamus Kata</h2>
+    <Glossary terms={glossaryTerms} />
+  </section>
+
+  <ChapterFooterNav
+    prevHref={`${base}/bab/13/`}
+    prevLabel="← Bab 13: Bengkel Foto Mini"
+    nextHref={`${base}/bab/15/`}
+    nextLabel="Bab 15: Asisten Kantor Kilat"
+  />
+</ChapterLayout>

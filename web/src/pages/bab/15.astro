@@ -1,0 +1,261 @@
+---
+// Bab 15 — Asisten Kantor Kilat (Excel & PDF Sederhana).
+// Sumber naskah: plan/naskah/bab-15-asisten-kantor-kilat.md.
+// Sumber animasi: plan/bab-15-animasi.md.
+// Sumber desain: plan/design/bab-15-desain.md (termasuk "Generalisasi WAJIB"
+// jembatan Upload/Jalankan/Unduh — lihat FileWorkbenchEditor.astro dan
+// runFileWorkbench()/ensurePackageViaMicropip() di scripts/pyodide-runner.js).
+// PENTING: Bab 13 (PhotoWorkbenchEditor + runPhotoWorkbench) TIDAK berubah
+// perilaku sama sekali oleh generalisasi ini.
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import ChapterHero from '../../components/ChapterHero.astro';
+import PytoOfficeHero from '../../components/PytoOfficeHero.astro';
+import ExcelToListDemo from '../../components/ExcelToListDemo.astro';
+import FilterAndSumDemo from '../../components/FilterAndSumDemo.astro';
+import WriteNewExcelDemo from '../../components/WriteNewExcelDemo.astro';
+import HeaderRowAwas from '../../components/HeaderRowAwas.astro';
+import PdfExtractDemo from '../../components/PdfExtractDemo.astro';
+import KotakAwas from '../../components/KotakAwas.astro';
+import KotakMainYuk from '../../components/KotakMainYuk.astro';
+import KotakTahuLebih from '../../components/KotakTahuLebih.astro';
+import FileWorkbenchEditor from '../../components/FileWorkbenchEditor.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import RangkumanList from '../../components/RangkumanList.astro';
+import Glossary from '../../components/Glossary.astro';
+import ChapterFooterNav from '../../components/ChapterFooterNav.astro';
+import { OPENPYXL_LOADING_MESSAGE } from '../../scripts/pyodide-runner.js';
+
+const base = import.meta.env.BASE_URL;
+
+const rangkuman = [
+  '<strong>openpyxl</strong> adalah kotak alat Python untuk membaca dan menulis file Excel (<code>.xlsx</code>).',
+  '<code>.load_workbook(berkas)</code> membuka file Excel yang sudah ada; <code>.active</code> mengambil sheet aktifnya; <code>.iter_rows(min_row=2, values_only=True)</code> membaca isi baris demi baris (lewati baris judul).',
+  'Data dari Excel paling enak diubah jadi <strong>list of dictionary</strong> — menyambung skill Bab 8 (list) dan Bab 11 (dictionary).',
+  '<code>openpyxl.Workbook()</code> + <code>.append([...])</code> menulis data baru jadi file Excel baru dari nol.',
+  '<strong>pypdf</strong> bisa mengekstrak teks polos dari file PDF lewat <code>.pages</code> dan <code>.extract_text()</code> — tapi cuma untuk PDF yang teksnya sudah digital, bukan hasil scan gambar.',
+  'PENTING: baris pertama file Excel biasanya judul kolom, bukan data — pastikan dilewati (mis. <code>min_row=2</code>).',
+];
+
+const glossaryTerms = [
+  { term: 'openpyxl', def: 'Kotak alat Python untuk membaca & menulis file Excel (.xlsx).' },
+  { term: '.load_workbook()', def: 'Membuka file Excel yang sudah ada jadi objek yang bisa dibaca Python.' },
+  { term: '.active', def: 'Mengambil sheet/lembar kerja yang sedang aktif dari sebuah file Excel.' },
+  { term: '.iter_rows()', def: 'Membaca isi file Excel baris demi baris.' },
+  { term: 'Workbook()', def: 'Membuat file Excel baru yang masih kosong.' },
+  { term: '.append()', def: 'Menambahkan satu baris data baru ke sebuah sheet Excel.' },
+  { term: 'pypdf', def: 'Kotak alat Python untuk membaca file PDF, termasuk mengekstrak teksnya.' },
+  { term: '.extract_text()', def: 'Mengambil teks polos dari satu halaman PDF.' },
+];
+---
+
+<ChapterLayout
+  currentChapter={15}
+  description="Bab 15: Asisten Kantor Kilat (Excel & PDF Sederhana) — upload file Excel sungguhan, olah datanya, lalu unduh hasilnya yang rapi, ditemani Pyto si robot ular."
+>
+  <ChapterHero
+    number={15}
+    title="Asisten Kantor Kilat 📊"
+    tagline={'Capek buka Excel manual tiap bulan? Ajari Pyto sekali lewat kode, dan dia akan merapikannya berkali-kali tanpa capek.'}
+  >
+    <PytoOfficeHero slot="mascot" />
+  </ChapterHero>
+
+  <section data-reveal>
+    <h2>Baca Isi Excel Jadi List Berisi Dictionary</h2>
+    <p>
+      Upload file Excel-mu (kolomnya, misalnya: Nama Barang, Jumlah Terjual, Harga Satuan), lalu
+      buka isinya pakai <code>openpyxl</code>:
+    </p>
+    <div class="chapter-media">
+      <ExcelToListDemo />
+    </div>
+    <p>
+      <code>openpyxl.load_workbook(berkas_excel)</code> membuka file Excel-nya.
+      <code>buku.active</code> mengambil sheet (lembar kerja) yang sedang aktif.
+      <code>sheet.iter_rows(min_row=2, values_only=True)</code> membaca isinya baris demi baris —
+      <code>min_row=2</code> artinya <strong>lewati baris pertama</strong> (biasanya judul kolom),
+      dan <code>values_only=True</code> artinya ambil nilainya polos saja, bukan objek sel yang
+      ribet.
+    </p>
+    <p>
+      Tiap baris berisi tiga nilai berurutan (<code>nama, jumlah, harga = baris</code>), lalu kita
+      simpan sebagai <strong>dictionary</strong> (Bab 11) dan tambahkan ke sebuah
+      <strong>list</strong> (Bab 8). Hasilnya, <code>data_penjualan[0]</code> mencetak sesuatu
+      seperti:
+    </p>
+    <CodeBlock code={`{'nama': 'Kopi Sachet', 'jumlah': 120, 'harga': 2500}`} />
+  </section>
+
+  <section class="pyto-quote-box" data-reveal>
+    <span class="pyto-quote-box__mascot" role="img" aria-label="Pyto">🐍</span>
+    <p class="pyto-quote-box__text">
+      "<code>openpyxl</code> itu kotak alat Python buat baca-tulis file Excel (<code>.xlsx</code>)
+      — sama seperti Pillow buat foto di Bab 13. Halaman ini sudah menyiapkannya otomatis, kamu
+      tinggal pakai."
+    </p>
+  </section>
+
+  <section data-reveal>
+    <h2>Olah Datanya: Jumlahkan &amp; Pilih yang Penting</h2>
+    <p>
+      Sekarang data Excel-mu sudah jadi list of dictionary biasa — semua skill lama (Bab 6
+      <code>if</code>, Bab 7 <code>for</code>) langsung bisa dipakai:
+    </p>
+    <div class="chapter-media">
+      <FilterAndSumDemo />
+    </div>
+    <p>
+      Tiap <code>barang</code> (dictionary) ditambah label baru <code>"total"</code> (jumlah
+      terjual dikali harga satuan) — persis seperti menambah laci baru di Bab 11. Kalau totalnya
+      sudah 100.000 ke atas, barang itu dianggap "laris" dan ditambahkan ke list baru
+      <code>barang_laris</code>.
+    </p>
+  </section>
+
+  <section data-reveal>
+    <h2>Tulis Hasilnya Jadi File Excel Baru</h2>
+    <p>Terakhir, tulis balik <code>barang_laris</code> jadi file Excel baru yang siap diunduh:</p>
+    <div class="chapter-media">
+      <WriteNewExcelDemo />
+    </div>
+    <p>
+      <code>openpyxl.Workbook()</code> membuat file Excel baru yang masih kosong.
+      <code>.append([...])</code> menambahkan satu baris — kita tulis dulu baris judul kolom, lalu
+      satu baris per barang laris. Tiga baris terakhir (<code>buf = io.BytesIO()</code>,
+      <code>buku_baru.save(buf)</code>, <code>hasil = buf.getvalue()</code>) itu
+      <strong>resep tetap</strong> yang selalu sama tiap kali mau menyiapkan file Excel untuk
+      diunduh — anggap saja mantra penutup wajib.
+    </p>
+  </section>
+
+  <KotakAwas title="Awas — Baris Pertama Itu Biasanya Judul Kolom, Bukan Data!">
+    <p>
+      Kalau kamu lupa <code>min_row=2</code>, baris judul kolom (<code>"Nama Barang"</code>,
+      <code>"Jumlah Terjual"</code>, dst.) ikut kebaca sebagai kalau itu <strong>data sungguhan</strong>
+      — dan program bisa langsung error begitu mencoba mengalikan dua teks:
+    </p>
+    <HeaderRowAwas />
+    <p>
+      Kebiasaan baik: selalu cek dulu baris pertama file Excel-mu isinya judul kolom atau bukan,
+      sebelum memutuskan mulai dari <code>min_row</code> berapa. Satu hal lagi yang gampang lolos:
+      kalau file Excel-mu punya beberapa sheet (tab) sekaligus, <code>buku.active</code> belum
+      tentu sheet yang kamu maksud — kalau perlu, sebutkan namanya langsung, misalnya
+      <code>buku["Penjualan Januari"]</code>.
+    </p>
+  </KotakAwas>
+
+  <KotakMainYuk title="Main Yuk! — Ganti Batas &quot;Laris&quot;" icon="🎮" wiggleIcon>
+    <p>
+      Ubah angka batas supaya barang yang dianggap "laris" berbeda — mungkin kamu mau standar yang
+      lebih longgar atau lebih ketat. Apa yang harus diisi di bagian kosong?
+    </p>
+    <CodeBlock
+      code={`batas_laris = ____\n\nbarang_laris = []\nfor barang in data_penjualan:\n    total = barang["jumlah"] * barang["harga"]\n    barang["total"] = total\n    if total >= batas_laris:\n        barang_laris.append(barang)`}
+    />
+    <details class="jawaban">
+      <summary>🔎 Lihat jawaban</summary>
+      <p>
+        Isi dengan angka pilihanmu, misalnya <code>50000</code> (lebih longgar, lebih banyak
+        barang masuk daftar) atau <code>200000</code> (lebih ketat, cuma barang paling laris yang
+        masuk).
+      </p>
+    </details>
+  </KotakMainYuk>
+
+  <KotakTahuLebih title="Tahu Lebih — Ekstrak Teks dari File PDF">
+    <p>
+      Selain Excel, <code>pypdf</code> bisa membaca isi file PDF dan mengambil teksnya jadi teks
+      polos yang bisa diolah Python — misalnya dari laporan atau invoice PDF yang kamu punya.
+      Coba sendiri: upload file PDF-mu di kotak di bawah, lalu jalankan kodenya:
+    </p>
+    <PdfExtractDemo />
+    <p>
+      <code>pypdf.PdfReader(berkas_pdf)</code> membuka file PDF-nya. <code>.pages</code> adalah
+      daftar tiap halaman di dalamnya, dan <code>.extract_text()</code> mengambil teks polos dari
+      satu halaman. Catatan penting: ini cuma berhasil kalau PDF-nya memang berisi teks digital
+      asli (misalnya dari Word/Excel yang diekspor) — kalau PDF-nya hasil scan foto/kertas,
+      <code>.extract_text()</code> bisa mengembalikan teks kosong, karena Python tidak "membaca
+      tulisan tangan dari gambar" (itu topik terpisah namanya OCR, di luar bab ini).
+    </p>
+  </KotakTahuLebih>
+
+  <section data-reveal>
+    <h2>Coba Sendiri, Yuk!</h2>
+    <p>
+      Upload file Excel-mu di tombol yang tersedia, lalu jalankan kode ini — datanya akan dibaca,
+      dijumlahkan, difilter, dan ditulis ulang jadi file Excel baru yang siap diunduh:
+    </p>
+    <FileWorkbenchEditor
+      idPrefix="bab15"
+      title="🐍 asisten_kantor.py"
+      runLabel="▶ Jalankan"
+      codeAriaLabel="Kotak kode asisten kantor"
+      rows={20}
+      minHeight={340}
+      uploadLabel="Klik atau seret file Excel (.xlsx) ke sini"
+      uploadHint={`maksimal 5 MB`}
+      changeLabel="Ganti File"
+      uploadIcon="📊"
+      acceptAttr=".xlsx"
+      maxFileSizeMB={5}
+      inputVarName="berkas_excel"
+      outputVarName="hasil"
+      outputKind="bytes"
+      outputFileName="hasil-excel.xlsx"
+      outputMimeType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      resultIcon="📊"
+      downloadLabel="⬇ Unduh Hasil Excel"
+      packageName="openpyxl"
+      packageLoadingMessage={OPENPYXL_LOADING_MESSAGE}
+      starterCode={`import openpyxl
+import io
+
+# 'berkas_excel' sudah otomatis terisi dari file Excel yang kamu upload di atas.
+buku = openpyxl.load_workbook(berkas_excel)
+sheet = buku.active
+
+data_penjualan = []
+for baris in sheet.iter_rows(min_row=2, values_only=True):
+    nama, jumlah, harga = baris
+    data_penjualan.append({"nama": nama, "jumlah": jumlah, "harga": harga})
+
+barang_laris = []
+for barang in data_penjualan:
+    barang["total"] = barang["jumlah"] * barang["harga"]
+    if barang["total"] >= 100000:
+        barang_laris.append(barang)
+
+buku_baru = openpyxl.Workbook()
+sheet_baru = buku_baru.active
+sheet_baru.append(["Nama Barang", "Jumlah Terjual", "Harga Satuan", "Total"])
+for barang in barang_laris:
+    sheet_baru.append([barang["nama"], barang["jumlah"], barang["harga"], barang["total"]])
+
+buf = io.BytesIO()
+buku_baru.save(buf)
+hasil = buf.getvalue()
+`}
+      notes={[
+        '✏️ Belum punya file Excel sendiri untuk dicoba? Isi datamu sendiri di file <code>.xlsx</code> (kolom: Nama Barang, Jumlah Terjual, Harga Satuan), lalu upload. Kamu juga bisa ganti angka <code>100000</code> jadi batas lain, atau tambah kolom baru di file Excel-mu dan sesuaikan kodenya.',
+        '🎉 Kalau file Excel hasil olahanmu berhasil diunduh dan terbuka rapi — kamu baru saja bikin asisten kantor pribadi dari kode Python sendiri!',
+      ]}
+    />
+  </section>
+
+  <section data-reveal>
+    <h2>Rangkuman Bab 15</h2>
+    <RangkumanList items={rangkuman} />
+  </section>
+
+  <section data-reveal>
+    <h2>📖 Kamus Kata</h2>
+    <Glossary terms={glossaryTerms} />
+  </section>
+
+  <ChapterFooterNav
+    prevHref={`${base}/bab/14/`}
+    prevLabel="← Bab 14: Bikin Barcode Ajaib"
+    nextLabel="Bab 16: Agen Rahasia Pyto"
+    nextDisabled
+  />
+</ChapterLayout>
