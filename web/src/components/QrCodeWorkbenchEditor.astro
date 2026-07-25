@@ -1,0 +1,600 @@
+---
+// Jembatan Teks/Jalankan/Unduh + Logo Opsional — lihat spesifikasi lengkap di
+// plan/design/bab-14-desain.md ("Spesifikasi Jembatan Teks/Jalankan/Unduh +
+// Logo Opsional"). Komponen paling penting/baru di Bab 14.
+//
+// Beda dari PhotoWorkbenchEditor.astro (Bab 13): input utamanya kotak teks
+// biasa (bukan upload file) yang disuntik sebagai variabel Python STRING
+// polos lewat runQrWorkbench() (pyodide-runner.js) — tanpa base64/decode
+// gambar. Slot upload gambar (mirip gaya Bab 13) hanya dipakai untuk fitur
+// BONUS opsional: menempel logo di tengah kode QR.
+interface Props {
+  idPrefix?: string;
+  title: string;
+  runLabel?: string;
+  resetLabel?: string;
+  starterCode: string;
+  rows?: number;
+  minHeight?: number;
+  codeAriaLabel: string;
+  notes?: string[];
+  textLabel?: string;
+  textPlaceholder?: string;
+  maxTextLength?: number;
+  logoCheckboxLabel?: string;
+  logoUploadLabel?: string;
+  downloadLabel?: string;
+  downloadFileName?: string;
+  teksVarName?: string;
+  logoVarName?: string;
+  outputVarName?: string;
+  maxLogoSizeMB?: number;
+  noResultMessage?: string;
+}
+
+const {
+  idPrefix = 'qwe',
+  title,
+  runLabel = '▶ Jalankan',
+  resetLabel = '↺ Reset',
+  starterCode,
+  rows = 6,
+  minHeight = 120,
+  codeAriaLabel,
+  notes = [],
+  textLabel = 'Ketik pesan atau alamat website',
+  textPlaceholder = 'Halo, aku Pyto!',
+  maxTextLength = 300,
+  logoCheckboxLabel = 'Tambahkan logo di tengah (opsional)',
+  logoUploadLabel = 'Klik atau seret gambar logo kecil ke sini',
+  downloadLabel = '⬇ Unduh Hasil',
+  downloadFileName = 'kode-qr-pyto.png',
+  teksVarName = 'teks_qr',
+  logoVarName = 'logo',
+  outputVarName = 'hasil',
+  maxLogoSizeMB = 2,
+  noResultMessage = `Programmu berhasil jalan, tapi belum ada kode QR untuk ditampilkan — pastikan ada variabel bernama \`${outputVarName}\` berisi gambar.`,
+} = Astro.props;
+---
+
+<div
+  class="qwe-wrap"
+  data-id-prefix={idPrefix}
+  data-teks-var={teksVarName}
+  data-logo-var={logoVarName}
+  data-output-var={outputVarName}
+  data-max-text-length={maxTextLength}
+  data-max-logo-size-mb={maxLogoSizeMB}
+  data-download-file-name={downloadFileName}
+  data-no-result-message={noResultMessage}
+>
+  <div class="qwe card">
+    <div class="qwe__section">
+      <label class="qwe__text-label" for={`${idPrefix}-text-input`}>{textLabel}</label>
+      <input
+        type="text"
+        id={`${idPrefix}-text-input`}
+        class="qwe__text-input"
+        placeholder={textPlaceholder}
+        maxlength={maxTextLength}
+        value={textPlaceholder}
+      />
+      <span class="qwe__text-hint">Maksimal {maxTextLength} karakter.</span>
+    </div>
+
+    <div class="qwe__section qwe__section--logo">
+      <label class="qwe__checkbox">
+        <input type="checkbox" id={`${idPrefix}-logo-toggle`} />
+        <span>☐ {logoCheckboxLabel}</span>
+      </label>
+
+      <div class="qwe__logo-slot" id={`${idPrefix}-logo-slot`} hidden>
+        <label class="qwe__upload-slot qwe__upload-slot--small" for={`${idPrefix}-logo-input`} tabindex="0">
+          <span class="qwe__upload-icon" aria-hidden="true">📤</span>
+          <span class="qwe__upload-text">{logoUploadLabel}</span>
+          <span class="qwe__upload-hint">Gambar kecil, maksimal {maxLogoSizeMB} MB</span>
+        </label>
+        <input
+          type="file"
+          accept="image/*"
+          id={`${idPrefix}-logo-input`}
+          class="qwe__file-input"
+          aria-label="Upload logo kecil untuk ditempel di tengah kode QR"
+        />
+        <div class="qwe__logo-preview" id={`${idPrefix}-logo-preview`} hidden>
+          <img class="qwe__logo-preview-img" id={`${idPrefix}-logo-preview-img`} alt="Pratinjau logo" />
+          <span class="qwe__logo-preview-name" id={`${idPrefix}-logo-preview-name`}>&nbsp;</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="qwe__previews" id={`${idPrefix}-previews`} hidden>
+      <div class="qwe__preview-card" id={`${idPrefix}-result-card`} hidden>
+        <span class="qwe__preview-label">Kode QR hasil</span>
+        <img class="qwe__preview-img" id={`${idPrefix}-result-img`} alt="Pratinjau kode QR hasil" />
+        <a class="btn btn-download qwe__download-btn" id={`${idPrefix}-download-btn`} download={downloadFileName}>
+          {downloadLabel}
+        </a>
+      </div>
+    </div>
+
+    <div class="qwe__editor">
+      <div class="qwe__header">
+        <span class="qwe__title">{title}</span>
+        <div class="qwe__buttons">
+          <button type="button" class="btn btn-secondary qwe__reset" id={`${idPrefix}-reset`}>
+            {resetLabel}
+          </button>
+          <button type="button" class="btn btn-primary qwe__run" id={`${idPrefix}-run`}>
+            {runLabel}
+          </button>
+        </div>
+      </div>
+
+      <textarea
+        id={`${idPrefix}-code`}
+        class="qwe__code"
+        style={`min-height: ${minHeight}px;`}
+        spellcheck="false"
+        autocomplete="off"
+        autocapitalize="off"
+        rows={rows}
+        aria-label={codeAriaLabel}>{starterCode}</textarea
+      >
+
+      <div class="qwe__status" id={`${idPrefix}-status`} aria-live="polite">
+        Ketik pesanmu di atas, lalu klik {runLabel}.
+      </div>
+    </div>
+  </div>
+
+  <div class="qwe__confetti" id={`${idPrefix}-confetti`} aria-hidden="true"></div>
+</div>
+
+{notes.map((note) => <p class="qwe__note" set:html={note} />)}
+
+<style>
+  .qwe-wrap {
+    position: relative;
+  }
+
+  .qwe {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .qwe__section {
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .qwe__text-label {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--ink);
+  }
+
+  .qwe__text-input {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-btn);
+    font-family: var(--font-body);
+    font-size: 16px;
+    color: var(--ink);
+  }
+
+  .qwe__text-input:focus {
+    outline: none;
+    border-color: var(--pyto-green);
+  }
+
+  .qwe__text-hint {
+    font-size: 13px;
+    color: var(--slate);
+  }
+
+  .qwe__checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .qwe__checkbox input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--pyto-green);
+  }
+
+  .qwe__logo-slot {
+    margin-top: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .qwe__upload-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 18px 16px;
+    background: var(--cloud);
+    border: 3px dashed var(--border);
+    border-radius: var(--radius-card);
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+  }
+
+  .qwe__upload-slot:hover,
+  .qwe__upload-slot:focus-visible {
+    border-color: var(--pyto-green);
+    background: var(--pyto-green-soft);
+    outline: none;
+  }
+
+  .qwe__upload-icon {
+    font-size: 22px;
+  }
+
+  .qwe__upload-text {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--ink);
+  }
+
+  .qwe__upload-hint {
+    font-size: 12px;
+    color: var(--slate);
+  }
+
+  .qwe__file-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .qwe__logo-preview {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .qwe__logo-preview-img {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid var(--border);
+  }
+
+  .qwe__logo-preview-name {
+    font-size: 13px;
+    color: var(--slate);
+  }
+
+  .qwe__previews {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--cloud);
+  }
+
+  .qwe__preview-card {
+    flex: 1;
+    min-width: 160px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 16px;
+    margin-inline: auto;
+  }
+
+  .qwe__preview-label {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--slate);
+  }
+
+  .qwe__preview-img {
+    max-width: 100%;
+    max-height: 220px;
+    border-radius: 8px;
+    display: none;
+  }
+
+  .qwe__preview-img[src] {
+    display: block;
+  }
+
+  .qwe__download-btn {
+    font-size: 14px;
+    padding: 10px 18px;
+    min-height: 40px;
+  }
+
+  .qwe__editor {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .qwe__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 16px 20px;
+    background: var(--cloud);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .qwe__title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 16px;
+  }
+
+  .qwe__buttons {
+    display: flex;
+    gap: 10px;
+  }
+
+  .qwe__buttons .btn {
+    padding: 10px 18px;
+    font-size: 14px;
+    min-height: 40px;
+  }
+
+  .qwe__run:disabled,
+  .qwe__reset:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .qwe__code {
+    display: block;
+    width: 100%;
+    resize: vertical;
+    border: none;
+    outline: none;
+    background: var(--code-bg);
+    color: var(--code-text);
+    font-family: var(--font-code);
+    font-size: 15px;
+    line-height: 1.7;
+    padding: 20px;
+    tab-size: 4;
+  }
+
+  .qwe__status {
+    padding: 14px 20px 18px;
+    background: var(--white);
+    font-size: 15px;
+    color: var(--slate);
+  }
+
+  .qwe__status.is-loading {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  .qwe__status.is-error {
+    background: var(--box-awas-bg);
+    color: #b3392f;
+    font-weight: 700;
+  }
+
+  .qwe__status.is-note {
+    background: var(--box-tahu-lebih-bg);
+    color: var(--ink);
+  }
+
+  .qwe__confetti {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .qwe__note {
+    margin-top: 16px;
+    color: var(--slate);
+  }
+
+  .qwe__note :global(code) {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (max-width: 600px) {
+    .qwe__header {
+      justify-content: center;
+      text-align: center;
+    }
+
+    .qwe__code {
+      font-size: 14px;
+    }
+  }
+</style>
+
+<script>
+  import {
+    LOADING_MESSAGE,
+    PILLOW_LOADING_MESSAGE,
+    QRCODE_LOADING_MESSAGE,
+    isFirstPyodideLoad,
+    isFirstPillowLoad,
+    isFirstPackageLoad,
+    runQrWorkbench,
+    bytesToBase64,
+    base64ToBytes,
+    friendlyError,
+  } from '../scripts/pyodide-runner.js';
+  import { launchConfetti } from '../scripts/confetti.js';
+
+  document.querySelectorAll('.qwe-wrap').forEach((wrap) => {
+    const idPrefix = wrap.dataset.idPrefix;
+    if (!idPrefix || wrap.dataset.qweWired) return;
+    wrap.dataset.qweWired = 'true';
+
+    const teksVarName = wrap.dataset.teksVar || 'teks_qr';
+    const logoVarName = wrap.dataset.logoVar || 'logo';
+    const outputVarName = wrap.dataset.outputVar || 'hasil';
+    const maxTextLength = Number(wrap.dataset.maxTextLength) || 300;
+    const maxLogoSizeMB = Number(wrap.dataset.maxLogoSizeMb) || 2;
+    const downloadFileName = wrap.dataset.downloadFileName || 'kode-qr-pyto.png';
+    const noResultMessage = wrap.dataset.noResultMessage || 'Belum ada hasil untuk ditampilkan.';
+
+    const textInput = document.getElementById(`${idPrefix}-text-input`);
+    const logoToggle = document.getElementById(`${idPrefix}-logo-toggle`);
+    const logoSlot = document.getElementById(`${idPrefix}-logo-slot`);
+    const logoInput = document.getElementById(`${idPrefix}-logo-input`);
+    const logoPreview = document.getElementById(`${idPrefix}-logo-preview`);
+    const logoPreviewImg = document.getElementById(`${idPrefix}-logo-preview-img`);
+    const logoPreviewName = document.getElementById(`${idPrefix}-logo-preview-name`);
+    const previews = document.getElementById(`${idPrefix}-previews`);
+    const resultCard = document.getElementById(`${idPrefix}-result-card`);
+    const resultImg = document.getElementById(`${idPrefix}-result-img`);
+    const downloadBtn = document.getElementById(`${idPrefix}-download-btn`);
+    const codeEl = document.getElementById(`${idPrefix}-code`);
+    const runBtn = document.getElementById(`${idPrefix}-run`);
+    const resetBtn = document.getElementById(`${idPrefix}-reset`);
+    const statusEl = document.getElementById(`${idPrefix}-status`);
+    const confettiEl = document.getElementById(`${idPrefix}-confetti`);
+
+    const STARTER_CODE = codeEl ? codeEl.value : '';
+    let pendingLogoBase64 = null;
+    let confettiFired = false;
+
+    const setStatus = (text, kind) => {
+      if (!statusEl) return;
+      statusEl.textContent = text;
+      statusEl.classList.toggle('is-loading', kind === 'loading');
+      statusEl.classList.toggle('is-error', kind === 'error');
+      statusEl.classList.toggle('is-note', kind === 'note');
+    };
+
+    logoToggle?.addEventListener('change', () => {
+      if (logoSlot) logoSlot.hidden = !logoToggle.checked;
+    });
+
+    logoInput?.addEventListener('change', async () => {
+      const file = logoInput.files?.[0];
+      if (!file) return;
+
+      if (file.size > maxLogoSizeMB * 1024 * 1024) {
+        setStatus(
+          `Ukuran logonya kelewat besar (maksimal ${maxLogoSizeMB} MB) — coba pilih gambar lain, ya.`,
+          'error'
+        );
+        logoInput.value = '';
+        return;
+      }
+
+      const buffer = await file.arrayBuffer();
+      pendingLogoBase64 = bytesToBase64(new Uint8Array(buffer));
+
+      if (logoPreviewImg) logoPreviewImg.src = URL.createObjectURL(file);
+      if (logoPreviewName) logoPreviewName.textContent = file.name;
+      if (logoPreview) logoPreview.hidden = false;
+    });
+
+    runBtn?.addEventListener('click', async () => {
+      if (!codeEl || !runBtn || !textInput) return;
+
+      const teksValue = textInput.value;
+      if (teksValue.length > maxTextLength) {
+        setStatus(
+          `Teksnya kepanjangan (maksimal ${maxTextLength} karakter) — coba dipersingkat dulu, ya.`,
+          'error'
+        );
+        return;
+      }
+
+      const code = codeEl.value;
+      const useLogo = Boolean(logoToggle?.checked) && Boolean(pendingLogoBase64);
+
+      runBtn.disabled = true;
+      if (resetBtn) resetBtn.disabled = true;
+
+      if (isFirstPyodideLoad()) {
+        setStatus(LOADING_MESSAGE, 'loading');
+      } else if (isFirstPillowLoad()) {
+        setStatus(PILLOW_LOADING_MESSAGE, 'loading');
+      } else if (isFirstPackageLoad('qrcode')) {
+        setStatus(QRCODE_LOADING_MESSAGE, 'loading');
+      } else {
+        setStatus('Menjalankan...', 'loading');
+      }
+
+      try {
+        const { resultBase64 } = await runQrWorkbench(code, teksValue, {
+          teksVarName,
+          logoFileBase64: useLogo ? pendingLogoBase64 : null,
+          logoVarName,
+          outputVarName,
+        });
+
+        if (!resultBase64) {
+          if (previews) previews.hidden = true;
+          if (resultCard) resultCard.hidden = true;
+          setStatus(noResultMessage, 'note');
+        } else {
+          const bytes = base64ToBytes(resultBase64);
+          const blob = new Blob([bytes], { type: 'image/png' });
+          const url = URL.createObjectURL(blob);
+
+          if (resultImg) resultImg.src = url;
+          if (previews) previews.hidden = false;
+          if (resultCard) resultCard.hidden = false;
+          if (downloadBtn) {
+            downloadBtn.href = url;
+            downloadBtn.setAttribute('download', downloadFileName);
+          }
+          setStatus('✅ Kode QR berhasil dibuat!', null);
+
+          if (!confettiFired) {
+            confettiFired = true;
+            launchConfetti(confettiEl);
+          }
+        }
+      } catch (err) {
+        setStatus(`⚠️ ${friendlyError(err)}`, 'error');
+      } finally {
+        runBtn.disabled = false;
+        if (resetBtn) resetBtn.disabled = false;
+      }
+    });
+
+    resetBtn?.addEventListener('click', () => {
+      if (!codeEl) return;
+      codeEl.value = STARTER_CODE;
+      setStatus(`Kode dikembalikan seperti semula. Klik "${runBtn?.textContent?.trim() ?? '▶ Jalankan'}" untuk mencoba lagi.`, null);
+    });
+  });
+</script>

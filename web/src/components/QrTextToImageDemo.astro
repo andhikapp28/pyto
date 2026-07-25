@@ -1,0 +1,230 @@
+---
+// Animasi #2 (plan/bab-14-animasi.md) — Centerpiece 1: teks "Halo, aku Pyto!"
+// muncul di gelembung ketikan, lalu "tertarik masuk" ke kotak kosong,
+// kotak-kotak hitam kecil muncul satu-satu membentuk pola QR. Komponen
+// ilustrasi statis (teks contoh generik, bukan input pembaca sungguhan) —
+// input pembaca sungguhan tampil di QrCodeWorkbenchEditor bagian "Coba
+// Sendiri". Sekali jalan saat terlihat, boleh diulang lewat hover/klik/fokus.
+---
+
+<div
+  class="qti-demo"
+  data-anim="qti-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi teks berubah jadi kode QR"
+>
+  <div class="qti-demo__code">
+    <div class="qti-demo__line"><span class="tok-p">import</span> qrcode</div>
+    <div class="qti-demo__line">&nbsp;</div>
+    <div class="qti-demo__line">
+      <span class="tok-var">pesan</span> = <span class="tok-str">&quot;Halo, aku Pyto!&quot;</span>
+    </div>
+    <div class="qti-demo__line">
+      <span class="tok-var">kode_qr</span> = qrcode.<span class="qti-demo__glow tok-fn">make</span>(pesan)
+    </div>
+  </div>
+
+  <div class="qti-demo__stage">
+    <div class="qti-demo__bubble">Halo, aku Pyto!</div>
+    <span class="qti-demo__arrow" aria-hidden="true">↓</span>
+    <div class="qti-demo__qr" aria-hidden="true">
+      {Array.from({ length: 36 }).map((_, i) => <span class="qti-demo__cell" style={`--d:${i}`} />)}
+    </div>
+  </div>
+</div>
+
+<p class="qti-demo__hint">
+  💡 <code>qrcode.make(pesan)</code> mengubah teks apa saja jadi gambar kotak-kotak QR.
+  <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .qti-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 22px 24px;
+    cursor: pointer;
+  }
+
+  .qti-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 16px 18px;
+    font-family: var(--font-code);
+    font-size: 13px;
+    line-height: 1.85;
+    color: var(--code-text);
+    overflow-x: auto;
+  }
+
+  .qti-demo__line {
+    white-space: pre;
+  }
+
+  .tok-p {
+    color: var(--code-purple);
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .qti-demo__glow {
+    border-radius: 4px;
+  }
+
+  .qti-demo.is-in .qti-demo__glow {
+    animation: qti-demo-glow 0.6s ease 1.2s;
+  }
+
+  @keyframes qti-demo-glow {
+    0%,
+    100% {
+      background: transparent;
+    }
+    40% {
+      background: rgba(97, 175, 239, 0.28);
+    }
+  }
+
+  .qti-demo__stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .qti-demo__bubble {
+    background: var(--pyto-green-soft);
+    border: 1px solid var(--pyto-green);
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-family: var(--font-code);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--pyto-green-dark);
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  .qti-demo.is-in .qti-demo__bubble {
+    animation: qti-demo-bubble-in 0.4s ease forwards, qti-demo-bubble-move 0.4s ease 0.6s forwards;
+  }
+
+  @keyframes qti-demo-bubble-in {
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes qti-demo-bubble-move {
+    to {
+      transform: translateY(4px) scale(0.85);
+      opacity: 0.6;
+    }
+  }
+
+  .qti-demo__arrow {
+    font-size: 18px;
+    color: var(--slate);
+  }
+
+  .qti-demo__qr {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 3px;
+    width: 96px;
+    height: 96px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px;
+  }
+
+  .qti-demo__cell {
+    background: var(--ink);
+    opacity: 0;
+    border-radius: 1px;
+  }
+
+  .qti-demo.is-in .qti-demo__cell {
+    animation: qti-demo-cell-in 0.2s ease forwards;
+    animation-delay: calc(1s + var(--d) * 0.025s);
+  }
+
+  @keyframes qti-demo-cell-in {
+    to {
+      opacity: var(--cell-opacity, 1);
+    }
+  }
+
+  .qti-demo__cell:nth-child(4n) {
+    --cell-opacity: 0;
+  }
+
+  .qti-demo__cell:nth-child(7n + 3) {
+    --cell-opacity: 0;
+  }
+
+  .qti-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  .qti-demo__hint code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .qti-demo__glow,
+    .qti-demo__bubble,
+    .qti-demo__cell {
+      animation: none !important;
+    }
+
+    .qti-demo__bubble {
+      opacity: 1;
+      transform: none;
+    }
+
+    .qti-demo__cell {
+      opacity: var(--cell-opacity, 1);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .qti-demo__code {
+      font-size: 12px;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="qti-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

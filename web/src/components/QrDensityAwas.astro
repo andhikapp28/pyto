@@ -1,0 +1,222 @@
+---
+// Animasi #5 (plan/bab-14-animasi.md): kiri kode_qr_pendek pola longgar &
+// rapi, HP memindainya sekali gerakan cepat lalu langsung ✅. Kanan
+// kode_qr_panjang pola jauh lebih rapat/padat, HP mencoba memindai
+// berkali-kali sebelum muncul "❓" (gagal terbaca, mulus bukan menakutkan).
+// Dipakai di dalam <KotakAwas>. Sekali jalan saat terlihat, boleh diulang
+// lewat hover/klik/fokus.
+---
+
+<div
+  class="qda-demo"
+  data-anim="qda-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi kode QR pendek gampang dipindai vs kode QR panjang susah dipindai"
+>
+  <div class="qda-demo__code">
+    <div class="qda-demo__line">
+      <span class="tok-var">kode_qr_pendek</span> = qrcode.<span class="tok-fn">make</span>(teks_pendek)
+    </div>
+    <div class="qda-demo__line">
+      <span class="tok-var">kode_qr_panjang</span> = qrcode.<span class="tok-fn">make</span>(teks_panjang)
+    </div>
+  </div>
+
+  <div class="qda-demo__cols">
+    <div class="qda-demo__col">
+      <span class="qda-demo__label qda-demo__label--good">✓ Teks pendek</span>
+      <div class="qda-demo__qr qda-demo__qr--loose" aria-hidden="true">
+        {Array.from({ length: 16 }).map((_, i) => <span class="qda-demo__cell" style={`--d:${i}`} />)}
+      </div>
+      <span class="qda-demo__result qda-demo__result--good" aria-hidden="true">✅</span>
+      <span class="qda-demo__caption">Longgar &amp; rapi — gampang dipindai</span>
+    </div>
+
+    <div class="qda-demo__col">
+      <span class="qda-demo__label qda-demo__label--bad">✗ Teks kepanjangan</span>
+      <div class="qda-demo__qr qda-demo__qr--dense" aria-hidden="true">
+        {Array.from({ length: 64 }).map((_, i) => <span class="qda-demo__cell" style={`--d:${i}`} />)}
+      </div>
+      <span class="qda-demo__result qda-demo__result--bad" aria-hidden="true">❓</span>
+      <span class="qda-demo__caption">Padat &amp; rumit — berisiko gagal dipindai</span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .qda-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    cursor: pointer;
+  }
+
+  .qda-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 14px 16px;
+    font-family: var(--font-code);
+    font-size: 12px;
+    line-height: 1.75;
+    color: var(--code-text);
+    overflow-x: auto;
+  }
+
+  .qda-demo__line {
+    white-space: pre;
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .qda-demo__cols {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .qda-demo__col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .qda-demo__label {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  .qda-demo__label--good {
+    color: var(--pyto-green-dark);
+  }
+
+  .qda-demo__label--bad {
+    color: var(--coral);
+  }
+
+  .qda-demo__qr {
+    display: grid;
+    gap: 2px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px;
+  }
+
+  .qda-demo__qr--loose {
+    grid-template-columns: repeat(4, 1fr);
+    width: 64px;
+    height: 64px;
+  }
+
+  .qda-demo__qr--dense {
+    grid-template-columns: repeat(8, 1fr);
+    width: 64px;
+    height: 64px;
+  }
+
+  .qda-demo__cell {
+    background: var(--ink);
+    opacity: 0;
+    border-radius: 1px;
+  }
+
+  .qda-demo.is-in .qda-demo__qr--loose .qda-demo__cell {
+    animation: qda-demo-cell-in 0.15s ease forwards;
+    animation-delay: calc(0.2s + var(--d) * 0.03s);
+  }
+
+  .qda-demo.is-in .qda-demo__qr--dense .qda-demo__cell {
+    animation: qda-demo-cell-in 0.08s ease forwards;
+    animation-delay: calc(1s + var(--d) * 0.015s);
+  }
+
+  @keyframes qda-demo-cell-in {
+    to {
+      opacity: var(--cell-opacity, 1);
+    }
+  }
+
+  .qda-demo__qr--loose .qda-demo__cell:nth-child(3n) {
+    --cell-opacity: 0;
+  }
+
+  .qda-demo__qr--dense .qda-demo__cell:nth-child(5n + 1) {
+    --cell-opacity: 0;
+  }
+
+  .qda-demo__result {
+    font-size: 20px;
+    opacity: 0;
+    transform: scale(0.6);
+  }
+
+  .qda-demo.is-in .qda-demo__result--good {
+    animation: qda-demo-result-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.7s forwards;
+  }
+
+  .qda-demo.is-in .qda-demo__result--bad {
+    animation: qda-demo-shake 0.6s ease 1.7s, qda-demo-result-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 2.3s forwards;
+  }
+
+  @keyframes qda-demo-result-in {
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes qda-demo-shake {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-3px);
+    }
+    75% {
+      transform: translateX(3px);
+    }
+  }
+
+  .qda-demo__caption {
+    font-size: 12px;
+    color: var(--ink);
+    text-align: center;
+    max-width: 140px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .qda-demo__cell,
+    .qda-demo__result {
+      animation: none !important;
+      opacity: var(--cell-opacity, 1);
+    }
+
+    .qda-demo__result {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="qda-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

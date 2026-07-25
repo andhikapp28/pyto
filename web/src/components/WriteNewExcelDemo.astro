@@ -1,0 +1,231 @@
+---
+// Animasi #5 (plan/bab-15-animasi.md): lembar Excel baru kosong muncul di
+// kanan. Baris judul kolom "menempel" masuk lebih dulu, lalu keranjang
+// "Barang Laris" (echo beat #4) mengalir satu-satu ke lembar baru itu, tiap
+// lemari berubah balik jadi satu baris tabel rapi. Komponen ilustrasi
+// statis. Sekali jalan saat terlihat, boleh diulang lewat hover/klik/fokus.
+---
+
+<div
+  class="wne-demo"
+  data-anim="wne-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi menulis hasil olahan jadi file Excel baru"
+>
+  <div class="wne-demo__code">
+    <div class="wne-demo__line">
+      <span class="tok-var">buku_baru</span> = openpyxl.<span class="tok-fn">Workbook</span>()
+    </div>
+    <div class="wne-demo__line">
+      sheet_baru.<span class="wne-demo__glow tok-fn">append</span>([nama, jumlah, harga, total])
+    </div>
+  </div>
+
+  <div class="wne-demo__stage">
+    <div class="wne-demo__basket" aria-hidden="true">
+      <span>🧺</span>
+      <span class="wne-demo__cabinet">🗂️</span>
+    </div>
+
+    <span class="wne-demo__arrow" aria-hidden="true">→</span>
+
+    <div class="wne-demo__sheet">
+      <div class="wne-demo__row wne-demo__row--header">
+        <span>Nama</span><span>Jumlah</span><span>Harga</span><span>Total</span>
+      </div>
+      <div class="wne-demo__row wne-demo__row--data">
+        <span>Kopi Sachet</span><span>120</span><span>2500</span><span>300000</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="wne-demo__hint">
+  💡 <code>.append([...])</code> menambah satu baris — judul kolom dulu, lalu satu baris per
+  barang laris. <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .wne-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 22px 24px;
+    cursor: pointer;
+  }
+
+  .wne-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 16px 18px;
+    font-family: var(--font-code);
+    font-size: 13px;
+    line-height: 1.85;
+    color: var(--code-text);
+    overflow-x: auto;
+  }
+
+  .wne-demo__line {
+    white-space: pre;
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .wne-demo__glow {
+    border-radius: 4px;
+  }
+
+  .wne-demo.is-in .wne-demo__glow {
+    animation: wne-demo-glow 0.6s ease 0.1s;
+  }
+
+  @keyframes wne-demo-glow {
+    0%,
+    100% {
+      background: transparent;
+    }
+    40% {
+      background: rgba(97, 175, 239, 0.28);
+    }
+  }
+
+  .wne-demo__stage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .wne-demo__basket {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+  }
+
+  .wne-demo__cabinet {
+    position: absolute;
+    font-size: 18px;
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+
+  .wne-demo.is-in .wne-demo__cabinet {
+    animation: wne-demo-fly 1s ease 0.8s forwards;
+  }
+
+  @keyframes wne-demo-fly {
+    to {
+      opacity: 0;
+      transform: translate(60px, -6px) scale(0.7);
+    }
+  }
+
+  .wne-demo__arrow {
+    font-size: 18px;
+    color: var(--slate);
+  }
+
+  .wne-demo__sheet {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px;
+  }
+
+  .wne-demo__row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    font-family: var(--font-code);
+    font-size: 9px;
+    color: var(--ink);
+    padding: 2px 4px;
+    opacity: 0;
+    transform: translateX(10px);
+  }
+
+  .wne-demo__row--header {
+    background: var(--cloud);
+    font-weight: 700;
+    border-radius: 3px;
+  }
+
+  .wne-demo.is-in .wne-demo__row--header {
+    animation: wne-demo-row-in 0.4s ease 0.4s forwards;
+  }
+
+  .wne-demo.is-in .wne-demo__row--data {
+    animation: wne-demo-row-in 0.4s ease 1.4s forwards;
+  }
+
+  @keyframes wne-demo-row-in {
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .wne-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  .wne-demo__hint code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wne-demo__glow,
+    .wne-demo__cabinet,
+    .wne-demo__row {
+      animation: none !important;
+    }
+
+    .wne-demo__cabinet {
+      opacity: 0;
+    }
+
+    .wne-demo__row {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .wne-demo__code {
+      font-size: 12px;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="wne-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

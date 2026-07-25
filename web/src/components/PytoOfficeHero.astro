@@ -1,0 +1,249 @@
+---
+// Animasi #1 (plan/bab-15-animasi.md): Pyto memakai kacamata baca kecil dan
+// dasi kupu-kupu mini, berdiri di depan meja kerja dengan tumpukan kertas
+// Excel berantakan. Slot bertanda 📊 berkedip di sisi meja — begitu ikon
+// file Excel kecil "masuk" ke slot, tumpukan kertas berantakan "menata diri"
+// jadi rapi berbaris, dan Pyto mengacungkan jempol puas. Main langsung
+// begitu halaman terbuka. Idle: slot upload berkedip pelan.
+import PytoMascotWave from './PytoMascotWave.astro';
+---
+
+<div class="ohero" data-anim="ohero">
+  <div class="ohero__desk">
+    <span class="ohero__signboard">Meja Kerja Pyto 📊</span>
+    <div class="ohero__papers" aria-hidden="true">
+      <span class="ohero__paper ohero__paper--1"></span>
+      <span class="ohero__paper ohero__paper--2"></span>
+      <span class="ohero__paper ohero__paper--3"></span>
+    </div>
+    <div class="ohero__slot">
+      <span class="ohero__slot-icon" aria-hidden="true">📊</span>
+      <span class="ohero__file" aria-hidden="true">📄</span>
+    </div>
+  </div>
+
+  <div class="ohero__mascot-wrap">
+    <span class="ohero__glasses" aria-hidden="true">👓</span>
+    <PytoMascotWave size={140} />
+    <span class="ohero__thumb" aria-hidden="true">👍</span>
+  </div>
+
+  <span class="ohero__sr">
+    Pyto memakai kacamata baca, berdiri di depan meja kerja dengan kertas Excel berantakan — sebuah
+    file Excel masuk ke slot upload, kertas-kertas di meja langsung menata diri jadi rapi, dan Pyto
+    mengacungkan jempol.
+  </span>
+</div>
+
+<style>
+  .ohero {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 22px;
+    flex-wrap: wrap;
+  }
+
+  .ohero__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .ohero__desk {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .ohero__signboard {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 12px;
+    background: var(--sunny-yellow);
+    color: var(--ink);
+    padding: 4px 12px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .ohero__papers {
+    position: relative;
+    width: 84px;
+    height: 40px;
+  }
+
+  .ohero__paper {
+    position: absolute;
+    bottom: 0;
+    width: 30px;
+    height: 22px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+  }
+
+  .ohero__paper--1 {
+    left: 0;
+    transform: rotate(-12deg);
+  }
+
+  .ohero__paper--2 {
+    left: 26px;
+    transform: rotate(8deg) translateY(-2px);
+  }
+
+  .ohero__paper--3 {
+    left: 52px;
+    transform: rotate(-4deg) translateY(1px);
+  }
+
+  .ohero.is-in .ohero__paper {
+    animation: ohero-tidy 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 1.4s forwards;
+  }
+
+  .ohero.is-in .ohero__paper--2 {
+    animation-delay: 1.5s;
+  }
+
+  .ohero.is-in .ohero__paper--3 {
+    animation-delay: 1.6s;
+  }
+
+  @keyframes ohero-tidy {
+    to {
+      transform: rotate(0deg) translateY(0);
+    }
+  }
+
+  .ohero__slot {
+    position: relative;
+    width: 84px;
+    height: 60px;
+    border-radius: 12px;
+    background: var(--cloud);
+    border: 3px dashed var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .ohero.is-in .ohero__slot {
+    animation: ohero-slot-flash 3.4s ease-in-out 2.4s infinite;
+  }
+
+  @keyframes ohero-slot-flash {
+    0%,
+    85%,
+    100% {
+      border-color: var(--border);
+    }
+    92% {
+      border-color: var(--pyto-green);
+    }
+  }
+
+  .ohero__slot-icon {
+    position: absolute;
+    font-size: 22px;
+  }
+
+  .ohero.is-in .ohero__slot-icon {
+    animation: ohero-icon-out 0.5s ease 0.9s forwards;
+  }
+
+  @keyframes ohero-icon-out {
+    to {
+      opacity: 0;
+      transform: scale(0.6);
+    }
+  }
+
+  .ohero__file {
+    position: absolute;
+    font-size: 26px;
+    opacity: 0;
+    transform: translateY(-30px) scale(1.2);
+  }
+
+  .ohero.is-in .ohero__file {
+    animation: ohero-file-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.8s forwards;
+  }
+
+  @keyframes ohero-file-in {
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .ohero__mascot-wrap {
+    position: relative;
+  }
+
+  .ohero__glasses {
+    position: absolute;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 22px;
+    z-index: 1;
+  }
+
+  .ohero__thumb {
+    position: absolute;
+    bottom: 30px;
+    right: -8px;
+    font-size: 20px;
+    opacity: 0;
+    transform: scale(0.6);
+  }
+
+  .ohero.is-in .ohero__thumb {
+    animation: ohero-thumb-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 2s forwards;
+  }
+
+  @keyframes ohero-thumb-in {
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ohero__paper,
+    .ohero__slot,
+    .ohero__slot-icon,
+    .ohero__file,
+    .ohero__thumb {
+      animation: none !important;
+    }
+
+    .ohero__paper {
+      transform: rotate(0deg) translateY(0);
+    }
+
+    .ohero__slot-icon {
+      opacity: 0;
+    }
+
+    .ohero__file,
+    .ohero__thumb {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll('[data-anim="ohero"]').forEach((el) => {
+    setTimeout(() => el.classList.add('is-in'), 200);
+  });
+</script>

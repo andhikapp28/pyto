@@ -1,0 +1,284 @@
+---
+// Animasi #4 (plan/bab-15-animasi.md): keranjang berisi lemari-lemari mini
+// (echo beat #2) ditampilkan berjejer. Sebuah kalkulator kecil "mengetuk"
+// tiap lemari — laci jumlah & harga menyala, kalkulator menampilkan hasil
+// kali, lalu laci baru "total" muncul menempel di lemari itu. Yang lolos
+// ambang batas "melompat" ke keranjang baru "Barang Laris". Komponen
+// ilustrasi statis. Sekali jalan saat terlihat, boleh diulang lewat
+// hover/klik/fokus.
+---
+
+<div
+  class="fas-demo"
+  data-anim="fas-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi menjumlahkan dan memfilter barang laris"
+>
+  <div class="fas-demo__code">
+    <div class="fas-demo__line">
+      <span class="tok-var">total</span> = barang[<span class="tok-str">&quot;jumlah&quot;</span>] * barang[<span
+        class="tok-str">&quot;harga&quot;</span
+      >]
+    </div>
+    <div class="fas-demo__line">
+      <span class="tok-kw">if</span> total &gt;= 100000: barang_laris.<span class="tok-fn">append</span>(barang)
+    </div>
+  </div>
+
+  <div class="fas-demo__stage">
+    <span class="fas-demo__calc" aria-hidden="true">🧮</span>
+
+    <div class="fas-demo__cabinet fas-demo__cabinet--laris">
+      <span aria-hidden="true">🗂️</span>
+      <span class="fas-demo__badge">total ✓</span>
+    </div>
+
+    <div class="fas-demo__cabinet fas-demo__cabinet--sisa">
+      <span aria-hidden="true">🗂️</span>
+      <span class="fas-demo__badge fas-demo__badge--muted">total</span>
+    </div>
+
+    <span class="fas-demo__arrow" aria-hidden="true">→</span>
+
+    <div class="fas-demo__basket" aria-hidden="true">
+      <span aria-hidden="true">🧺</span>
+      <span class="fas-demo__basket-label">Barang Laris</span>
+    </div>
+  </div>
+</div>
+
+<p class="fas-demo__hint">
+  💡 Yang totalnya lolos ambang batas "melompat" ke keranjang <code>barang_laris</code>, yang tidak
+  lolos tetap tinggal. <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .fas-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 22px 24px;
+    cursor: pointer;
+  }
+
+  .fas-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 16px 18px;
+    font-family: var(--font-code);
+    font-size: 13px;
+    line-height: 1.85;
+    color: var(--code-text);
+    overflow-x: auto;
+  }
+
+  .fas-demo__line {
+    white-space: pre;
+  }
+
+  .tok-var {
+    color: var(--code-red);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .tok-kw {
+    color: var(--code-purple);
+  }
+
+  .fas-demo__stage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .fas-demo__calc {
+    font-size: 26px;
+    opacity: 0;
+    transform: scale(0.7);
+  }
+
+  .fas-demo.is-in .fas-demo__calc {
+    animation: fas-demo-calc-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s forwards;
+  }
+
+  @keyframes fas-demo-calc-in {
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .fas-demo__cabinet {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    font-size: 24px;
+  }
+
+  .fas-demo__badge {
+    font-family: var(--font-code);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--pyto-green-dark);
+    background: var(--pyto-green-soft);
+    border-radius: 999px;
+    padding: 2px 8px;
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  .fas-demo__badge--muted {
+    color: var(--slate);
+    background: var(--cloud);
+  }
+
+  .fas-demo.is-in .fas-demo__badge {
+    animation: fas-demo-badge-in 0.3s ease 0.8s forwards;
+  }
+
+  @keyframes fas-demo-badge-in {
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .fas-demo__cabinet--laris {
+    opacity: 0;
+    transform: translateX(0);
+  }
+
+  .fas-demo.is-in .fas-demo__cabinet--laris {
+    animation: fas-demo-cabinet-in 0.4s ease 0.6s forwards, fas-demo-jump 0.5s ease 1.4s;
+  }
+
+  @keyframes fas-demo-cabinet-in {
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fas-demo-jump {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .fas-demo__cabinet--sisa {
+    opacity: 0.5;
+  }
+
+  .fas-demo.is-in .fas-demo__cabinet--sisa {
+    animation: fas-demo-fade-in 0.4s ease 1s forwards;
+  }
+
+  @keyframes fas-demo-fade-in {
+    to {
+      opacity: 0.5;
+    }
+  }
+
+  .fas-demo__arrow {
+    font-size: 18px;
+    color: var(--slate);
+    opacity: 0;
+  }
+
+  .fas-demo.is-in .fas-demo__arrow {
+    animation: fas-demo-badge-in 0.3s ease 1.6s forwards;
+  }
+
+  .fas-demo__basket {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    font-size: 24px;
+  }
+
+  .fas-demo__basket-label {
+    font-family: var(--font-code);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .fas-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  .fas-demo__hint code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fas-demo__calc,
+    .fas-demo__badge,
+    .fas-demo__cabinet--laris,
+    .fas-demo__cabinet--sisa,
+    .fas-demo__arrow {
+      animation: none !important;
+    }
+
+    .fas-demo__calc {
+      opacity: 1;
+      transform: none;
+    }
+
+    .fas-demo__badge,
+    .fas-demo__arrow {
+      opacity: 1;
+      transform: none;
+    }
+
+    .fas-demo__cabinet--laris {
+      opacity: 1;
+    }
+
+    .fas-demo__cabinet--sisa {
+      opacity: 0.5;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .fas-demo__code {
+      font-size: 12px;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="fas-demo"]');
+
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

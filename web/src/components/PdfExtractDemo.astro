@@ -1,0 +1,45 @@
+---
+// Kotak "Tahu Lebih" — Ekstrak Teks dari File PDF (plan/design/bab-15-desain.md
+// bagian 4: "Kotak Tahu Lebih PDF — kebutuhan bridge yang lebih ringan").
+// Dibuat INTERAKTIF (bukan cuma ilustrasi statis) lewat FileWorkbenchEditor
+// dengan outputKind="none" — pembaca sungguhan bisa upload file PDF sendiri,
+// dan paket pypdf baru dipasang lewat micropip TEPAT saat kotak ini pertama
+// kali dijalankan (lazy-load), bukan dipaksa di awal buka halaman.
+import FileWorkbenchEditor from './FileWorkbenchEditor.astro';
+import { PYPDF_LOADING_MESSAGE } from '../scripts/pyodide-runner.js';
+---
+
+<FileWorkbenchEditor
+  idPrefix="bab15pdf"
+  title="🐍 baca_pdf.py"
+  runLabel="▶ Jalankan"
+  codeAriaLabel="Kotak kode ekstrak teks PDF"
+  rows={8}
+  minHeight={150}
+  uploadLabel="Klik atau seret file PDF ke sini"
+  uploadHint="maksimal 5 MB"
+  changeLabel="Ganti File"
+  uploadIcon="📄"
+  acceptAttr=".pdf"
+  maxFileSizeMB={5}
+  inputVarName="berkas_pdf"
+  outputVarName="hasil"
+  outputKind="none"
+  consoleLabel="Hasil (print):"
+  packageName="pypdf"
+  packageLoadingMessage={PYPDF_LOADING_MESSAGE}
+  starterCode={`import pypdf
+
+# 'berkas_pdf' sudah otomatis terisi dari file PDF yang kamu upload di atas.
+pembaca = pypdf.PdfReader(berkas_pdf)
+
+teks_semua = ""
+for halaman in pembaca.pages:
+    teks_semua += halaman.extract_text()
+
+print(teks_semua[:500])
+`}
+  notes={[
+    'ℹ️ Ini cuma berhasil kalau PDF-nya berisi teks digital asli (mis. diekspor dari Word/Excel) — kalau hasil scan foto/kertas, teksnya bisa kosong (itu topik terpisah namanya OCR, di luar bab ini).',
+  ]}
+/>

@@ -1,0 +1,299 @@
+---
+// Animasi #1 (plan/bab-14-animasi.md): Pyto berdiri di depan mesin cetak
+// kecil bergaya kios, papan nama "Kios QR Pyto 📱". Gelembung ketikan
+// "Halo!" masuk ke mesin, mesin berkedip, lalu keluar kertas kecil bermotif
+// kotak-kotak QR. Sebuah HP kecil memindainya dan menampilkan centang ✅ +
+// teks "Halo!" — menutup lingkaran digital-ke-fisik-ke-digital. Main
+// langsung begitu halaman terbuka. Idle: mesin kios berkedip pelan.
+import PytoMascotWave from './PytoMascotWave.astro';
+---
+
+<div class="qhero" data-anim="qhero">
+  <div class="qhero__kiosk">
+    <span class="qhero__signboard">Kios QR Pyto 📱</span>
+    <div class="qhero__bubble" aria-hidden="true">Halo!</div>
+    <div class="qhero__machine">
+      <span class="qhero__slit" aria-hidden="true"></span>
+      <div class="qhero__qr" aria-hidden="true">
+        {Array.from({ length: 25 }).map((_, i) => <span class="qhero__cell" style={`--d:${i}`} />)}
+      </div>
+    </div>
+  </div>
+
+  <div class="qhero__phone" aria-hidden="true">
+    <span class="qhero__phone-screen">
+      <span class="qhero__check">✅</span>
+      <span class="qhero__phone-text">Halo!</span>
+    </span>
+  </div>
+
+  <PytoMascotWave size={140} />
+
+  <span class="qhero__sr">
+    Pyto berdiri di depan kios cetak QR — teks "Halo!" masuk ke mesin, keluar selembar kode QR
+    kecil, lalu sebuah HP memindainya dan menampilkan tanda centang bersama teks "Halo!".
+  </span>
+</div>
+
+<style>
+  .qhero {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 22px;
+    flex-wrap: wrap;
+  }
+
+  .qhero__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .qhero__kiosk {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .qhero__signboard {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 12px;
+    background: var(--sunny-yellow);
+    color: var(--ink);
+    padding: 4px 12px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .qhero__bubble {
+    position: absolute;
+    top: -14px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-family: var(--font-code);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink);
+    box-shadow: var(--shadow-soft);
+    opacity: 0;
+  }
+
+  .qhero.is-in .qhero__bubble {
+    animation: qhero-bubble-in 0.4s ease 0.1s forwards, qhero-bubble-out 0.3s ease 1s forwards;
+  }
+
+  @keyframes qhero-bubble-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes qhero-bubble-out {
+    to {
+      opacity: 0;
+      transform: translateY(-10px) scale(0.7);
+    }
+  }
+
+  .qhero__machine {
+    position: relative;
+    width: 92px;
+    height: 76px;
+    border-radius: 12px;
+    background: var(--cloud);
+    border: 3px dashed var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .qhero.is-in .qhero__machine {
+    animation: qhero-flash 3.4s ease-in-out 2.6s infinite;
+  }
+
+  @keyframes qhero-flash {
+    0%,
+    85%,
+    100% {
+      border-color: var(--border);
+    }
+    92% {
+      border-color: var(--pyto-green);
+    }
+  }
+
+  .qhero__slit {
+    position: absolute;
+    top: 6px;
+    width: 60%;
+    height: 4px;
+    background: var(--ink);
+    opacity: 0.15;
+    border-radius: 2px;
+  }
+
+  .qhero__qr {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 2px;
+    width: 56px;
+    height: 56px;
+    background: #fff;
+    border-radius: 4px;
+    padding: 4px;
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  .qhero.is-in .qhero__qr {
+    animation: qhero-qr-in 0.3s ease 1.3s forwards;
+  }
+
+  @keyframes qhero-qr-in {
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .qhero__cell {
+    background: var(--ink);
+    opacity: 0;
+    border-radius: 1px;
+  }
+
+  .qhero.is-in .qhero__cell {
+    animation: qhero-cell-in 0.2s ease forwards;
+    animation-delay: calc(1.4s + var(--d) * 0.02s);
+  }
+
+  @keyframes qhero-cell-in {
+    to {
+      opacity: var(--cell-opacity, 1);
+    }
+  }
+
+  .qhero__cell:nth-child(3n) {
+    --cell-opacity: 0;
+  }
+
+  .qhero__cell:nth-child(5n + 2) {
+    --cell-opacity: 0;
+  }
+
+  .qhero__phone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 100px;
+    border: 3px solid var(--ink);
+    border-radius: 14px;
+    background: var(--white);
+    opacity: 0;
+    transform: translateX(20px);
+  }
+
+  .qhero.is-in .qhero__phone {
+    animation: qhero-phone-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 2s forwards;
+  }
+
+  @keyframes qhero-phone-in {
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .qhero__phone-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .qhero__check {
+    font-size: 18px;
+    opacity: 0;
+    transform: scale(0.6);
+  }
+
+  .qhero.is-in .qhero__check {
+    animation: qhero-check-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 2.4s forwards;
+  }
+
+  @keyframes qhero-check-in {
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .qhero__phone-text {
+    font-family: var(--font-code);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--pyto-green-dark);
+    opacity: 0;
+  }
+
+  .qhero.is-in .qhero__phone-text {
+    animation: qhero-fade-in 0.3s ease 2.6s forwards;
+  }
+
+  @keyframes qhero-fade-in {
+    to {
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .qhero__bubble,
+    .qhero__machine,
+    .qhero__qr,
+    .qhero__cell,
+    .qhero__phone,
+    .qhero__check,
+    .qhero__phone-text {
+      animation: none !important;
+    }
+
+    .qhero__bubble {
+      opacity: 0;
+    }
+
+    .qhero__qr,
+    .qhero__phone,
+    .qhero__check,
+    .qhero__phone-text {
+      opacity: 1;
+      transform: none;
+    }
+
+    .qhero__cell {
+      opacity: var(--cell-opacity, 1);
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll('[data-anim="qhero"]').forEach((el) => {
+    setTimeout(() => el.classList.add('is-in'), 200);
+  });
+</script>

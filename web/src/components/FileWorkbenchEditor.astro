@@ -1,0 +1,610 @@
+---
+// Jembatan Upload/Jalankan/Unduh FILE GENERIK — lihat spesifikasi lengkap di
+// plan/design/bab-15-desain.md ("Spesifikasi Jembatan Upload/Jalankan/Unduh —
+// File Generik"). Komponen paling penting/baru di Bab 15.
+//
+// Generalisasi WAJIB dari PhotoWorkbenchEditor.astro (Bab 13): file yang
+// diupload di sini BUKAN gambar (`.xlsx`/`.pdf`), jadi dibungkus io.BytesIO
+// polos (bukan Image.open) lewat runFileWorkbench() (pyodide-runner.js), dan
+// kartu pratinjau menampilkan ikon dokumen + nama file + ukuran (BUKAN
+// thumbnail gambar). Dipakai dua kali di Bab 15: (a) alur inti Excel penuh
+// (outputKind="bytes", dengan tombol unduh), dan (b) kotak "Tahu Lebih" PDF
+// (outputKind="none", cuma menampilkan teks hasil print(), tanpa unduh).
+interface Props {
+  idPrefix?: string;
+  title: string;
+  runLabel?: string;
+  resetLabel?: string;
+  starterCode: string;
+  rows?: number;
+  minHeight?: number;
+  codeAriaLabel: string;
+  notes?: string[];
+  uploadLabel?: string;
+  uploadHint?: string;
+  changeLabel?: string;
+  uploadIcon?: string;
+  acceptAttr?: string;
+  maxFileSizeMB?: number;
+  inputVarName?: string;
+  outputVarName?: string;
+  outputKind?: 'bytes' | 'none';
+  outputFileName?: string;
+  outputMimeType?: string;
+  resultIcon?: string;
+  downloadLabel?: string;
+  packageName: string;
+  packageLoadingMessage: string;
+  noResultMessage?: string;
+  consoleLabel?: string;
+}
+
+const {
+  idPrefix = 'fwe',
+  title,
+  runLabel = '▶ Jalankan',
+  resetLabel = '↺ Reset',
+  starterCode,
+  rows = 10,
+  minHeight = 190,
+  codeAriaLabel,
+  notes = [],
+  uploadLabel = 'Klik atau seret file ke sini',
+  uploadHint = 'maksimal 5 MB',
+  changeLabel = 'Ganti File',
+  uploadIcon = '📊',
+  acceptAttr = '.xlsx',
+  maxFileSizeMB = 5,
+  inputVarName = 'berkas_excel',
+  outputVarName = 'hasil',
+  outputKind = 'bytes',
+  outputFileName = 'hasil-excel.xlsx',
+  outputMimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  resultIcon = '📊',
+  downloadLabel = '⬇ Unduh Hasil Excel',
+  packageName,
+  packageLoadingMessage,
+  noResultMessage = `Programmu berhasil jalan, tapi belum ada file hasil untuk diunduh — pastikan ada variabel bernama \`${outputVarName}\` berisi bytes file (gunakan pola \`buf = io.BytesIO(); ...; hasil = buf.getvalue()\`).`,
+  consoleLabel = 'Hasil (print):',
+} = Astro.props;
+
+const showDownloadFlow = outputKind !== 'none';
+---
+
+<div
+  class="fwe-wrap"
+  data-id-prefix={idPrefix}
+  data-input-var={inputVarName}
+  data-output-var={outputVarName}
+  data-output-kind={outputKind}
+  data-output-file-name={outputFileName}
+  data-output-mime-type={outputMimeType}
+  data-max-file-size-mb={maxFileSizeMB}
+  data-package-name={packageName}
+  data-package-loading-message={packageLoadingMessage}
+  data-no-result-message={noResultMessage}
+>
+  <div class="fwe card">
+    <div class="fwe__section" id={`${idPrefix}-upload-section`}>
+      <label class="fwe__upload-slot" for={`${idPrefix}-file-input`} tabindex="0">
+        <span class="fwe__upload-icon" aria-hidden="true">{uploadIcon}</span>
+        <span class="fwe__upload-text">{uploadLabel}</span>
+        <span class="fwe__upload-hint">{uploadHint}</span>
+      </label>
+      <input
+        type="file"
+        accept={acceptAttr}
+        id={`${idPrefix}-file-input`}
+        class="fwe__file-input"
+        aria-label="Upload file untuk diolah"
+      />
+    </div>
+
+    <div class="fwe__previews" id={`${idPrefix}-previews`} hidden>
+      <div class="fwe__preview-card">
+        <span class="fwe__preview-label">File asli</span>
+        <span class="fwe__file-icon" aria-hidden="true">{uploadIcon}</span>
+        <span class="fwe__file-name" id={`${idPrefix}-original-name`}>&nbsp;</span>
+        <span class="fwe__file-size" id={`${idPrefix}-original-size`}>&nbsp;</span>
+        <button type="button" class="btn btn-secondary fwe__change-btn" id={`${idPrefix}-change-btn`}>
+          {changeLabel}
+        </button>
+      </div>
+
+      {
+        showDownloadFlow && (
+          <div
+            class="fwe__preview-card fwe__preview-card--result"
+            id={`${idPrefix}-result-card`}
+            hidden
+          >
+            <span class="fwe__preview-label">File hasil</span>
+            <span class="fwe__file-icon" aria-hidden="true">{resultIcon}</span>
+            <span class="fwe__file-name" id={`${idPrefix}-result-name`}>&nbsp;</span>
+            <span class="fwe__file-size" id={`${idPrefix}-result-size`}>&nbsp;</span>
+            <a
+              class="btn btn-download fwe__download-btn"
+              id={`${idPrefix}-download-btn`}
+              download={outputFileName}
+            >
+              {downloadLabel}
+            </a>
+          </div>
+        )
+      }
+    </div>
+
+    <div class="fwe__editor">
+      <div class="fwe__header">
+        <span class="fwe__title">{title}</span>
+        <div class="fwe__buttons">
+          <button type="button" class="btn btn-secondary fwe__reset" id={`${idPrefix}-reset`}>
+            {resetLabel}
+          </button>
+          <button type="button" class="btn btn-primary fwe__run" id={`${idPrefix}-run`} disabled>
+            {runLabel}
+          </button>
+        </div>
+      </div>
+
+      <textarea
+        id={`${idPrefix}-code`}
+        class="fwe__code"
+        style={`min-height: ${minHeight}px;`}
+        spellcheck="false"
+        autocomplete="off"
+        autocapitalize="off"
+        rows={rows}
+        aria-label={codeAriaLabel}>{starterCode}</textarea
+      >
+
+      {
+        !showDownloadFlow && (
+          <div class="fwe__console" id={`${idPrefix}-console`} hidden>
+            <span class="fwe__console-label">{consoleLabel}</span>
+            <pre class="fwe__console-body" id={`${idPrefix}-console-body`}>&nbsp;</pre>
+          </div>
+        )
+      }
+
+      <div class="fwe__status" id={`${idPrefix}-status`} aria-live="polite">
+        Upload filemu dulu di atas, baru tombol {runLabel} aktif.
+      </div>
+    </div>
+  </div>
+
+  <div class="fwe__confetti" id={`${idPrefix}-confetti`} aria-hidden="true"></div>
+</div>
+
+{notes.map((note) => <p class="fwe__note" set:html={note} />)}
+
+<style>
+  .fwe-wrap {
+    position: relative;
+  }
+
+  .fwe {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .fwe__section {
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .fwe__upload-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 28px 20px;
+    background: var(--cloud);
+    border: 3px dashed var(--border);
+    border-radius: var(--radius-card);
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+  }
+
+  .fwe__upload-slot:hover,
+  .fwe__upload-slot:focus-visible {
+    border-color: var(--pyto-green);
+    background: var(--pyto-green-soft);
+    outline: none;
+  }
+
+  .fwe__upload-icon {
+    font-size: 32px;
+  }
+
+  .fwe__upload-text {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .fwe__upload-hint {
+    font-size: 13px;
+    color: var(--slate);
+  }
+
+  .fwe__file-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .fwe__previews {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--cloud);
+  }
+
+  .fwe__preview-card {
+    flex: 1;
+    min-width: 160px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 16px;
+    text-align: center;
+  }
+
+  .fwe__preview-label {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--slate);
+  }
+
+  .fwe__file-icon {
+    font-size: 34px;
+  }
+
+  .fwe__file-name {
+    font-family: var(--font-code);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+    word-break: break-all;
+  }
+
+  .fwe__file-size {
+    font-family: var(--font-code);
+    font-size: 12px;
+    color: var(--slate);
+  }
+
+  .fwe__change-btn {
+    font-size: 13px;
+    padding: 8px 16px;
+    min-height: 36px;
+  }
+
+  .fwe__download-btn {
+    font-size: 14px;
+    padding: 10px 18px;
+    min-height: 40px;
+  }
+
+  .fwe__download-btn[aria-disabled='true'] {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .fwe__editor {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .fwe__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 16px 20px;
+    background: var(--cloud);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .fwe__title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 16px;
+  }
+
+  .fwe__buttons {
+    display: flex;
+    gap: 10px;
+  }
+
+  .fwe__buttons .btn {
+    padding: 10px 18px;
+    font-size: 14px;
+    min-height: 40px;
+  }
+
+  .fwe__run:disabled,
+  .fwe__reset:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .fwe__code {
+    display: block;
+    width: 100%;
+    resize: vertical;
+    border: none;
+    outline: none;
+    background: var(--code-bg);
+    color: var(--code-text);
+    font-family: var(--font-code);
+    font-size: 15px;
+    line-height: 1.7;
+    padding: 20px;
+    tab-size: 4;
+  }
+
+  .fwe__console {
+    padding: 14px 20px;
+    background: var(--console-bg, var(--code-bg));
+    border-top: 1px solid var(--border);
+  }
+
+  .fwe__console-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: var(--code-comment);
+    margin-bottom: 8px;
+  }
+
+  .fwe__console-body {
+    margin: 0;
+    font-family: var(--font-code);
+    font-size: 14px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--code-text);
+  }
+
+  .fwe__status {
+    padding: 14px 20px 18px;
+    background: var(--white);
+    font-size: 15px;
+    color: var(--slate);
+  }
+
+  .fwe__status.is-loading {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  .fwe__status.is-error {
+    background: var(--box-awas-bg);
+    color: #b3392f;
+    font-weight: 700;
+  }
+
+  .fwe__status.is-note {
+    background: var(--box-tahu-lebih-bg);
+    color: var(--ink);
+  }
+
+  .fwe__confetti {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .fwe__note {
+    margin-top: 16px;
+    color: var(--slate);
+  }
+
+  .fwe__note :global(code) {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (max-width: 600px) {
+    .fwe__header {
+      justify-content: center;
+      text-align: center;
+    }
+
+    .fwe__code {
+      font-size: 14px;
+    }
+
+    .fwe__previews {
+      flex-direction: column;
+    }
+  }
+</style>
+
+<script>
+  import {
+    LOADING_MESSAGE,
+    isFirstPyodideLoad,
+    isFirstPackageLoad,
+    runFileWorkbench,
+    base64ToBytes,
+    friendlyError,
+  } from '../scripts/pyodide-runner.js';
+  import { launchConfetti } from '../scripts/confetti.js';
+
+  function formatBytes(bytes) {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  document.querySelectorAll('.fwe-wrap').forEach((wrap) => {
+    const idPrefix = wrap.dataset.idPrefix;
+    if (!idPrefix || wrap.dataset.fweWired) return;
+    wrap.dataset.fweWired = 'true';
+
+    const inputVarName = wrap.dataset.inputVar || 'berkas_excel';
+    const outputVarName = wrap.dataset.outputVar || 'hasil';
+    const outputKind = wrap.dataset.outputKind || 'bytes';
+    const outputFileName = wrap.dataset.outputFileName || 'hasil.bin';
+    const outputMimeType = wrap.dataset.outputMimeType || 'application/octet-stream';
+    const maxFileSizeMB = Number(wrap.dataset.maxFileSizeMb) || 5;
+    const packageName = wrap.dataset.packageName;
+    const packageLoadingMessage = wrap.dataset.packageLoadingMessage || 'Menyiapkan kotak alat...';
+    const noResultMessage = wrap.dataset.noResultMessage || 'Belum ada hasil untuk ditampilkan.';
+
+    const fileInput = document.getElementById(`${idPrefix}-file-input`);
+    const previews = document.getElementById(`${idPrefix}-previews`);
+    const originalNameEl = document.getElementById(`${idPrefix}-original-name`);
+    const originalSizeEl = document.getElementById(`${idPrefix}-original-size`);
+    const changeBtn = document.getElementById(`${idPrefix}-change-btn`);
+    const resultCard = document.getElementById(`${idPrefix}-result-card`);
+    const resultNameEl = document.getElementById(`${idPrefix}-result-name`);
+    const resultSizeEl = document.getElementById(`${idPrefix}-result-size`);
+    const downloadBtn = document.getElementById(`${idPrefix}-download-btn`);
+    const consoleWrap = document.getElementById(`${idPrefix}-console`);
+    const consoleBody = document.getElementById(`${idPrefix}-console-body`);
+    const codeEl = document.getElementById(`${idPrefix}-code`);
+    const runBtn = document.getElementById(`${idPrefix}-run`);
+    const resetBtn = document.getElementById(`${idPrefix}-reset`);
+    const statusEl = document.getElementById(`${idPrefix}-status`);
+    const confettiEl = document.getElementById(`${idPrefix}-confetti`);
+
+    const STARTER_CODE = codeEl ? codeEl.value : '';
+    let pendingBase64 = null;
+    let confettiFired = false;
+
+    const setStatus = (text, kind) => {
+      if (!statusEl) return;
+      statusEl.textContent = text;
+      statusEl.classList.toggle('is-loading', kind === 'loading');
+      statusEl.classList.toggle('is-error', kind === 'error');
+      statusEl.classList.toggle('is-note', kind === 'note');
+    };
+
+    changeBtn?.addEventListener('click', () => fileInput?.click());
+
+    fileInput?.addEventListener('change', async () => {
+      const file = fileInput.files?.[0];
+      if (!file) return;
+
+      if (file.size > maxFileSizeMB * 1024 * 1024) {
+        setStatus(
+          `Ukuran filenya kelewat besar (maksimal ${maxFileSizeMB} MB) — coba pilih file lain, ya.`,
+          'error'
+        );
+        fileInput.value = '';
+        return;
+      }
+
+      setStatus('📥 Menyiapkan filemu...', 'loading');
+
+      const buffer = await file.arrayBuffer();
+      const bytes = new Uint8Array(buffer);
+      let binary = '';
+      const chunkSize = 0x8000;
+      for (let i = 0; i < bytes.length; i += chunkSize) {
+        binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+      }
+      pendingBase64 = btoa(binary);
+
+      if (originalNameEl) originalNameEl.textContent = file.name;
+      if (originalSizeEl) originalSizeEl.textContent = formatBytes(file.size);
+
+      if (previews) previews.hidden = false;
+      if (resultCard) resultCard.hidden = true;
+      if (consoleWrap) consoleWrap.hidden = true;
+      if (runBtn) runBtn.disabled = false;
+      confettiFired = false;
+      setStatus(`File siap! Klik "${runBtn?.textContent?.trim() ?? '▶ Jalankan'}" untuk mengolahnya.`, null);
+    });
+
+    runBtn?.addEventListener('click', async () => {
+      if (!codeEl || !runBtn || !pendingBase64) return;
+      const code = codeEl.value;
+
+      runBtn.disabled = true;
+      if (resetBtn) resetBtn.disabled = true;
+
+      if (isFirstPyodideLoad()) {
+        setStatus(LOADING_MESSAGE, 'loading');
+      } else if (packageName && isFirstPackageLoad(packageName)) {
+        setStatus(packageLoadingMessage, 'loading');
+      } else {
+        setStatus('Menjalankan...', 'loading');
+      }
+
+      try {
+        const { output, resultBase64 } = await runFileWorkbench(code, pendingBase64, {
+          inputVarName,
+          inputMode: 'bytesio',
+          outputVarName,
+          outputKind,
+          packages: packageName ? [packageName] : [],
+        });
+
+        if (outputKind === 'none') {
+          if (consoleWrap) consoleWrap.hidden = false;
+          if (consoleBody) consoleBody.textContent = output || '(Tidak ada tulisan yang ditampilkan)';
+          setStatus('✅ Kode berhasil dijalankan!', null);
+        } else if (!resultBase64) {
+          if (resultCard) resultCard.hidden = true;
+          setStatus(noResultMessage, 'note');
+        } else {
+          const bytes = base64ToBytes(resultBase64);
+          const blob = new Blob([bytes], { type: outputMimeType });
+          const url = URL.createObjectURL(blob);
+
+          if (resultNameEl) resultNameEl.textContent = outputFileName;
+          if (resultSizeEl) resultSizeEl.textContent = formatBytes(bytes.length);
+          if (resultCard) resultCard.hidden = false;
+          if (downloadBtn) {
+            downloadBtn.href = url;
+            downloadBtn.setAttribute('download', outputFileName);
+          }
+          setStatus('✅ File berhasil diolah!', null);
+
+          if (!confettiFired) {
+            confettiFired = true;
+            launchConfetti(confettiEl);
+          }
+        }
+      } catch (err) {
+        setStatus(`⚠️ ${friendlyError(err)}`, 'error');
+      } finally {
+        runBtn.disabled = false;
+        if (resetBtn) resetBtn.disabled = false;
+      }
+    });
+
+    resetBtn?.addEventListener('click', () => {
+      if (!codeEl) return;
+      codeEl.value = STARTER_CODE;
+      if (pendingBase64) {
+        setStatus(`Kode dikembalikan seperti semula. Klik "${runBtn?.textContent?.trim() ?? '▶ Jalankan'}" untuk mencoba lagi.`, null);
+      } else {
+        setStatus('Upload filemu dulu di atas, baru tombol Jalankan aktif.', null);
+      }
+    });
+  });
+</script>
