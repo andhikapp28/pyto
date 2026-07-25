@@ -5,8 +5,8 @@
 // Bab 11-20 (Fase 2 — Python Lanjutan) juga didaftarkan di sini supaya
 // penomoran beranda/sidebar tetap lengkap 1-20 — judulnya diambil apa
 // adanya dari `data/fase2.js` (satu sumber, jangan diketik ulang beda kata).
-// Cuma Bab 11-13 yang punya halaman sungguhan untuk saat ini (lihat
-// AVAILABLE_CHAPTERS); Bab 14-20 tetap tercantum dengan tag "Segera" persis
+// Cuma Bab 11-15 yang punya halaman sungguhan untuk saat ini (lihat
+// AVAILABLE_CHAPTERS); Bab 16-20 tetap tercantum dengan tag "Segera" persis
 // seperti perlakuan Bab 7-10 sebelum halamannya ada.
 import { fase2Chapters } from './fase2.js';
 
@@ -24,9 +24,9 @@ export const chapters = [
   ...fase2Chapters.map((c) => ({ number: c.number, title: c.title })),
 ];
 
-// Fase 1 (Bab 1-10) sudah lengkap. Fase 2: Bab 11-13 sudah punya halaman
-// sungguhan; Bab 14-20 masih menunggu (lihat plan/Fase2/plan.md).
-export const AVAILABLE_CHAPTERS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+// Fase 1 (Bab 1-10) sudah lengkap. Fase 2: Bab 11-15 sudah punya halaman
+// sungguhan; Bab 16-20 masih menunggu (lihat plan/Fase2/plan.md).
+export const AVAILABLE_CHAPTERS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
 
 export function isChapterAvailable(number) {
   return AVAILABLE_CHAPTERS.includes(number);

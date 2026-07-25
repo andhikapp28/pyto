@@ -171,6 +171,43 @@ export function base64ToBytes(base64) {
   return bytes;
 }
 
+// Membaca balik variabel bernama `outputVarName` dari namespace Python
+// sesudah kode pembaca selesai dijalankan, dan mendeteksi OTOMATIS jenis
+// hasilnya:
+// - objek bergaya PIL.Image (punya `.save()`, bukan bytes) -> di-encode PNG
+//   (dipakai Bab 13 `hasil = ...` gambar, dan Bab 14 `hasil = qrcode.make(...)`)
+// - `bytes`/`bytearray` mentah -> langsung di-base64-kan apa adanya (dipakai
+//   Bab 15, `hasil = buf.getvalue()` untuk file Excel/PDF)
+// Lihat plan/design/bab-15-desain.md bagian "Generalisasi WAJIB" untuk
+// kontrak lengkapnya. Dipakai ulang oleh runPhotoWorkbench, runQrWorkbench,
+// dan runFileWorkbench supaya logikanya cuma ditulis sekali.
+async function readWorkbenchResult(pyodide, outputVarName) {
+  const readResultCode = `
+import base64 as _pyto_base64
+import io as _pyto_io
+try:
+    _pyto_hasil = ${outputVarName}
+except NameError:
+    _pyto_hasil = None
+
+if _pyto_hasil is not None and hasattr(_pyto_hasil, "save") and not isinstance(_pyto_hasil, (bytes, bytearray)):
+    _pyto_buf = _pyto_io.BytesIO()
+    _pyto_hasil.save(_pyto_buf, format="PNG")
+    _pyto_result_b64 = _pyto_base64.b64encode(_pyto_buf.getvalue()).decode("ascii")
+    _pyto_result_kind = "image"
+elif isinstance(_pyto_hasil, (bytes, bytearray)):
+    _pyto_result_b64 = _pyto_base64.b64encode(bytes(_pyto_hasil)).decode("ascii")
+    _pyto_result_kind = "bytes"
+else:
+    _pyto_result_b64 = None
+    _pyto_result_kind = None
+`;
+  await pyodide.runPythonAsync(readResultCode);
+  const resultBase64 = pyodide.globals.get('_pyto_result_b64') ?? null;
+  const resultKind = pyodide.globals.get('_pyto_result_kind') ?? null;
+  return { resultBase64, resultKind };
+}
+
 // Menjalankan kode Python bab "bengkel" (olah gambar dst.) yang butuh sebuah
 // file yang diupload pembaca disuntikkan sebagai variabel Python bernama
 // `inputVarName` (default "foto", sudah berupa objek PIL.Image), lalu
@@ -183,6 +220,11 @@ export function base64ToBytes(base64) {
 // plan/design/bab-13-desain.md langkah 4. Error dari kode pembaca (baik saat
 // setup maupun saat menjalankan kode reader) dilempar apa adanya supaya
 // ditangkap lewat friendlyError() seperti runPython() biasa.
+//
+// PENTING: perilaku fungsi ini TIDAK berubah sama sekali dari versi Bab 13
+// sebelumnya (dipakai PhotoWorkbenchEditor.astro) — di baliknya sekarang
+// cuma memanggil readWorkbenchResult()/runFileWorkbench() generik, lihat
+// plan/design/bab-15-desain.md ("Bab 13 TIDAK BOLEH berubah perilaku").
 export async function runPhotoWorkbench(
   code,
   fileBase64,
@@ -213,24 +255,181 @@ ${inputVarName} = _PytoImage.open(_pyto_io.BytesIO(_pyto_base64.b64decode(_pyto_
   await pyodide.runPythonAsync(setupCode);
   await pyodide.runPythonAsync(code);
 
-  const readResultCode = `
+  const { resultBase64 } = await readWorkbenchResult(pyodide, outputVarName);
+
+  return { output: output.replace(/\n$/, ''), resultBase64 };
+}
+
+// ---------------------------------------------------------------------
+// Infrastruktur micropip GENERIK (baru, dipakai pertama kali oleh Bab 14
+// untuk paket `qrcode`, lalu dipakai ulang oleh Bab 15 untuk `openpyxl` dan
+// `pypdf`) — lihat plan/design/bab-14-desain.md dan plan/design/bab-15-desain.md.
+// Paket-paket ini pure-Python, TIDAK tersedia lewat pyodide.loadPackage()
+// bawaan (beda dari Pillow, yang dibundel resmi sebagai paket WASM), jadi
+// harus dipasang lewat micropip.install() sesudah micropip sendiri dimuat.
+// ---------------------------------------------------------------------
+
+export const QRCODE_LOADING_MESSAGE =
+  '📱 Menyiapkan qrcode (kotak alat bikin kode QR)... sebentar ya';
+export const OPENPYXL_LOADING_MESSAGE =
+  '📊 Menyiapkan openpyxl (kotak alat baca-tulis Excel)... sebentar ya';
+export const PYPDF_LOADING_MESSAGE = '📄 Menyiapkan pypdf (kotak alat baca PDF)... sebentar ya';
+
+let micropipInstallerPromise = null;
+
+async function getMicropip(pyodide) {
+  if (!micropipInstallerPromise) {
+    micropipInstallerPromise = (async () => {
+      await pyodide.loadPackage('micropip');
+      return pyodide.pyimport('micropip');
+    })();
+  }
+  return micropipInstallerPromise;
+}
+
+const micropipPackagePromises = {};
+
+// True kalau `packageName` belum pernah selesai dipasang via micropip di
+// sesi ini (dipakai komponen untuk menampilkan pesan loading yang tepat,
+// sama pola dengan isFirstPillowLoad()).
+export function isFirstPackageLoad(packageName) {
+  return !micropipPackagePromises[packageName];
+}
+
+// Memastikan sebuah paket pure-Python sudah terpasang di namespace Pyodide
+// lewat micropip. Aman dipanggil berkali-kali — pemasangan sungguhan cuma
+// terjadi sekali per paket per sesi.
+export async function ensurePackageViaMicropip(pyodide, packageName) {
+  if (!micropipPackagePromises[packageName]) {
+    micropipPackagePromises[packageName] = (async () => {
+      const micropip = await getMicropip(pyodide);
+      await micropip.install(packageName);
+    })();
+  }
+  await micropipPackagePromises[packageName];
+  return pyodide;
+}
+
+// ---------------------------------------------------------------------
+// Bab 14 — jembatan Teks/Jalankan/Unduh (+ logo opsional) kode QR
+// (QrCodeWorkbenchEditor.astro). Beda dari runPhotoWorkbench: input utamanya
+// STRING biasa (teks/URL yang diketik pembaca), bukan file upload — jadi
+// disuntik langsung lewat pyodide.globals.set(), tanpa base64/decode gambar.
+// Variabel `logo` opsional (kalau pembaca mengaktifkan checkbox "Tambahkan
+// logo") memakai proses decode identik dengan `foto` di Bab 13.
+// ---------------------------------------------------------------------
+export async function runQrWorkbench(
+  code,
+  teksValue,
+  {
+    teksVarName = 'teks_qr',
+    logoFileBase64 = null,
+    logoVarName = 'logo',
+    outputVarName = 'hasil',
+  } = {}
+) {
+  const pyodide = await ensurePillow();
+  await ensurePackageViaMicropip(pyodide, 'qrcode');
+
+  let output = '';
+  pyodide.setStdout({
+    batched: (s) => {
+      output += s + '\n';
+    },
+  });
+  pyodide.setStderr({
+    batched: (s) => {
+      output += s + '\n';
+    },
+  });
+
+  pyodide.globals.set(teksVarName, teksValue);
+
+  if (logoFileBase64) {
+    pyodide.globals.set('_pyto_logo_b64', logoFileBase64);
+    const logoSetupCode = `
 import base64 as _pyto_base64
 import io as _pyto_io
-try:
-    _pyto_hasil = ${outputVarName}
-except NameError:
-    _pyto_hasil = None
-if _pyto_hasil is not None and hasattr(_pyto_hasil, "save"):
-    _pyto_buf = _pyto_io.BytesIO()
-    _pyto_hasil.save(_pyto_buf, format="PNG")
-    _pyto_result_b64 = _pyto_base64.b64encode(_pyto_buf.getvalue()).decode("ascii")
-else:
-    _pyto_result_b64 = None
-_pyto_result_b64
+from PIL import Image as _PytoImage
+${logoVarName} = _PytoImage.open(_pyto_io.BytesIO(_pyto_base64.b64decode(_pyto_logo_b64)))
 `;
-  const resultBase64 = await pyodide.runPythonAsync(readResultCode);
+    await pyodide.runPythonAsync(logoSetupCode);
+  }
 
-  return { output: output.replace(/\n$/, ''), resultBase64: resultBase64 ?? null };
+  await pyodide.runPythonAsync(code);
+
+  const { resultBase64 } = await readWorkbenchResult(pyodide, outputVarName);
+
+  return { output: output.replace(/\n$/, ''), resultBase64 };
+}
+
+// ---------------------------------------------------------------------
+// Bab 15 — jembatan Upload/Jalankan/Unduh FILE GENERIK (FileWorkbenchEditor.astro).
+// Beda dari runPhotoWorkbench: file yang diupload BUKAN gambar (`.xlsx`/`.pdf`),
+// jadi dibungkus `io.BytesIO` polos (inputMode 'bytesio'), bukan di-decode
+// paksa lewat Image.open(). Hasilnya (`hasil`) juga bisa berupa `bytes`
+// mentah (bukan cuma PIL.Image) — deteksi otomatis lewat readWorkbenchResult().
+// `runPhotoWorkbench` di atas TIDAK memakai fungsi ini (sengaja dibiarkan
+// berdiri sendiri) supaya perilaku Bab 13 yang sudah live 100% tidak
+// tersentuh, sesuai instruksi di plan/design/bab-15-desain.md.
+// ---------------------------------------------------------------------
+export async function runFileWorkbench(
+  code,
+  fileBase64,
+  {
+    inputVarName = 'berkas_excel',
+    inputMode = 'bytesio', // 'image' | 'bytesio'
+    outputVarName = 'hasil',
+    outputKind = 'bytes', // 'image' | 'bytes' | 'none' (hint dari komponen; 'none' melewati pembacaan hasil sama sekali)
+    packages = [], // nama paket micropip yang wajib terpasang dulu, mis. ['openpyxl']
+  } = {}
+) {
+  const needsPillow = inputMode === 'image' || outputKind === 'image';
+  const pyodide = needsPillow ? await ensurePillow() : await getPyodide();
+
+  for (const packageName of packages) {
+    await ensurePackageViaMicropip(pyodide, packageName);
+  }
+
+  let output = '';
+  pyodide.setStdout({
+    batched: (s) => {
+      output += s + '\n';
+    },
+  });
+  pyodide.setStderr({
+    batched: (s) => {
+      output += s + '\n';
+    },
+  });
+
+  if (fileBase64 != null) {
+    pyodide.globals.set('_pyto_uploaded_b64', fileBase64);
+    const setupCode =
+      inputMode === 'image'
+        ? `
+import base64 as _pyto_base64
+import io as _pyto_io
+from PIL import Image as _PytoImage
+${inputVarName} = _PytoImage.open(_pyto_io.BytesIO(_pyto_base64.b64decode(_pyto_uploaded_b64)))
+`
+        : `
+import base64 as _pyto_base64
+import io as _pyto_io
+${inputVarName} = _pyto_io.BytesIO(_pyto_base64.b64decode(_pyto_uploaded_b64))
+`;
+    await pyodide.runPythonAsync(setupCode);
+  }
+
+  await pyodide.runPythonAsync(code);
+
+  if (outputKind === 'none') {
+    return { output: output.replace(/\n$/, ''), resultBase64: null, resultKind: null };
+  }
+
+  const { resultBase64, resultKind } = await readWorkbenchResult(pyodide, outputVarName);
+
+  return { output: output.replace(/\n$/, ''), resultBase64, resultKind };
 }
 
 export function friendlyError(err) {

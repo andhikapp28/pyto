@@ -1,11 +1,11 @@
 // Kurikulum Fase 2 ("Python Lanjutan") — Bab 11-20. Sumber: plan/Fase2/plan.md
 // (draf kurikulum, riset lengkap di plan/Fase2/riset-topik-fase2.md).
 //
-// Bab 11-13 sekarang sudah punya halaman sungguhan (`live: true`) — lihat
-// AVAILABLE_CHAPTERS di chapters.js dan src/pages/bab/11.astro, 12.astro,
-// 13.astro. Bab 14-20 masih pengumuman "Segera Hadir" saja: belum ada
-// halaman bab sungguhan, jangan tambahkan ke AVAILABLE_CHAPTERS atau bikin
-// route /bab/14/ dst. sebelum naskah + implementasinya benar-benar ada.
+// Bab 11-15 sekarang sudah punya halaman sungguhan (`live: true`) — lihat
+// AVAILABLE_CHAPTERS di chapters.js dan src/pages/bab/11.astro s.d. 15.astro.
+// Bab 16-20 masih pengumuman "Segera Hadir" saja: belum ada halaman bab
+// sungguhan, jangan tambahkan ke AVAILABLE_CHAPTERS atau bikin route
+// /bab/16/ dst. sebelum naskah + implementasinya benar-benar ada.
 // Ini tetap satu-satunya sumber judul/blurb untuk seluruh Bab 11-20 — dipakai
 // bareng oleh chapters.js, Fase2Teaser.astro, dan halaman /fase2/.
 
@@ -55,6 +55,7 @@ export const fase2Chapters = [
     blurb:
       'Bikin kode kotak-kotak yang bisa langsung dipindai kamera HP sungguhan — coba deh nanti!',
     group: 'pembuka',
+    live: true,
   },
   {
     number: 15,
@@ -64,6 +65,7 @@ export const fase2Chapters = [
     blurb:
       'Ajari Pyto sekali, biar dia yang merapikan file Excel/PDF-mu seterusnya — bukan copy-paste manual lagi.',
     group: 'pembuka',
+    live: true,
   },
   {
     number: 16,
