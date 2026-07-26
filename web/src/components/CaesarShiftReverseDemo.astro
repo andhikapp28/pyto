@@ -1,0 +1,249 @@
+---
+// Animasi #5 (plan/bab-16-animasi.md): echo dari CaesarShiftDemo, tapi
+// cincin luar berputar ke arah SEBALIKNYA (geseran -3) untuk membongkar
+// "DJHQ UDKDVLD" balik jadi "AGEN RAHASIA". Konsep sama, arah dibalik.
+import AlphabetWheel from './AlphabetWheel.astro';
+import CodeBlock from './CodeBlock.astro';
+
+const SRC = 'DJHQ UDKDVLD';
+const SHIFT = -3;
+
+function shiftChar(ch: string, shift: number) {
+  if (ch >= 'A' && ch <= 'Z') {
+    const code = ch.charCodeAt(0) - 65;
+    const newCode = (((code + shift) % 26) + 26) % 26;
+    return String.fromCharCode(newCode + 65);
+  }
+  return ch;
+}
+
+const srcChars = SRC.split('');
+const outChars = srcChars.map((c) => shiftChar(c, SHIFT));
+
+const code = `pesan_terbuka = sandikan(pesan_sandi, -3)
+
+print(pesan_terbuka)   # AGEN RAHASIA`;
+---
+
+<div
+  class="csr-demo"
+  data-anim="csr-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi membongkar sandi Caesar dengan geseran negatif"
+>
+  <CodeBlock {code} />
+
+  <div class="csr-demo__stage">
+    <AlphabetWheel idPrefix="csr" size={196} showRing needleIndex={null} label="Roda + Cincin Geser (-3)" />
+
+    <div class="csr-demo__strings">
+      <div class="csr-demo__row">
+        <span class="csr-demo__row-label">Pesan tersandi</span>
+        <div class="csr-demo__chars">
+          {
+            srcChars.map((c, i) => (
+              <span class="csr-demo__char" id={`csr-src-${i}`}>
+                {c === ' ' ? ' ' : c}
+              </span>
+            ))
+          }
+        </div>
+      </div>
+      <div class="csr-demo__row">
+        <span class="csr-demo__row-label">Pesan asli</span>
+        <div class="csr-demo__chars">
+          {
+            outChars.map((c, i) => (
+              <span class="csr-demo__char csr-demo__char--out" id={`csr-out-${i}`}>
+                {c === ' ' ? ' ' : c}
+              </span>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="csr-demo__hint">
+  💡 Sama seperti menyandikan, cuma arah putar cincinnya kebalik — geseran negatif langsung aman
+  dipakai <code>% 26</code>. <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .csr-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 22px 24px;
+    cursor: pointer;
+  }
+
+  .csr-demo__stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .csr-demo__strings {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .csr-demo__row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .csr-demo__row-label {
+    flex-shrink: 0;
+    width: 108px;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--slate);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .csr-demo__chars {
+    display: flex;
+    gap: 3px;
+    flex-wrap: wrap;
+  }
+
+  .csr-demo__char {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 26px;
+    border-radius: 6px;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--cloud);
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .csr-demo__char.is-current {
+    background: var(--pyto-green);
+    color: #fff;
+  }
+
+  .csr-demo__char--out {
+    opacity: 0.25;
+  }
+
+  .csr-demo__char--out.is-in {
+    opacity: 1;
+    background: rgba(139, 111, 224, 0.16);
+    color: var(--grape);
+  }
+
+  .csr-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  @media (max-width: 600px) {
+    .csr-demo__row-label {
+      width: 100%;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const SRC = 'DJHQ UDKDVLD';
+  const SHIFT = -3;
+  const STEP_ANGLE = 360 / 26;
+
+  function shiftChar(ch: string, shift: number) {
+    if (ch >= 'A' && ch <= 'Z') {
+      const code = ch.charCodeAt(0) - 65;
+      const newCode = (((code + shift) % 26) + 26) % 26;
+      return String.fromCharCode(newCode + 65);
+    }
+    return ch;
+  }
+
+  function resetWheel() {
+    for (let i = 0; i < 26; i += 1) {
+      document.getElementById(`csr-letter-${i}`)?.classList.remove('is-active', 'is-target');
+    }
+  }
+
+  function play() {
+    const ring = document.getElementById('csr-ring');
+    const needle = document.getElementById('csr-needle');
+    if (!ring || !needle) return;
+
+    resetWheel();
+    ring.style.transform = 'translate(-50%, -50%) rotate(0deg)';
+    needle.style.opacity = '0';
+
+    for (let i = 0; i < SRC.length; i += 1) {
+      document.getElementById(`csr-src-${i}`)?.classList.remove('is-current');
+      document.getElementById(`csr-out-${i}`)?.classList.remove('is-in');
+    }
+
+    setTimeout(() => {
+      ring.style.transform = `translate(-50%, -50%) rotate(${STEP_ANGLE * SHIFT}deg)`;
+    }, 150);
+
+    const STEP_DELAY = 230;
+    let t = 700;
+
+    SRC.split('').forEach((ch, i) => {
+      setTimeout(() => {
+        document.getElementById(`csr-src-${i}`)?.classList.add('is-current');
+
+        if (ch >= 'A' && ch <= 'Z') {
+          const srcIdx = ch.charCodeAt(0) - 65;
+          const outCh = shiftChar(ch, SHIFT);
+          const tgtIdx = outCh.charCodeAt(0) - 65;
+
+          resetWheel();
+          needle.style.opacity = '1';
+          needle.style.transform = `translate(-50%, -100%) rotate(${STEP_ANGLE * srcIdx}deg)`;
+          document.getElementById(`csr-letter-${srcIdx}`)?.classList.add('is-active');
+          setTimeout(() => {
+            document.getElementById(`csr-letter-${tgtIdx}`)?.classList.add('is-target');
+          }, 90);
+        }
+
+        document.getElementById(`csr-out-${i}`)?.classList.add('is-in');
+      }, t);
+      t += STEP_DELAY;
+    });
+  }
+
+  const els = document.querySelectorAll('[data-anim="csr-demo"]');
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+    play();
+  });
+
+  els.forEach((el) => {
+    wireReplay(el, 'is-in');
+    el.addEventListener('mouseenter', play);
+    el.addEventListener('click', play);
+    el.addEventListener('keydown', (e) => {
+      if ((e as KeyboardEvent).key === 'Enter' || (e as KeyboardEvent).key === ' ') play();
+    });
+  });
+</script>

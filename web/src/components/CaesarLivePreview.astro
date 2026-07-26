@@ -1,0 +1,151 @@
+---
+// Animasi #9 (plan/bab-16-animasi.md) — pelengkap Kotak "Main Yuk": begitu
+// pembaca mengisi angka geseran, pesan tersandi hasilnya diperbarui secara
+// live (JS murni di browser, cuma untuk pratinjau instan — kontrak Python
+// sungguhan tetap di fungsi sandikan() yang dibahas di kode inti bab ini).
+const MESSAGE = 'PYTO AGEN RAHASIA';
+---
+
+<div class="clp">
+  <label class="clp__label" for="clp-input">Coba ganti geserannya (0-25):</label>
+  <div class="clp__row">
+    <input
+      class="clp__input"
+      id="clp-input"
+      type="number"
+      min="0"
+      max="25"
+      step="1"
+      value="5"
+      inputmode="numeric"
+    />
+    <span class="clp__arrow" aria-hidden="true">→</span>
+    <span class="clp__output" id="clp-output">UDYT FLIP WFEFXBF</span>
+  </div>
+  <p class="clp__source">
+    Pesan asli: <code>{MESSAGE}</code>
+  </p>
+</div>
+
+<style>
+  .clp {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .clp__label {
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .clp__row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .clp__input {
+    width: 72px;
+    padding: 10px 12px;
+    border-radius: var(--radius-btn);
+    border: 2px solid var(--border);
+    font-family: var(--font-code);
+    font-size: 16px;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .clp__input:focus {
+    outline: none;
+    border-color: var(--pyto-green);
+  }
+
+  .clp__arrow {
+    color: var(--slate);
+    font-size: 18px;
+  }
+
+  .clp__output {
+    font-family: var(--font-code);
+    font-weight: 800;
+    font-size: 15px;
+    color: var(--grape);
+    background: rgba(139, 111, 224, 0.12);
+    border-radius: 8px;
+    padding: 8px 14px;
+    transition: transform 0.2s ease;
+  }
+
+  .clp__output.is-pulse {
+    animation: clp-pulse 0.3s ease;
+  }
+
+  @keyframes clp-pulse {
+    0% {
+      transform: scale(0.94);
+    }
+    60% {
+      transform: scale(1.03);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .clp__source {
+    font-size: 14px;
+    color: var(--slate);
+    margin: 0;
+  }
+
+  .clp__source code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .clp__output.is-pulse {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  const MESSAGE = 'PYTO AGEN RAHASIA';
+
+  function shiftChar(ch: string, shift: number) {
+    if (ch >= 'A' && ch <= 'Z') {
+      const code = ch.charCodeAt(0) - 65;
+      const newCode = (((code + shift) % 26) + 26) % 26;
+      return String.fromCharCode(newCode + 65);
+    }
+    return ch;
+  }
+
+  function sandikan(pesan: string, geseran: number) {
+    return pesan
+      .split('')
+      .map((ch) => shiftChar(ch, geseran))
+      .join('');
+  }
+
+  document.querySelectorAll('.clp').forEach((widget) => {
+    const input = widget.querySelector<HTMLInputElement>('.clp__input');
+    const output = widget.querySelector<HTMLElement>('.clp__output');
+    if (!input || !output) return;
+
+    const update = () => {
+      let geseran = parseInt(input.value, 10);
+      if (Number.isNaN(geseran)) geseran = 0;
+      output.textContent = sandikan(MESSAGE, geseran);
+      output.classList.remove('is-pulse');
+      void output.offsetWidth;
+      output.classList.add('is-pulse');
+    };
+
+    input.addEventListener('input', update);
+    update();
+  });
+</script>

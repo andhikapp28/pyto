@@ -1,0 +1,215 @@
+---
+// Animasi #2 (plan/bab-16-animasi.md): roda alfabet muncul, huruf "C" yang
+// diketik di kode bersinar, jarum menunjuk posisinya (ke-2 dari A), lalu
+// angka 2 "terlepas" dan melayang ke area hasil. Sesudahnya, dibalik: angka
+// 2 melayang balik ke roda, jarum menunjuk posisi sama, huruf "C" menyala
+// sebagai konfirmasi. Sekali jalan saat terlihat, boleh diulang lewat
+// hover/klik/keyboard (pola checklist-bab-baru.md bagian 5).
+import AlphabetWheel from './AlphabetWheel.astro';
+
+const targetIndex = 2; // "C"
+---
+
+<div
+  class="ocw-demo"
+  data-anim="ocw-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi ord dan chr di roda alfabet"
+>
+  <div class="ocw-demo__code">
+    <div class="ocw-demo__line">
+      huruf = <span class="tok-str">"C"</span>
+    </div>
+    <div class="ocw-demo__line">
+      angka = <span class="tok-fn">ord</span>(huruf) - <span class="tok-fn">ord</span>(<span class="tok-str">"A"</span>)
+    </div>
+    <div class="ocw-demo__line">&nbsp;</div>
+    <div class="ocw-demo__line">
+      <span class="tok-fn">print</span>(angka) <span class="tok-comment"># 2</span>
+    </div>
+  </div>
+
+  <div class="ocw-demo__stage">
+    <AlphabetWheel idPrefix="ocw" size={172} needleIndex={null} label="Roda Alfabet" />
+
+    <div class="ocw-demo__result">
+      <span class="ocw-demo__badge ocw-demo__badge--num" id="ocw-badge-num">2</span>
+      <span class="ocw-demo__arrow" aria-hidden="true">⇄</span>
+      <span class="ocw-demo__badge ocw-demo__badge--letter" id="ocw-badge-letter">C</span>
+    </div>
+  </div>
+</div>
+
+<p class="ocw-demo__hint">
+  💡 <code>ord()</code> menunjuk posisi huruf di roda; <code>chr()</code> jalan sebaliknya. <em
+    >(Klik / hover untuk ulangi.)</em
+  >
+</p>
+
+<style>
+  .ocw-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 22px 24px;
+    cursor: pointer;
+  }
+
+  .ocw-demo__code {
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 16px 18px;
+    font-family: var(--font-code);
+    font-size: 14px;
+    line-height: 1.85;
+    color: var(--code-text);
+    overflow-x: auto;
+  }
+
+  .ocw-demo__line {
+    white-space: pre;
+  }
+
+  .tok-str {
+    color: var(--code-green);
+  }
+
+  .tok-fn {
+    color: var(--code-blue);
+  }
+
+  .tok-comment {
+    color: var(--code-comment);
+  }
+
+  .ocw-demo__stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .ocw-demo__result {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .ocw-demo__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    height: 40px;
+    padding: 0 12px;
+    border-radius: 10px;
+    font-family: var(--font-code);
+    font-weight: 800;
+    font-size: 17px;
+    opacity: 0;
+    transform: translateY(8px) scale(0.8);
+  }
+
+  .ocw-demo__badge--num {
+    background: var(--pyto-green-soft);
+    color: var(--pyto-green-dark);
+  }
+
+  .ocw-demo__badge--letter {
+    background: rgba(139, 111, 224, 0.16);
+    color: var(--grape);
+  }
+
+  .ocw-demo__arrow {
+    color: var(--slate);
+    font-size: 18px;
+    opacity: 0;
+  }
+
+  .ocw-demo.is-in .ocw-demo__badge--num {
+    animation: ocw-badge-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.9s forwards;
+  }
+
+  .ocw-demo.is-in .ocw-demo__arrow {
+    animation: ocw-fade-in 0.3s ease 1.5s forwards;
+  }
+
+  .ocw-demo.is-in .ocw-demo__badge--letter {
+    animation: ocw-badge-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1.8s forwards;
+  }
+
+  @keyframes ocw-badge-in {
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes ocw-fade-in {
+    to {
+      opacity: 1;
+    }
+  }
+
+  .ocw-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ocw-demo__badge,
+    .ocw-demo__arrow {
+      animation: none !important;
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const TARGET_INDEX = 2; // "C"
+
+  function playWheel() {
+    const needle = document.getElementById('ocw-needle');
+    const letter = document.getElementById('ocw-letter-' + TARGET_INDEX);
+    if (!needle) return;
+
+    needle.style.opacity = '0';
+    letter?.classList.remove('is-active', 'is-target');
+
+    const angle = (360 / 26) * TARGET_INDEX;
+    setTimeout(() => {
+      needle.style.transform = `translate(-50%, -100%) rotate(${angle}deg)`;
+      needle.style.opacity = '1';
+      letter?.classList.add('is-active');
+    }, 200);
+
+    setTimeout(() => {
+      letter?.classList.add('is-target');
+    }, 1700);
+  }
+
+  const els = document.querySelectorAll('[data-anim="ocw-demo"]');
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+    playWheel();
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+  els.forEach((el) => el.addEventListener('mouseenter', playWheel));
+  els.forEach((el) => el.addEventListener('click', playWheel));
+  els.forEach((el) =>
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') playWheel();
+    })
+  );
+</script>

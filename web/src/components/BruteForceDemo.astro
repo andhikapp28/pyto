@@ -1,0 +1,198 @@
+---
+// Animasi #10 (plan/bab-16-animasi.md), Kotak "Tahu Lebih": roda sandi
+// (echo beat #2/4) diputar otomatis cepat oleh "tangan robot" kecil — 26
+// baris percobaan muncul berjatuhan cepat, sampai baris ke-3
+// ("AGEN RAHASIA") menyala kuning dan membesar sebagai satu-satunya baris
+// yang masuk akal, baris lain memudar.
+import AlphabetWheel from './AlphabetWheel.astro';
+
+const CIPHER = 'DJHQ UDKDVLD';
+const ANSWER_INDEX = 3;
+
+function shiftChar(ch: string, shift: number) {
+  if (ch >= 'A' && ch <= 'Z') {
+    const code = ch.charCodeAt(0) - 65;
+    const newCode = (((code + shift) % 26) + 26) % 26;
+    return String.fromCharCode(newCode + 65);
+  }
+  return ch;
+}
+
+function sandikan(pesan: string, geseran: number) {
+  return pesan
+    .split('')
+    .map((ch) => shiftChar(ch, geseran))
+    .join('');
+}
+
+const rows = Array.from({ length: 26 }, (_, coba) => ({
+  coba,
+  text: sandikan(CIPHER, -coba),
+}));
+---
+
+<div
+  class="bf-demo"
+  data-anim="bf-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi membongkar sandi Caesar dengan mencoba semua geseran"
+>
+  <div class="bf-demo__stage">
+    <div class="bf-demo__wheel-wrap">
+      <span class="bf-demo__hand" id="bf-hand" aria-hidden="true">🤖</span>
+      <AlphabetWheel idPrefix="bf" size={150} showRing needleIndex={null} label="Coba semua geseran" />
+    </div>
+
+    <div class="bf-demo__rows" id="bf-rows">
+      {
+        rows.map((row) => (
+          <div
+            class={`bf-demo__row ${row.coba === ANSWER_INDEX ? 'bf-demo__row--answer' : ''}`}
+            id={`bf-row-${row.coba}`}
+            style={`--bf-delay:${row.coba * 55}ms`}
+          >
+            <span class="bf-demo__coba">{row.coba}</span>
+            <span class="bf-demo__text">{row.text}</span>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</div>
+
+<p class="bf-demo__hint">
+  💡 Cuma satu baris yang masuk akal sebagai kalimat — sisanya cuma huruf acak.
+  <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .bf-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    cursor: pointer;
+  }
+
+  .bf-demo__stage {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .bf-demo__wheel-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .bf-demo__hand {
+    position: absolute;
+    top: -6px;
+    right: -10px;
+    font-size: 22px;
+    z-index: 3;
+    transform-origin: 70% 20%;
+  }
+
+  .bf-demo.is-in .bf-demo__hand {
+    animation: bf-hand-spin 1.6s ease-in-out 1;
+  }
+
+  @keyframes bf-hand-spin {
+    0%,
+    100% {
+      transform: rotate(0deg);
+    }
+    50% {
+      transform: rotate(340deg);
+    }
+  }
+
+  .bf-demo__rows {
+    flex: 1;
+    min-width: 220px;
+    max-height: 220px;
+    overflow-y: auto;
+    background: var(--code-bg);
+    border-radius: var(--radius-code);
+    padding: 10px 14px;
+    font-family: var(--font-code);
+    font-size: 13px;
+  }
+
+  .bf-demo__row {
+    display: flex;
+    gap: 10px;
+    padding: 2px 0;
+    color: var(--code-text);
+    opacity: 0.35;
+    transform: translateY(-4px);
+    transition: opacity 0.4s ease, transform 0.4s ease, font-size 0.3s ease;
+  }
+
+  .bf-demo.is-in .bf-demo__row {
+    animation: bf-row-in 0.3s ease forwards;
+    animation-delay: var(--bf-delay);
+  }
+
+  @keyframes bf-row-in {
+    to {
+      opacity: 0.35;
+      transform: translateY(0);
+    }
+  }
+
+  .bf-demo__coba {
+    width: 20px;
+    color: var(--code-comment);
+    text-align: right;
+  }
+
+  .bf-demo__row--answer {
+    opacity: 0.35;
+  }
+
+  .bf-demo.is-in .bf-demo__row--answer {
+    animation: bf-row-answer 0.3s ease forwards;
+    animation-delay: calc(var(--bf-delay) + 1.4s);
+  }
+
+  @keyframes bf-row-answer {
+    to {
+      opacity: 1;
+      font-size: 15px;
+    }
+  }
+
+  .bf-demo.is-in .bf-demo__row--answer .bf-demo__text {
+    color: var(--sunny-yellow);
+    font-weight: 800;
+  }
+
+  .bf-demo__hint {
+    font-size: 14px;
+    color: var(--slate);
+    margin: 0 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bf-demo__hand,
+    .bf-demo__row {
+      animation: none !important;
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="bf-demo"]');
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+  });
+
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

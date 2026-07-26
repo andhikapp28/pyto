@@ -1,0 +1,302 @@
+---
+// Animasi #6 (plan/bab-16-animasi.md): kartu kontras kiri/kanan. Kiri
+// ("✗ Jangan begini"): huruf kecil "b" dipaksa masuk ke roda tanpa dicek
+// dulu — roda "tersedak" (jarum berputar jauh melewati Z, lalu bergetar
+// bingung) dan huruf hasil yang keluar salah ("I" bukan "b"). Kanan
+// ("✓ Begini lebih aman"): huruf kecil "b" diperiksa dulu oleh gerbang
+// kecil A-Z, ditolak dan dibiarkan apa adanya; huruf besar "A" lolos
+// gerbang dan diputar mulus jadi "B".
+import AlphabetWheel from './AlphabetWheel.astro';
+---
+
+<div class="cca-demo" data-anim="cca-demo" tabindex="0" role="button" aria-label="Ulangi perbandingan sandi yang lupa dan yang ingat mengecek huruf besar/kecil">
+  <div class="cca-demo__cols">
+    <div class="cca-demo__col cca-demo__col--wrong">
+      <span class="cca-demo__col-title">✗ sandikan_bahaya("Ab", 1)</span>
+      <AlphabetWheel idPrefix="cca-w" size={140} label="" />
+      <div class="cca-demo__feed">
+        <span class="cca-demo__chip" id="cca-w-chip-a">A → B</span>
+        <span class="cca-demo__chip cca-demo__chip--bad" id="cca-w-chip-b">b → I 💥</span>
+      </div>
+      <span class="cca-demo__confused" id="cca-w-confused" aria-hidden="true">?!</span>
+    </div>
+
+    <div class="cca-demo__col cca-demo__col--right">
+      <span class="cca-demo__col-title">✓ sandikan("Ab", 1)</span>
+      <AlphabetWheel idPrefix="cca-r" size={140} label="" />
+      <div class="cca-demo__feed">
+        <span class="cca-demo__chip cca-demo__chip--good" id="cca-r-chip-a">A → B</span>
+        <span class="cca-demo__chip" id="cca-r-chip-b">b → b</span>
+      </div>
+      <span class="cca-demo__gate" id="cca-r-gate" aria-hidden="true">🚧 A-Z</span>
+    </div>
+  </div>
+</div>
+
+<p class="cca-demo__hint">
+  💡 <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .cca-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    cursor: pointer;
+  }
+
+  .cca-demo__cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+
+  .cca-demo__col {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    background: var(--white);
+    border-radius: var(--radius-card);
+    padding: 18px 14px;
+  }
+
+  .cca-demo__col--wrong {
+    border: 2px solid rgba(255, 122, 107, 0.4);
+  }
+
+  .cca-demo__col--right {
+    border: 2px solid rgba(47, 191, 113, 0.35);
+  }
+
+  .cca-demo__col-title {
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--slate);
+    text-align: center;
+  }
+
+  .cca-demo__feed {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .cca-demo__chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 10px;
+    border-radius: 8px;
+    background: var(--cloud);
+    color: var(--ink);
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 13px;
+    opacity: 0.3;
+    transition: opacity 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .cca-demo__chip.is-in {
+    opacity: 1;
+  }
+
+  .cca-demo__chip--good.is-in {
+    background: var(--pyto-green-soft);
+    color: var(--pyto-green-dark);
+  }
+
+  .cca-demo__chip--bad.is-in {
+    background: var(--box-awas-bg);
+    color: #c0392b;
+  }
+
+  .cca-demo__confused {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    font-size: 18px;
+    font-weight: 800;
+    color: #c0392b;
+    opacity: 0;
+  }
+
+  .cca-demo__confused.is-in {
+    animation: cca-confused-pop 0.6s ease;
+  }
+
+  @keyframes cca-confused-pop {
+    0% {
+      opacity: 0;
+      transform: scale(0.6);
+    }
+    40% {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .cca-demo__gate {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--pyto-green-dark);
+    background: var(--pyto-green-soft);
+    border-radius: 999px;
+    padding: 3px 9px;
+    opacity: 0;
+  }
+
+  .cca-demo__gate.is-in {
+    animation: cca-gate-pop 0.5s ease;
+  }
+
+  @keyframes cca-gate-pop {
+    0% {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .cca-demo.is-in .cca-demo__col--wrong {
+    animation: cca-jitter 0.5s ease 1.4s 2;
+  }
+
+  @keyframes cca-jitter {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-4px);
+    }
+    75% {
+      transform: translateX(4px);
+    }
+  }
+
+  .cca-demo__hint {
+    font-size: 14px;
+    color: var(--slate);
+    margin: 0 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cca-demo__chip,
+    .cca-demo__confused,
+    .cca-demo__gate,
+    .cca-demo__col--wrong {
+      animation: none !important;
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 620px) {
+    .cca-demo__cols {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const STEP_ANGLE = 360 / 26;
+
+  function resetWheel(prefix: string) {
+    for (let i = 0; i < 26; i += 1) {
+      document.getElementById(`${prefix}-letter-${i}`)?.classList.remove('is-active', 'is-target');
+    }
+  }
+
+  function play() {
+    // --- Kolom kiri: salah (tanpa cek A-Z) ---
+    const needleW = document.getElementById('cca-w-needle');
+    resetWheel('cca-w');
+    document.getElementById('cca-w-chip-a')?.classList.remove('is-in');
+    document.getElementById('cca-w-chip-b')?.classList.remove('is-in');
+    document.getElementById('cca-w-confused')?.classList.remove('is-in');
+    if (needleW) needleW.style.opacity = '0';
+
+    setTimeout(() => {
+      if (needleW) {
+        needleW.style.opacity = '1';
+        needleW.style.transform = `translate(-50%, -100%) rotate(${STEP_ANGLE * 0}deg)`;
+      }
+      document.getElementById('cca-w-letter-0')?.classList.add('is-active');
+      document.getElementById('cca-w-letter-1')?.classList.add('is-target');
+      document.getElementById('cca-w-chip-a')?.classList.add('is-in');
+    }, 300);
+
+    setTimeout(() => {
+      resetWheel('cca-w');
+      // "b" dipaksa masuk: ord('b')-ord('A') = 33, jauh melewati Z (overshoot).
+      if (needleW) {
+        needleW.style.transform = `translate(-50%, -100%) rotate(${STEP_ANGLE * 33}deg)`;
+      }
+      document.getElementById('cca-w-confused')?.classList.add('is-in');
+    }, 1000);
+
+    setTimeout(() => {
+      // Mendarat "bingung" di huruf yang salah (I, index 8).
+      resetWheel('cca-w');
+      if (needleW) {
+        needleW.style.transform = `translate(-50%, -100%) rotate(${STEP_ANGLE * 8}deg)`;
+      }
+      document.getElementById('cca-w-letter-8')?.classList.add('is-target');
+      document.getElementById('cca-w-chip-b')?.classList.add('is-in');
+    }, 1700);
+
+    // --- Kolom kanan: benar (dicek dulu A-Z) ---
+    const needleR = document.getElementById('cca-r-needle');
+    resetWheel('cca-r');
+    document.getElementById('cca-r-chip-a')?.classList.remove('is-in');
+    document.getElementById('cca-r-chip-b')?.classList.remove('is-in');
+    document.getElementById('cca-r-gate')?.classList.remove('is-in');
+    if (needleR) needleR.style.opacity = '0';
+
+    setTimeout(() => {
+      if (needleR) {
+        needleR.style.opacity = '1';
+        needleR.style.transform = `translate(-50%, -100%) rotate(${STEP_ANGLE * 0}deg)`;
+      }
+      document.getElementById('cca-r-letter-0')?.classList.add('is-active');
+      document.getElementById('cca-r-letter-1')?.classList.add('is-target');
+      document.getElementById('cca-r-chip-a')?.classList.add('is-in');
+    }, 300);
+
+    setTimeout(() => {
+      // "b" ditolak gerbang A-Z, tidak pernah menyentuh roda.
+      document.getElementById('cca-r-gate')?.classList.add('is-in');
+      document.getElementById('cca-r-chip-b')?.classList.add('is-in');
+    }, 1400);
+  }
+
+  const els = document.querySelectorAll('[data-anim="cca-demo"]');
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+    play();
+  });
+
+  els.forEach((el) => {
+    wireReplay(el, 'is-in');
+    el.addEventListener('mouseenter', play);
+    el.addEventListener('click', play);
+    el.addEventListener('keydown', (e) => {
+      if ((e as KeyboardEvent).key === 'Enter' || (e as KeyboardEvent).key === ' ') play();
+    });
+  });
+</script>
