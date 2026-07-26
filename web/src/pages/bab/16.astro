@@ -1,0 +1,400 @@
+---
+// Bab 16 — Agen Rahasia Pyto (Kode Rahasia & Keamanan Kata Sandi).
+// Sumber naskah: plan/naskah/bab-16-agen-rahasia-pyto.md.
+// Sumber animasi: plan/bab-16-animasi.md.
+// Sumber desain: plan/design/bab-16-desain.md — bab paling ringan secara
+// infrastruktur di Fase 2: TIDAK ada micropip/paket pihak ketiga/jembatan
+// upload-unduh. Murni ord()/chr()/string/for/if/def, dan PyodideEditor
+// mode="interactive" apa adanya (dua input() berurutan). Fungsi sandikan()
+// dan cek_kekuatan_sandi() tampil verbatim sesuai kontrak desain — TIDAK
+// ditambah .upper()/normalisasi apa pun (case-sensitive itu materi ajar,
+// bukan bug, lihat Kotak Awas).
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import ChapterHero from '../../components/ChapterHero.astro';
+import PytoSecretAgentHero from '../../components/PytoSecretAgentHero.astro';
+import OrdChrWheelDemo from '../../components/OrdChrWheelDemo.astro';
+import CaesarShiftDemo from '../../components/CaesarShiftDemo.astro';
+import CaesarShiftReverseDemo from '../../components/CaesarShiftReverseDemo.astro';
+import CaseSensitiveAwas from '../../components/CaseSensitiveAwas.astro';
+import WeakPasswordGateDemo from '../../components/WeakPasswordGateDemo.astro';
+import PasswordStrengthMeterDemo from '../../components/PasswordStrengthMeterDemo.astro';
+import BruteForceDemo from '../../components/BruteForceDemo.astro';
+import CaesarLivePreview from '../../components/CaesarLivePreview.astro';
+import KotakAwas from '../../components/KotakAwas.astro';
+import KotakMainYuk from '../../components/KotakMainYuk.astro';
+import KotakTahuLebih from '../../components/KotakTahuLebih.astro';
+import PyodideEditor from '../../components/PyodideEditor.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import RangkumanList from '../../components/RangkumanList.astro';
+import Glossary from '../../components/Glossary.astro';
+import ChapterFooterNav from '../../components/ChapterFooterNav.astro';
+
+const base = import.meta.env.BASE_URL;
+
+const rangkuman = [
+  '<code>ord()</code> mengubah satu huruf jadi angka; <code>chr()</code> mengubah satu angka jadi huruf — dasar dari semua trik sandi rahasia di bab ini.',
+  '<strong>Sandi Caesar</strong> menggeser tiap huruf sejauh N langkah di alfabet, memakai <code>% 26</code> supaya geserannya "berputar balik" begitu sampai ujung alfabet (seperti jarum jam).',
+  'Memecahkan sandi Caesar sama saja dengan menyandikannya lagi memakai geseran <strong>negatif</strong> — Python menangani angka negatif dengan aman di dalam <code>%</code>.',
+  'PENTING: fungsi <code>sandikan()</code> di bab ini cuma mengenali huruf besar <code>A</code>-<code>Z</code> — huruf kecil dibiarkan apa adanya, jadi selalu ketik pesan rahasia dengan huruf besar semua.',
+  'Sandi Caesar tidak aman dipakai sungguhan karena cuma ada 26 kemungkinan geseran — bisa dibongkar komputer dalam sekejap dengan mencoba semuanya.',
+  '<strong>Kata sandi</strong> yang kuat butuh banyak kemungkinan: panjang minimal 8 karakter, ada angka, ada huruf besar, dan bukan kata sandi umum seperti <code>"123456"</code>.',
+];
+
+const glossaryTerms = [
+  { term: 'ord()', def: 'Mengubah satu karakter huruf jadi angka di baliknya.' },
+  { term: 'chr()', def: 'Mengubah satu angka jadi karakter huruf.' },
+  { term: 'Sandi Caesar', def: 'Cara menyandikan pesan dengan menggeser tiap huruf sejauh N langkah di alfabet.' },
+  { term: 'Modulo (%)', def: 'Sisa hasil bagi — dipakai supaya geseran huruf "berputar balik" begitu sampai ujung alfabet.' },
+  { term: 'Enkripsi', def: 'Mengubah pesan asli jadi pesan tersandi yang tidak bisa dibaca langsung.' },
+  { term: 'Dekripsi', def: 'Mengubah pesan tersandi balik jadi pesan asli.' },
+  { term: 'Kata sandi lemah', def: 'Kata sandi yang gampang ditebak, misalnya "123456" atau "password".' },
+];
+---
+
+<ChapterLayout
+  currentChapter={16}
+  description="Bab 16: Agen Rahasia Pyto (Kode Rahasia & Keamanan Kata Sandi) — bikin dan pecahkan sandi Caesar pakai ord()/chr(), sekaligus belajar kenapa kata sandi seperti '123456' itu ide buruk, ditemani Pyto si robot ular."
+>
+  <ChapterHero
+    number={16}
+    title="Agen Rahasia Pyto 🕵️"
+    tagline={'Bikin & pecahkan sandi rahasia ala agen mata-mata pakai Python, sekaligus belajar kenapa kata sandi seperti <code>"123456"</code> itu sama saja dengan pintu markas yang dibiarkan terbuka.'}
+  >
+    <PytoSecretAgentHero slot="mascot" />
+  </ChapterHero>
+
+  <section data-reveal>
+    <h2>Ubah Huruf Jadi Angka Rahasia</h2>
+    <p>
+      Komputer sebenarnya tidak "melihat" huruf seperti kita — tiap huruf disimpan sebagai sebuah
+      <strong>angka</strong> di baliknya. Python punya dua perintah untuk bolak-balik antara huruf
+      dan angka itu: <code>ord()</code> (huruf → angka) dan <code>chr()</code> (angka → huruf).
+    </p>
+    <CodeBlock code={`print(ord("A"))   # 65\nprint(chr(65))     # A`} />
+    <p>
+      Angka 65 kurang enak dipakai berhitung. Supaya lebih rapi, kita "reset" hitungannya dengan
+      menjadikan <code>"A"</code> sebagai angka 0 — tinggal kurangi dengan <code>ord("A")</code>.
+      Sekarang <code>A</code> = 0, <code>B</code> = 1, <code>C</code> = 2, dan seterusnya sampai
+      <code>Z</code> = 25 — pas 26 huruf alfabet.
+    </p>
+    <div class="chapter-media">
+      <OrdChrWheelDemo />
+    </div>
+    <p>
+      Jalan pulangnya (dari angka ke huruf) juga tinggal ditambah lagi <code>ord("A")</code>,
+      dibungkus <code>chr()</code>: <code>huruf = chr(angka + ord("A"))</code> — kalau
+      <code>angka</code> bernilai <code>2</code>, hasilnya <code>"C"</code>.
+    </p>
+  </section>
+
+  <section data-reveal>
+    <h2>Bikin Sandi Caesar: Geser Semua Huruf N Langkah</h2>
+    <p>
+      Sandi rahasia paling klasik di dunia namanya <strong>sandi Caesar</strong> — caranya
+      sederhana: geser tiap huruf sejauh N langkah di alfabet. Kalau geserannya 3, <code>A</code>
+      jadi <code>D</code>, <code>B</code> jadi <code>E</code>, dan seterusnya. Ini kodenya,
+      dibungkus jadi satu fungsi (mantra dari Bab 12) supaya bisa dipakai ulang untuk pesan apa
+      pun:
+    </p>
+    <div class="chapter-media">
+      <CaesarShiftDemo />
+    </div>
+    <p>
+      Kamu sudah biasa membandingkan angka pakai <code>&gt;=</code>/<code>&lt;=</code> sejak Bab 6
+      — ternyata Python bisa membandingkan huruf dengan cara yang sama, mengikuti urutan angka
+      <code>ord()</code> di baliknya. Jadi <code>huruf &gt;= "A" and huruf &lt;= "Z"</code> artinya:
+      "apakah karakter ini benar-benar huruf besar (bukan spasi atau tanda baca)?" Kalau iya,
+      huruf itu digeser; kalau bukan, dibiarkan apa adanya lewat <code>else</code>.
+    </p>
+    <p>
+      Bagian <code>% 26</code> (sisa bagi 26) itu yang membuat sandinya "berputar balik" begitu
+      sampai ujung alfabet — <code>Y</code> (24) digeser 3 harusnya jadi angka 27, tapi karena cuma
+      ada 26 huruf, <code>27 % 26</code> hasilnya <code>1</code>, yang artinya <code>B</code>.
+      Alfabetnya melingkar seperti jam, bukan berhenti mendadak di <code>Z</code>.
+    </p>
+  </section>
+
+  <section class="pyto-quote-box" data-reveal>
+    <span class="pyto-quote-box__mascot" role="img" aria-label="Pyto">🐍</span>
+    <p class="pyto-quote-box__text">
+      "Bayangkan alfabetnya seperti jam dengan 26 angka, bukan 12. Kalau jarumnya sudah di angka
+      25 (huruf <code>Z</code>) dan digeser 3 langkah lagi, dia tidak nyasar ke angka 28 — dia
+      balik lagi ke angka kecil, persis seperti jam 11 malam ditambah 3 jam jadi jam 2 pagi, bukan
+      'jam 14'. Itulah kerjanya <code>% 26</code>."
+    </p>
+  </section>
+
+  <section data-reveal>
+    <h2>Pecahkan Sandinya Lagi: Geser Balik</h2>
+    <p>
+      Enaknya, kamu tidak perlu bikin fungsi baru buat memecahkan sandi. Membaca sandi Caesar itu
+      cuma menggeser ke arah <strong>sebaliknya</strong> — panggil lagi <code>sandikan()</code>,
+      tinggal kasih angka geseran <strong>negatif</strong>:
+    </p>
+    <div class="chapter-media">
+      <CaesarShiftReverseDemo />
+    </div>
+    <p>
+      Python cukup pintar menangani angka negatif di dalam <code>% 26</code> — hasilnya tetap
+      dijamin di antara 0 dan 25, tidak pernah minus, jadi geseran negatif langsung bekerja tanpa
+      perlu trik tambahan seperti <code>26 - geseran</code>.
+    </p>
+  </section>
+
+  <KotakAwas title="Awas — Sandi Ini Cuma Kenal Huruf BESAR">
+    <p>
+      Fungsi <code>sandikan()</code> di atas cuma mengenali huruf besar <code>A</code> sampai
+      <code>Z</code> lewat pengecekan <code>if huruf &gt;= "A" and huruf &lt;= "Z"</code>. Kalau
+      pengecekan itu dilupakan, huruf kecil ikut dipaksa masuk ke rumus dan hasilnya berantakan:
+    </p>
+    <CodeBlock
+      code={`# ✗ Jangan begini — lupa mengecek dulu apakah karakternya huruf besar
+def sandikan_bahaya(pesan, geseran):
+    hasil = ""
+    for huruf in pesan:
+        angka = ord(huruf) - ord("A")
+        angka_baru = (angka + geseran) % 26
+        hasil += chr(angka_baru + ord("A"))
+    return hasil
+
+print(sandikan_bahaya("Ab", 1))
+# BI   huruf kecil "b" malah ikut "digeser" jadi huruf besar "I" yang salah total!
+
+# ✓ Begini lebih aman — cek dulu, baru geser kalau memang huruf besar
+def sandikan(pesan, geseran):
+    hasil = ""
+    for huruf in pesan:
+        if huruf >= "A" and huruf <= "Z":
+            angka = ord(huruf) - ord("A")
+            angka_baru = (angka + geseran) % 26
+            hasil += chr(angka_baru + ord("A"))
+        else:
+            hasil += huruf
+    return hasil
+
+print(sandikan("Ab", 1))
+# Bb   huruf besar "A" digeser jadi "B", huruf kecil "b" dibiarkan apa adanya`}
+    />
+    <CaseSensitiveAwas />
+    <p>
+      Kenapa begini? Karena <code>ord("a")</code> (97) letaknya jauh dari <code>ord("A")</code>
+      (65) — kalau dipaksa dikurangi <code>ord("A")</code> juga tanpa dicek dulu, hasilnya jadi
+      angka di luar 0-25 yang bikin <code>chr()</code> mengembalikan huruf yang salah, bukan
+      sekadar "tidak digeser". Solusi paling sederhana untuk bab ini:
+      <strong>selalu ketik pesan rahasiamu dengan HURUF BESAR semua</strong> sebelum disandikan.
+      (Ada cara mengubah huruf kecil jadi besar secara otomatis, tapi itu perintah baru yang belum
+      kita pelajari — simpan dulu jadi PR seru buat dieksplorasi sendiri!)
+    </p>
+  </KotakAwas>
+
+  <section data-reveal>
+    <h2>Pintu Gerbang Kedua: Kata Sandi yang Gampang Ditebak</h2>
+    <p>
+      Sandi Caesar seru buat kirim pesan rahasia antar teman. Tapi markas agen rahasia sungguhan
+      juga butuh <strong>pintu gerbang</strong> yang aman — kata sandi (password) buat masuk.
+      Sayangnya, banyak orang masih pakai kata sandi yang gampang ditebak:
+    </p>
+    <CodeBlock
+      code={`sandi_lemah = ["123456", "password", "qwerty", "111111", "sandi123"]
+
+kata_sandi = "123456"
+
+if kata_sandi in sandi_lemah:
+    print("Waduh, ini kata sandi favorit para pembobol! 🚨")`}
+    />
+    <div class="chapter-media">
+      <WeakPasswordGateDemo />
+    </div>
+    <p>
+      <code>in</code> (dari Bab 8) mengecek apakah <code>kata_sandi</code> ada di dalam daftar
+      kata sandi paling umum ditebak. Kelima kata sandi di atas bukan rekaan — di dunia nyata,
+      daftar semacam ini memang ada di kepala peretas, karena banyak orang benar-benar
+      memakainya. Catatan kecil: pengecekan ini persis huruf demi huruf (mengingat lagi soal
+      besar-kecil huruf dari bagian sebelumnya) — kalau ditulis <code>"Password"</code> (P besar),
+      dia tidak akan cocok dengan <code>"password"</code> di daftar.
+    </p>
+  </section>
+
+  <section data-reveal>
+    <h2>Cek Kekuatan Kata Sandi dengan Skor</h2>
+    <p>
+      Selain mengecek daftar kata sandi lemah, kita juga bisa memberi <strong>skor</strong>
+      kekuatan berdasarkan beberapa aturan sederhana — pakai trik pembanding huruf yang persis
+      sama seperti bikin sandi Caesar tadi:
+    </p>
+    <CodeBlock
+      code={`def cek_kekuatan_sandi(sandi):
+    sandi_lemah = ["123456", "password", "qwerty", "111111", "sandi123"]
+
+    if sandi in sandi_lemah:
+        return "Lemah banget! Ini kata sandi favorit para pembobol 🚨"
+
+    skor = 0
+
+    if len(sandi) >= 8:
+        skor += 1
+
+    ada_angka = False
+    for karakter in sandi:
+        if karakter >= "0" and karakter <= "9":
+            ada_angka = True
+    if ada_angka:
+        skor += 1
+
+    ada_huruf_besar = False
+    for karakter in sandi:
+        if karakter >= "A" and karakter <= "Z":
+            ada_huruf_besar = True
+    if ada_huruf_besar:
+        skor += 1
+
+    if skor == 3:
+        return "Kuat! Lumayan sulit ditebak 💪"
+    elif skor == 2:
+        return "Cukup, tapi masih bisa lebih kuat lagi"
+    else:
+        return "Lemah, coba tambahkan panjang huruf/angka/huruf besar"
+
+print(cek_kekuatan_sandi("Rahasia9x"))   # Kuat! Lumayan sulit ditebak 💪`}
+    />
+    <div class="chapter-media">
+      <PasswordStrengthMeterDemo />
+    </div>
+    <p>
+      Tiga aturan yang dicek: panjang minimal 8 karakter (<code>len()</code> dari Bab 8), ada
+      minimal satu angka, dan ada minimal satu huruf besar — masing-masing menambah 1 skor.
+      Semakin banyak syarat yang terpenuhi, semakin tinggi skornya, semakin kuat kata sandinya.
+    </p>
+  </section>
+
+  <KotakMainYuk title="Main Yuk! — Ganti Geserannya" icon="🎮" wiggleIcon>
+    <p>
+      Ganti angka geseran supaya pesan tersandinya beda dari contoh di atas. Apa yang harus diisi
+      di bagian kosong?
+    </p>
+    <CodeBlock code={`pesan_sandi = sandikan("PYTO AGEN RAHASIA", ____)\nprint(pesan_sandi)`} />
+    <details class="jawaban">
+      <summary>🔎 Lihat jawaban</summary>
+      <p>
+        Isi dengan angka geseran pilihanmu, misalnya <code>5</code> atau <code>13</code> — semakin
+        besar angkanya (sampai maksimal 25), semakin jauh huruf-hurufnya bergeser. Coba juga isi
+        <code>26</code> — apa yang terjadi? (Jawaban: pesannya balik seperti semula! Alfabetnya
+        cuma punya 26 huruf, jadi geser 26 langkah = satu putaran penuh = kembali ke tempat
+        semula.)
+      </p>
+    </details>
+    <CaesarLivePreview />
+  </KotakMainYuk>
+
+  <KotakTahuLebih title="Tahu Lebih — Bongkar Sandi Tanpa Tahu Geserannya">
+    <p>
+      Ini rahasia kenapa sandi Caesar <strong>tidak aman</strong> dipakai sungguhan: geserannya
+      cuma ada 26 kemungkinan (0 sampai 25). Kalau kamu menemukan pesan tersandi tapi tidak tahu
+      geserannya, komputer bisa mencoba <strong>semua</strong> kemungkinan dalam sekejap:
+    </p>
+    <CodeBlock
+      code={`pesan_sandi = "DJHQ UDKDVLD"\n\nfor coba in range(26):\n    print(coba, sandikan(pesan_sandi, -coba))`}
+    />
+    <BruteForceDemo />
+    <p>
+      Tinggal baca 26 baris hasilnya, dan cari satu-satunya baris yang masuk akal sebagai kalimat
+      (<code>AGEN RAHASIA</code>, tepat saat <code>coba</code> bernilai <code>3</code>). Inilah
+      kenapa kata sandi asli <strong>tidak boleh</strong> punya kemungkinan sesedikit sandi Caesar
+      — kalau cuma ada segelintir kemungkinan, komputer bisa mencoba semuanya dalam hitungan
+      detik. Semakin panjang dan beragam kata sandimu (huruf besar-kecil, angka, simbol), semakin
+      banyak kemungkinan yang harus ditebak, semakin lama waktu yang dibutuhkan pembobol — persis
+      alasan kenapa bagian kekuatan kata sandi di atas penting.
+    </p>
+  </KotakTahuLebih>
+
+  <section data-reveal>
+    <h2>Coba Sendiri, Yuk!</h2>
+    <p>
+      Coba langsung di kolom editor — jadi agen rahasia sungguhan: kirim pesan tersandi, sekaligus
+      cek kekuatan kata sandimu sendiri. Klik <strong>Run</strong>, lalu jawab pertanyaan yang
+      muncul di console:
+    </p>
+    <PyodideEditor
+      mode="interactive"
+      idPrefix="bab16"
+      title="🐍 agen_rahasia.py"
+      runLabel="▶ Jalankan"
+      codeAriaLabel="Kotak kode agen rahasia Pyto"
+      rows={26}
+      minHeight={380}
+      consoleLabel="Console:"
+      starterCode={`def sandikan(pesan, geseran):
+    hasil = ""
+    for huruf in pesan:
+        if huruf >= "A" and huruf <= "Z":
+            angka = ord(huruf) - ord("A")
+            angka_baru = (angka + geseran) % 26
+            hasil += chr(angka_baru + ord("A"))
+        else:
+            hasil += huruf
+    return hasil
+
+def cek_kekuatan_sandi(sandi):
+    sandi_lemah = ["123456", "password", "qwerty", "111111", "sandi123"]
+
+    if sandi in sandi_lemah:
+        return "Lemah banget! Ini kata sandi favorit para pembobol 🚨"
+
+    skor = 0
+    if len(sandi) >= 8:
+        skor += 1
+
+    ada_angka = False
+    for karakter in sandi:
+        if karakter >= "0" and karakter <= "9":
+            ada_angka = True
+    if ada_angka:
+        skor += 1
+
+    ada_huruf_besar = False
+    for karakter in sandi:
+        if karakter >= "A" and karakter <= "Z":
+            ada_huruf_besar = True
+    if ada_huruf_besar:
+        skor += 1
+
+    if skor == 3:
+        return "Kuat! Lumayan sulit ditebak 💪"
+    elif skor == 2:
+        return "Cukup, tapi masih bisa lebih kuat lagi"
+    else:
+        return "Lemah, coba tambahkan panjang huruf/angka/huruf besar"
+
+
+pesan_rahasia = input("Ketik pesan rahasiamu (HURUF BESAR semua): ")
+geseran = int(input("Mau digeser berapa langkah? "))
+pesan_sandi = sandikan(pesan_rahasia, geseran)
+print(f"Pesan tersandi: {pesan_sandi}")
+
+kata_sandi = input("Coba ketik sebuah kata sandi buat dicek kekuatannya: ")
+print(cek_kekuatan_sandi(kata_sandi))
+`}
+      notes={[
+        '✏️ Coba jalankan lagi dengan geseran yang sama untuk membaca balik pesan tersandi temanmu — tinggal panggil <code>sandikan(pesan_sandi, -geseran)</code>. Atau, coba beberapa kata sandi berbeda dan lihat skor kekuatannya berubah-ubah.',
+        '🎉 Kalau layar menampilkan pesan tersandimu sendiri dan hasil cek kekuatan kata sandi — kamu baru saja lulus jadi agen rahasia Pyto, sekaligus paham cara bikin pintu gerbang digital yang lebih aman!',
+      ]}
+    />
+  </section>
+
+  <section data-reveal>
+    <h2>Rangkuman Bab 16</h2>
+    <RangkumanList items={rangkuman} />
+  </section>
+
+  <section data-reveal>
+    <h2>📖 Kamus Kata</h2>
+    <Glossary terms={glossaryTerms} />
+  </section>
+
+  <ChapterFooterNav
+    prevHref={`${base}/bab/15/`}
+    prevLabel="← Bab 15: Asisten Kantor Kilat"
+    nextLabel="Bab 17: Seniman Digital"
+    nextDisabled
+  />
+</ChapterLayout>

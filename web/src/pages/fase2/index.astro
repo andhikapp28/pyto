@@ -35,8 +35,8 @@ const susulan = fase2Chapters.filter((c) => c.group === 'susulan');
           Kamu sudah menyelesaikan 10 bab dasar — keren banget! Pyto sudah menyiapkan
           <strong>{fase2Meta.count} bab lanjutan</strong> yang menghasilkan sesuatu yang beneran
           bisa kamu pakai atau pamerkan: foto asli, file Excel rapi, sampai kode QR yang bisa
-          dipindai HP sungguhan. <strong>5 bab pertama (11-15) sudah bisa dicoba sekarang</strong> —
-          5 bab sisanya masih disiapkan, tapi berikut rencananya.
+          dipindai HP sungguhan. <strong>6 bab pertama (11-16) sudah bisa dicoba sekarang</strong> —
+          4 bab sisanya masih disiapkan, tapi berikut rencananya.
         </p>
       </div>
     </section>
@@ -88,21 +88,30 @@ const susulan = fase2Chapters.filter((c) => c.group === 'susulan');
 
         <ol class="fase2-grid">
           {
-            susulan.map((chapter) => (
-              <li>
-                <div class="fase2-card" data-reveal>
-                  <span class="fase2-card__emoji" aria-hidden="true">
-                    {chapter.emoji}
-                  </span>
-                  <span class="fase2-card__body">
-                    <span class="fase2-card__eyebrow">Bab {chapter.number} · {chapter.short}</span>
-                    <span class="fase2-card__title">{chapter.title}</span>
-                    <span class="fase2-card__desc">{chapter.blurb}</span>
-                  </span>
-                  <span class="fase2-card__tag">Segera</span>
-                </div>
-              </li>
-            ))
+            susulan.map((chapter) => {
+              const Tag = chapter.live ? 'a' : 'div';
+              return (
+                <li>
+                  <Tag
+                    href={chapter.live ? `${base}/bab/${chapter.number}/` : undefined}
+                    class={`fase2-card ${chapter.live ? 'fase2-card--live' : ''}`}
+                    data-reveal
+                  >
+                    <span class="fase2-card__emoji" aria-hidden="true">
+                      {chapter.emoji}
+                    </span>
+                    <span class="fase2-card__body">
+                      <span class="fase2-card__eyebrow">Bab {chapter.number} · {chapter.short}</span>
+                      <span class="fase2-card__title">{chapter.title}</span>
+                      <span class="fase2-card__desc">{chapter.blurb}</span>
+                    </span>
+                    <span class="fase2-card__tag">
+                      {chapter.live ? 'Sudah bisa dicoba →' : 'Segera'}
+                    </span>
+                  </Tag>
+                </li>
+              );
+            })
           }
         </ol>
       </div>
