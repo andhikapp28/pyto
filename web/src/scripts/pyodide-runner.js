@@ -432,6 +432,153 @@ ${inputVarName} = _pyto_io.BytesIO(_pyto_base64.b64decode(_pyto_uploaded_b64))
   return { output: output.replace(/\n$/, ''), resultBase64, resultKind };
 }
 
+// ---------------------------------------------------------------------
+// Bab 17 — jembatan kanvas gambar SINKRON (DrawingWorkbenchEditor.astro).
+// Pola bridge KETIGA (beda dari runPhotoWorkbench dkk. yang membaca balik
+// SATU variabel hasil di akhir, dan beda dari runPythonInteractive yang
+// menunggu manusia lewat input() async): di sini kode Python memanggil
+// balik JS BERKALI-KALI SELAMA eksekusi, tiap kali maju()/mundur()
+// menggambar satu garis, lewat dua fungsi yang didaftarkan ke
+// pyodide.globals — _pyto_kanvas_garis dan _pyto_kanvas_bersihkan.
+// Panggilannya SINKRON (bukan menunggu manusia seperti input() Bab 4/16),
+// jadi preamble di bawah murni `def` biasa, tanpa `async`/`await` sama
+// sekali. Lihat kontrak lengkap di plan/design/bab-17-desain.md.
+// ---------------------------------------------------------------------
+
+export const DRAWING_CANVAS_SIZE = 400; // lebar & tinggi logis kanvas, dalam px
+
+// Preamble Python "Kanvas Ajaib Pyto" — disuntikkan sebelum kode pembaca,
+// TIDAK PERNAH ditampilkan ke pembaca di halaman manapun (beda dari Bab 16,
+// tempat sandikan()/cek_kekuatan_sandi() ditulis penuh oleh pembaca sendiri
+// — di sini maju() dkk. adalah "sihir" kanvas yang sudah disiapkan). Aman
+// dijalankan berkali-kali (mendefinisikan ulang fungsi/dict tidak
+// menimbulkan efek samping).
+const KANVAS_AJAIB_PREAMBLE = `
+import math as _pyto_math
+
+_pyto_warna_palet = {
+    "hitam": "#1E2A32",
+    "putih": "#FFFFFF",
+    "merah": "#FF7A6B",
+    "kuning": "#FFC94D",
+    "hijau": "#2FBF71",
+    "biru": "#4DA6FF",
+    "ungu": "#8B6FE0",
+}
+
+_pyto_state = {"x": 0.0, "y": 0.0, "arah": 0.0, "pena_turun": True, "warna": "hitam", "tebal": 2}
+
+def bersihkan():
+    _pyto_state.update({"x": 0.0, "y": 0.0, "arah": 0.0, "pena_turun": True, "warna": "hitam", "tebal": 2})
+    _pyto_kanvas_bersihkan()
+
+def maju(langkah):
+    _rad = _pyto_math.radians(_pyto_state["arah"])
+    _x_baru = _pyto_state["x"] + langkah * _pyto_math.cos(_rad)
+    _y_baru = _pyto_state["y"] + langkah * _pyto_math.sin(_rad)
+    if _pyto_state["pena_turun"]:
+        _warna_hex = _pyto_warna_palet.get(_pyto_state["warna"], "#1E2A32")
+        _pyto_kanvas_garis(_pyto_state["x"], _pyto_state["y"], _x_baru, _y_baru, _warna_hex, _pyto_state["tebal"])
+    _pyto_state["x"] = _x_baru
+    _pyto_state["y"] = _y_baru
+
+def mundur(langkah):
+    maju(-langkah)
+
+def belok_kanan(derajat):
+    _pyto_state["arah"] = (_pyto_state["arah"] - derajat) % 360
+
+def belok_kiri(derajat):
+    _pyto_state["arah"] = (_pyto_state["arah"] + derajat) % 360
+
+def arah_ke(derajat):
+    _pyto_state["arah"] = derajat % 360
+
+def mulai_dari(x, y):
+    _pyto_state["x"] = float(x)
+    _pyto_state["y"] = float(y)
+
+def angkat_pena():
+    _pyto_state["pena_turun"] = False
+
+def turun_pena():
+    _pyto_state["pena_turun"] = True
+
+def warna_pena(nama_warna):
+    if nama_warna in _pyto_warna_palet:
+        _pyto_state["warna"] = nama_warna
+    else:
+        print(f"Pyto belum kenal warna '{nama_warna}', dipakai warna sebelumnya saja ya.")
+
+def tebal_pena(angka):
+    _pyto_state["tebal"] = max(1, min(12, angka))
+
+def posisi_sekarang():
+    return (_pyto_state["x"], _pyto_state["y"])
+
+def arah_sekarang():
+    return _pyto_state["arah"]
+`;
+
+// Menjalankan kode Python bab "Seniman Digital" (menggambar) yang memanggil
+// maju()/mundur()/belok_kanan()/dst. — semuanya sudah didefinisikan lewat
+// KANVAS_AJAIB_PREAMBLE di atas, tanpa perlu `import` apa pun dari kode
+// pembaca. `canvasElement` adalah elemen <canvas width="400" height="400">
+// sungguhan; origin (0,0) ada di TENGAH kanvas dan sumbu-Y dibalik (atas =
+// y positif) — lihat "Ringkasan Kontrak API" di plan/design/bab-17-desain.md.
+//
+// Kanvas + state Pyto WAJIB direset (bersihkan()) SETIAP kali fungsi ini
+// dipanggil, SEBELUM kode pembaca dijalankan — supaya tiap klik ▶ Jalankan
+// idempoten (kode yang sama selalu menghasilkan gambar yang sama persis,
+// tidak menumpuk sisa gambar dari percobaan sebelumnya). Gambarnya muncul
+// SEKALIGUS begitu runPythonAsync(code) selesai — TIDAK dianimasikan
+// langkah demi langkah (lihat "Keputusan Desain Kunci" poin 4 di
+// plan/design/bab-17-desain.md), itu pilihan sengaja, bukan keterbatasan.
+export async function runDrawingWorkbench(code, canvasElement) {
+  const pyodide = await getPyodide();
+  const ctx = canvasElement.getContext('2d');
+  const half = DRAWING_CANVAS_SIZE / 2;
+
+  function toScreen(x, y) {
+    return [half + x, half - y];
+  }
+
+  pyodide.globals.set('_pyto_kanvas_garis', (x0, y0, x1, y1, warnaHex, tebal) => {
+    const [sx0, sy0] = toScreen(x0, y0);
+    const [sx1, sy1] = toScreen(x1, y1);
+    ctx.strokeStyle = warnaHex;
+    ctx.lineWidth = tebal;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(sx0, sy0);
+    ctx.lineTo(sx1, sy1);
+    ctx.stroke();
+  });
+
+  pyodide.globals.set('_pyto_kanvas_bersihkan', () => {
+    ctx.fillStyle = '#FFFFFF'; // kanvas = "kertas gambar" putih, beda dari latar --cloud di sekitarnya
+    ctx.fillRect(0, 0, DRAWING_CANVAS_SIZE, DRAWING_CANVAS_SIZE);
+  });
+
+  let output = '';
+  pyodide.setStdout({
+    batched: (s) => {
+      output += s + '\n';
+    },
+  });
+  pyodide.setStderr({
+    batched: (s) => {
+      output += s + '\n';
+    },
+  });
+
+  await pyodide.runPythonAsync(KANVAS_AJAIB_PREAMBLE);
+  await pyodide.runPythonAsync('bersihkan()');
+  await pyodide.runPythonAsync(code);
+
+  return { output: output.replace(/\n$/, '') };
+}
+
 export function friendlyError(err) {
   const message = err instanceof Error ? err.message : String(err);
   if (message.includes('Failed to fetch')) {
