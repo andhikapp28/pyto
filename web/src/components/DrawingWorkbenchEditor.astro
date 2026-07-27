@@ -1,0 +1,367 @@
+---
+// Komponen paling baru/penting di Bab 17 — lihat spesifikasi lengkap di
+// plan/design/bab-17-desain.md ("Kontrak Kode & Bridge"). Beda dari
+// PhotoWorkbenchEditor/QrCodeWorkbenchEditor/FileWorkbenchEditor (yang
+// semuanya seputar file masuk/keluar dibaca balik SEKALI di akhir): ini
+// pola bridge BARU seputar canvas rendering lewat panggilan Python->JS
+// SINKRON berkali-kali (tiap maju()/mundur() menggambar satu garis), lewat
+// runDrawingWorkbench() di pyodide-runner.js. Dipakai HANYA di bagian
+// "Coba Sendiri" (satu-satunya kanvas Pyodide sungguhan di seluruh bab).
+//
+// Alurnya: Kotak Kode -> tombol ▶ Jalankan (bersihkan() otomatis dulu,
+// lalu kode pembaca dijalankan, gambar muncul sekaligus di <canvas>) ->
+// tombol Unduh Gambar (klien murni, toDataURL(), TIDAK menyentuh Python
+// sama sekali) + confetti sekali begitu gambar pertama berhasil tampil.
+interface Props {
+  idPrefix?: string;
+  title: string;
+  runLabel?: string;
+  resetLabel?: string;
+  starterCode: string;
+  rows?: number;
+  minHeight?: number;
+  codeAriaLabel: string;
+  notes?: string[];
+  downloadLabel?: string;
+  downloadFileName?: string;
+}
+
+const {
+  idPrefix = 'dwe',
+  title,
+  runLabel = '▶ Jalankan',
+  resetLabel = '↺ Reset',
+  starterCode,
+  rows = 8,
+  minHeight = 160,
+  codeAriaLabel,
+  notes = [],
+  downloadLabel = '⬇ Unduh Gambar',
+  downloadFileName = 'gambar-pyto.png',
+} = Astro.props;
+---
+
+<div class="dwe-wrap" data-id-prefix={idPrefix} data-download-file-name={downloadFileName}>
+  <div class="dwe card">
+    <div class="dwe__stage">
+      <div class="dwe__canvas-card">
+        <canvas
+          id={`${idPrefix}-canvas`}
+          class="dwe__canvas"
+          width="400"
+          height="400"
+          aria-label="Kanvas ajaib Pyto — hasil gambar kode Python"
+        ></canvas>
+      </div>
+      <a
+        class="btn btn-download dwe__download-btn"
+        id={`${idPrefix}-download-btn`}
+        aria-disabled="true"
+        download={downloadFileName}
+      >
+        {downloadLabel}
+      </a>
+    </div>
+
+    <div class="dwe__editor">
+      <div class="dwe__header">
+        <span class="dwe__title">{title}</span>
+        <div class="dwe__buttons">
+          <button type="button" class="btn btn-secondary dwe__reset" id={`${idPrefix}-reset`}>
+            {resetLabel}
+          </button>
+          <button type="button" class="btn btn-primary dwe__run" id={`${idPrefix}-run`}>
+            {runLabel}
+          </button>
+        </div>
+      </div>
+
+      <textarea
+        id={`${idPrefix}-code`}
+        class="dwe__code"
+        style={`min-height: ${minHeight}px;`}
+        spellcheck="false"
+        autocomplete="off"
+        autocapitalize="off"
+        rows={rows}
+        aria-label={codeAriaLabel}>{starterCode}</textarea
+      >
+
+      <div class="dwe__status" id={`${idPrefix}-status`} aria-live="polite">
+        Klik {runLabel} untuk melihat gambarnya muncul di kanvas.
+      </div>
+
+      <pre class="dwe__console" id={`${idPrefix}-console`} hidden></pre>
+    </div>
+  </div>
+
+  <div class="dwe__confetti" id={`${idPrefix}-confetti`} aria-hidden="true"></div>
+</div>
+
+{notes.map((note) => <p class="dwe__note" set:html={note} />)}
+
+<style>
+  .dwe-wrap {
+    position: relative;
+  }
+
+  .dwe {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .dwe__stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--cloud);
+  }
+
+  .dwe__canvas-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 10px;
+    max-width: 320px;
+    width: 100%;
+  }
+
+  .dwe__canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+    border-radius: 8px;
+  }
+
+  .dwe__download-btn {
+    font-size: 14px;
+    padding: 10px 18px;
+    min-height: 40px;
+  }
+
+  .dwe__download-btn[aria-disabled='true'] {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .dwe__editor {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .dwe__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 16px 20px;
+    background: var(--cloud);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .dwe__title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 16px;
+  }
+
+  .dwe__buttons {
+    display: flex;
+    gap: 10px;
+  }
+
+  .dwe__buttons .btn {
+    padding: 10px 18px;
+    font-size: 14px;
+    min-height: 40px;
+  }
+
+  .dwe__run:disabled,
+  .dwe__reset:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .dwe__code {
+    display: block;
+    width: 100%;
+    resize: vertical;
+    border: none;
+    outline: none;
+    background: var(--code-bg);
+    color: var(--code-text);
+    font-family: var(--font-code);
+    font-size: 15px;
+    line-height: 1.7;
+    padding: 20px;
+    tab-size: 4;
+  }
+
+  .dwe__status {
+    padding: 14px 20px 18px;
+    background: var(--white);
+    font-size: 15px;
+    color: var(--slate);
+  }
+
+  .dwe__status.is-loading {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  .dwe__status.is-error {
+    background: var(--box-awas-bg);
+    color: #b3392f;
+    font-weight: 700;
+  }
+
+  .dwe__status.is-note {
+    background: var(--box-tahu-lebih-bg);
+    color: var(--ink);
+  }
+
+  .dwe__confetti {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .dwe__note {
+    margin-top: 16px;
+    color: var(--slate);
+  }
+
+  .dwe__note :global(code) {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  .dwe__console {
+    margin: 0 20px 18px;
+    padding: 12px 16px;
+    background: var(--code-bg);
+    color: var(--code-text);
+    border-radius: var(--radius-code);
+    font-family: var(--font-code);
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  @media (max-width: 600px) {
+    .dwe__header {
+      justify-content: center;
+      text-align: center;
+    }
+
+    .dwe__code {
+      font-size: 14px;
+    }
+  }
+</style>
+
+<script>
+  import { LOADING_MESSAGE, isFirstPyodideLoad, runDrawingWorkbench, friendlyError } from '../scripts/pyodide-runner.js';
+  import { launchConfetti } from '../scripts/confetti.js';
+
+  document.querySelectorAll('.dwe-wrap').forEach((wrap) => {
+    const idPrefix = wrap.dataset.idPrefix;
+    if (!idPrefix || wrap.dataset.dweWired) return;
+    wrap.dataset.dweWired = 'true';
+
+    const downloadFileName = wrap.dataset.downloadFileName || 'gambar-pyto.png';
+
+    const canvasEl = document.getElementById(`${idPrefix}-canvas`);
+    const codeEl = document.getElementById(`${idPrefix}-code`);
+    const runBtn = document.getElementById(`${idPrefix}-run`);
+    const resetBtn = document.getElementById(`${idPrefix}-reset`);
+    const statusEl = document.getElementById(`${idPrefix}-status`);
+    const consoleEl = document.getElementById(`${idPrefix}-console`);
+    const downloadBtn = document.getElementById(`${idPrefix}-download-btn`);
+    const confettiEl = document.getElementById(`${idPrefix}-confetti`);
+
+    const STARTER_CODE = codeEl ? codeEl.value : '';
+    let confettiFired = false;
+
+    // Kanvas mulai sebagai "kertas putih" kosong sebelum tombol Jalankan
+    // pertama kali ditekan (bersihkan() sungguhan baru terjadi di dalam
+    // runDrawingWorkbench, tapi kanvas <canvas> HTML defaultnya transparan
+    // kalau tidak diisi apa-apa dulu).
+    if (canvasEl && canvasEl.getContext) {
+      const ctx = canvasEl.getContext('2d');
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, canvasEl.width, canvasEl.height);
+    }
+
+    const setStatus = (text, kind) => {
+      if (!statusEl) return;
+      statusEl.textContent = text;
+      statusEl.classList.toggle('is-loading', kind === 'loading');
+      statusEl.classList.toggle('is-error', kind === 'error');
+      statusEl.classList.toggle('is-note', kind === 'note');
+    };
+
+    runBtn?.addEventListener('click', async () => {
+      if (!codeEl || !runBtn || !canvasEl) return;
+      const code = codeEl.value;
+
+      runBtn.disabled = true;
+      if (resetBtn) resetBtn.disabled = true;
+
+      setStatus(isFirstPyodideLoad() ? LOADING_MESSAGE : 'Menjalankan...', 'loading');
+
+      try {
+        const { output } = await runDrawingWorkbench(code, canvasEl);
+
+        if (downloadBtn) {
+          downloadBtn.href = canvasEl.toDataURL('image/png');
+          downloadBtn.setAttribute('download', downloadFileName);
+          downloadBtn.removeAttribute('aria-disabled');
+        }
+
+        if (consoleEl) {
+          if (output) {
+            consoleEl.textContent = output;
+            consoleEl.hidden = false;
+          } else {
+            consoleEl.textContent = '';
+            consoleEl.hidden = true;
+          }
+        }
+
+        setStatus('✅ Gambar berhasil dibuat!', null);
+
+        if (!confettiFired) {
+          confettiFired = true;
+          launchConfetti(confettiEl);
+        }
+      } catch (err) {
+        setStatus(`⚠️ ${friendlyError(err)}`, 'error');
+      } finally {
+        runBtn.disabled = false;
+        if (resetBtn) resetBtn.disabled = false;
+      }
+    });
+
+    resetBtn?.addEventListener('click', () => {
+      if (!codeEl) return;
+      codeEl.value = STARTER_CODE;
+      if (consoleEl) {
+        consoleEl.textContent = '';
+        consoleEl.hidden = true;
+      }
+      setStatus(`Kode dikembalikan seperti semula. Klik "${runBtn?.textContent?.trim() ?? '▶ Jalankan'}" untuk mencoba lagi.`, null);
+    });
+  });
+</script>

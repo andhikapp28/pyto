@@ -1,0 +1,169 @@
+---
+// Animasi #7 (plan/bab-17-animasi.md) — kembang api dari titik pusat:
+// `mulai_dari(0, 0)` + `arah_ke(i * 15)` + `maju(150)` diulang 24 kali,
+// tiap kali "teleport" balik ke tengah (tanpa jejak) lalu menembakkan satu
+// garis lurus warna-warni ke sudut baru — total 24 garis mengelilingi penuh
+// 360°, dipercepat sampai membentuk lingkaran radiasi seperti ledakan
+// kembang api. Ilustrasi kalengan (CSS/SVG), BUKAN Pyodide sungguhan.
+const PALETTE = ['#FF7A6B', '#FFC94D', '#2FBF71', '#4DA6FF', '#8B6FE0'];
+const TOTAL = 24;
+const CX = 90;
+const CY = 90;
+const RADIUS = 68;
+
+const rays = Array.from({ length: TOTAL }, (_, i) => {
+  const angleDeg = i * 15;
+  const rad = (angleDeg * Math.PI) / 180;
+  const x2 = CX + RADIUS * Math.cos(rad);
+  const y2 = CY - RADIUS * Math.sin(rad);
+  const color = PALETTE[i % PALETTE.length];
+  const delay = (i * 0.09).toFixed(2);
+  return { x2, y2, color, delay };
+});
+---
+
+<div
+  class="fld-demo"
+  data-anim="fld-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi kembang api memancar dari titik pusat"
+>
+  <span class="fld-demo__badge" aria-hidden="true">arah_ke(i * 15)</span>
+
+  <svg class="fld-demo__svg" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+    {
+      rays.map((ray, i) => (
+        <line
+          class="fld-demo__ray"
+          style={`--fld-delay:${ray.delay}s`}
+          x1={CX}
+          y1={CY}
+          x2={ray.x2}
+          y2={ray.y2}
+          stroke={ray.color}
+          stroke-width="3"
+          stroke-linecap="round"
+        />
+      ))
+    }
+    <circle class="fld-demo__center" cx={CX} cy={CY} r="4" fill="var(--ink)" />
+  </svg>
+</div>
+
+<p class="fld-demo__hint">
+  💡 <code>mulai_dari(0, 0)</code> "meloncat" balik ke tengah tanpa menggambar garis apa pun, lalu
+  <code>arah_ke()</code> langsung mengatur arah — pas untuk pola yang selalu kembali ke satu titik
+  pusat. <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .fld-demo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 22px 24px;
+    cursor: pointer;
+  }
+
+  .fld-demo__badge {
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--grape);
+    background: rgba(139, 111, 224, 0.12);
+    border-radius: 999px;
+    padding: 6px 14px;
+  }
+
+  .fld-demo__svg {
+    width: 210px;
+    height: auto;
+    background: var(--cloud);
+    border-radius: 10px;
+  }
+
+  .fld-demo__ray {
+    stroke-dasharray: 70;
+    stroke-dashoffset: 70;
+    opacity: 0;
+  }
+
+  .fld-demo.is-in .fld-demo__ray {
+    animation: fld-shoot 0.3s ease forwards;
+    animation-delay: var(--fld-delay);
+  }
+
+  @keyframes fld-shoot {
+    0% {
+      opacity: 1;
+      stroke-dashoffset: 70;
+    }
+    100% {
+      opacity: 1;
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .fld-demo__center {
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .fld-demo.is-in .fld-demo__center {
+    animation: fld-center-flash 0.3s ease 0s forwards;
+  }
+
+  @keyframes fld-center-flash {
+    0% {
+      opacity: 0;
+      transform: scale(0.4);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.6);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .fld-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+    text-align: center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fld-demo__ray,
+    .fld-demo__center {
+      animation: none !important;
+      opacity: 1;
+      stroke-dashoffset: 0;
+      transform: none;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .fld-demo__svg {
+      width: 180px;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="fld-demo"]');
+  observeOnce(els, (el) => el.classList.add('is-in'));
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

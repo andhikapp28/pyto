@@ -1,0 +1,136 @@
+---
+// Animasi #6 (plan/bab-17-animasi.md) — mandala dari loop bersarang: loop
+// dalam menggambar satu kotak penuh dari titik tengah, loop luar mengulang
+// 12 kali sambil mengganti warna (i % len(warna)) dan memutar arah 30°
+// setiap putaran (12 × 30° = 360°). Semua kotak menempel di satu titik
+// tengah, saling tumpuk membentuk pola bunga/mandala. Dua kotak pertama
+// digambar penuh, sisanya dipercepat berangsur. Ilustrasi kalengan
+// (CSS/SVG), BUKAN Pyodide sungguhan.
+const PALETTE = ['#FF7A6B', '#FFC94D', '#2FBF71', '#4DA6FF', '#8B6FE0'];
+const TOTAL = 12;
+
+const boxes = Array.from({ length: TOTAL }, (_, i) => {
+  const angle = i * 30;
+  const color = PALETTE[i % PALETTE.length];
+  // Dua kotak pertama penuh (~0.5s masing-masing), sisanya dipercepat
+  // supaya total durasi tetap ~2,4 detik (lihat plan/bab-17-animasi.md #6).
+  const delay = i < 2 ? i * 0.5 : 1.0 + (i - 2) * 0.14;
+  return { angle, color, delay };
+});
+---
+
+<div
+  class="mld-demo"
+  data-anim="mld-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi mandala dari loop bersarang"
+>
+  <span class="mld-demo__badge" aria-hidden="true">
+    warna_warni[i <span class="mld-demo__mod">%</span> len(warna_warni)]
+  </span>
+
+  <svg class="mld-demo__svg" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+    {
+      boxes.map((box, i) => (
+        <g class="mld-demo__box" style={`--mld-delay:${box.delay}s`} transform={`rotate(${box.angle} 90 90)`}>
+          <path
+            class="mld-demo__path"
+            d="M90 90 H140 V140 H90 Z"
+            stroke={box.color}
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </g>
+      ))
+    }
+    <circle cx="90" cy="90" r="3" fill="var(--ink)" />
+  </svg>
+</div>
+
+<p class="mld-demo__hint">
+  💡 Loop dalam gambar satu kotak dari titik tengah, loop luar mengulanginya 12 kali sambil
+  memutar 30° dan berganti warna. <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .mld-demo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 22px 24px;
+    cursor: pointer;
+  }
+
+  .mld-demo__badge {
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--grape);
+    background: rgba(139, 111, 224, 0.12);
+    border-radius: 999px;
+    padding: 6px 14px;
+  }
+
+  .mld-demo__mod {
+    font-weight: 800;
+  }
+
+  .mld-demo__svg {
+    width: 210px;
+    height: auto;
+    background: var(--cloud);
+    border-radius: 10px;
+  }
+
+  .mld-demo__path {
+    stroke-dasharray: 160;
+    stroke-dashoffset: 160;
+  }
+
+  .mld-demo.is-in .mld-demo__path {
+    animation: mld-draw 0.4s ease forwards;
+    animation-delay: var(--mld-delay);
+  }
+
+  @keyframes mld-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .mld-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+    text-align: center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mld-demo__path {
+      animation: none !important;
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .mld-demo__svg {
+      width: 180px;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="mld-demo"]');
+  observeOnce(els, (el) => el.classList.add('is-in'));
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

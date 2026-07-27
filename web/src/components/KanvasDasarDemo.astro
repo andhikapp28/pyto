@@ -1,0 +1,286 @@
+---
+// Animasi #2 (plan/bab-17-animasi.md), Centerpiece 1 — ilustrasi kalengan
+// (CSS/SVG, BUKAN Pyodide sungguhan) memperagakan dua contoh dasar:
+// 1) maju(80) + belok_kanan(90) empat kali berturut-turut membentuk kotak,
+//    dengan Pyto-mini (anak panah kecil) bergerak lalu berputar di tempat.
+// 2) maju(50) + angkat_pena() + maju(50) + turun_pena() + maju(50): garis
+//    solid - jarak kosong - garis solid lagi (pola putus-putus).
+// Sekali jalan saat terlihat, boleh diulang lewat hover/klik/fokus.
+---
+
+<div
+  class="kdd-demo"
+  data-anim="kdd-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi kotak manual dan pena naik-turun kanvas ajaib Pyto"
+>
+  <div class="kdd-demo__stages">
+    <div class="kdd-demo__stage">
+      <span class="kdd-demo__stage-label">Kotak manual (4× maju + belok_kanan)</span>
+      <svg class="kdd-demo__svg" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path class="kdd-demo__seg kdd-demo__seg--1" d="M55 55 H125" />
+        <path class="kdd-demo__seg kdd-demo__seg--2" d="M125 55 V125" />
+        <path class="kdd-demo__seg kdd-demo__seg--3" d="M125 125 H55" />
+        <path class="kdd-demo__seg kdd-demo__seg--4" d="M55 125 V55" />
+        <g class="kdd-demo__marker">
+          <path d="M-7,-6 L9,0 L-7,6 Z" fill="var(--pyto-green-dark)"></path>
+        </g>
+      </svg>
+    </div>
+
+    <div class="kdd-demo__stage">
+      <span class="kdd-demo__stage-label">angkat_pena() / turun_pena()</span>
+      <svg class="kdd-demo__svg" viewBox="0 0 180 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path class="kdd-demo__pen-seg kdd-demo__pen-seg--1" d="M20 45 H70" />
+        <path class="kdd-demo__pen-seg kdd-demo__pen-seg--2" d="M70 45 H120" />
+        <path class="kdd-demo__pen-seg kdd-demo__pen-seg--3" d="M120 45 H170" />
+        <g class="kdd-demo__pen-marker">
+          <circle r="6" fill="var(--pyto-green-dark)"></circle>
+        </g>
+        <text class="kdd-demo__pen-icon" x="70" y="20" text-anchor="middle">✏️</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<p class="kdd-demo__hint">
+  💡 <code>belok_kanan()</code> cuma memutar arah hadap Pyto — badannya tidak berpindah sama
+  sekali sampai <code>maju()</code> dipanggil lagi. <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .kdd-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 22px 24px;
+    cursor: pointer;
+  }
+
+  .kdd-demo__stages {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    justify-content: center;
+  }
+
+  .kdd-demo__stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .kdd-demo__stage-label {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--slate);
+    text-align: center;
+  }
+
+  .kdd-demo__svg {
+    width: 180px;
+    height: auto;
+    background: var(--cloud);
+    border-radius: 10px;
+  }
+
+  .kdd-demo__seg {
+    stroke: var(--pyto-green);
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-dasharray: 90;
+    stroke-dashoffset: 90;
+  }
+
+  .kdd-demo.is-in .kdd-demo__seg--1 {
+    animation: kdd-draw 0.5s ease 0.3s forwards;
+  }
+  .kdd-demo.is-in .kdd-demo__seg--2 {
+    animation: kdd-draw 0.5s ease 0.9s forwards;
+  }
+  .kdd-demo.is-in .kdd-demo__seg--3 {
+    animation: kdd-draw 0.5s ease 1.5s forwards;
+  }
+  .kdd-demo.is-in .kdd-demo__seg--4 {
+    animation: kdd-draw 0.5s ease 2.1s forwards;
+  }
+
+  @keyframes kdd-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .kdd-demo__marker {
+    transform: translate(55px, 55px) rotate(0deg);
+    transform-origin: 0 0;
+  }
+
+  .kdd-demo.is-in .kdd-demo__marker {
+    animation: kdd-marker-move 2.7s steps(1, end) 0.3s forwards;
+  }
+
+  @keyframes kdd-marker-move {
+    0% {
+      transform: translate(55px, 55px) rotate(0deg);
+    }
+    22% {
+      transform: translate(125px, 55px) rotate(0deg);
+    }
+    25% {
+      transform: translate(125px, 55px) rotate(90deg);
+    }
+    47% {
+      transform: translate(125px, 125px) rotate(90deg);
+    }
+    50% {
+      transform: translate(125px, 125px) rotate(180deg);
+    }
+    72% {
+      transform: translate(55px, 125px) rotate(180deg);
+    }
+    75% {
+      transform: translate(55px, 125px) rotate(270deg);
+    }
+    97% {
+      transform: translate(55px, 55px) rotate(270deg);
+    }
+    100% {
+      transform: translate(55px, 55px) rotate(360deg);
+    }
+  }
+
+  /* --- Stage 2: pena naik-turun --- */
+  .kdd-demo__pen-seg {
+    stroke: var(--pyto-green);
+    stroke-width: 5;
+    stroke-linecap: round;
+    stroke-dasharray: 50;
+    stroke-dashoffset: 50;
+  }
+
+  .kdd-demo__pen-seg--2 {
+    stroke: var(--border);
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+
+  .kdd-demo.is-in .kdd-demo__pen-seg--1 {
+    animation: kdd-draw 0.5s ease 0.2s forwards;
+  }
+  .kdd-demo.is-in .kdd-demo__pen-seg--3 {
+    animation: kdd-draw 0.5s ease 1.5s forwards;
+  }
+
+  .kdd-demo__pen-icon {
+    font-size: 20px;
+    opacity: 0;
+  }
+
+  .kdd-demo.is-in .kdd-demo__pen-icon {
+    animation: kdd-pen-lift 0.8s ease 0.6s forwards;
+  }
+
+  @keyframes kdd-pen-lift {
+    0% {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    30%,
+    70% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+
+  .kdd-demo__pen-marker {
+    transform: translate(20px, 45px);
+    opacity: 0;
+  }
+
+  .kdd-demo.is-in .kdd-demo__pen-marker {
+    animation: kdd-pen-marker 2.1s linear 0.2s forwards;
+  }
+
+  @keyframes kdd-pen-marker {
+    0% {
+      opacity: 1;
+      transform: translate(20px, 45px);
+    }
+    24% {
+      opacity: 1;
+      transform: translate(70px, 45px);
+    }
+    62% {
+      transform: translate(120px, 45px);
+    }
+    100% {
+      opacity: 1;
+      transform: translate(170px, 45px);
+    }
+  }
+
+  .kdd-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  .kdd-demo__hint code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .kdd-demo__seg,
+    .kdd-demo__marker,
+    .kdd-demo__pen-seg,
+    .kdd-demo__pen-icon,
+    .kdd-demo__pen-marker {
+      animation: none !important;
+    }
+
+    .kdd-demo__seg {
+      stroke-dashoffset: 0;
+    }
+
+    .kdd-demo__pen-seg--1,
+    .kdd-demo__pen-seg--3 {
+      stroke-dashoffset: 0;
+    }
+
+    .kdd-demo__pen-icon {
+      opacity: 1;
+    }
+
+    .kdd-demo__pen-marker {
+      opacity: 0;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .kdd-demo__svg {
+      width: 150px;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="kdd-demo"]');
+  observeOnce(els, (el) => el.classList.add('is-in'));
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>
