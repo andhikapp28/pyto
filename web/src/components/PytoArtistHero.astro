@@ -1,0 +1,176 @@
+---
+// Animasi #1 (plan/bab-17-animasi.md): Pyto memegang kuas ajaib kecil,
+// berdiri di depan sebuah kanvas kosong berbingkai putih. Ekornya menyapukan
+// satu garis melengkung warna-warni (hijau → kuning → biru → ungu) yang
+// membentuk siluet bintang dalam satu sapuan, lalu Pyto mundur sedikit dan
+// mengagumi hasilnya sambil berkedip. Main langsung begitu halaman terbuka
+// (tidak menunggu scroll), seperti hero bab-bab sebelumnya. Idle: ujung kuas
+// berkedip pelan tiap beberapa detik.
+import PytoMascotWave from './PytoMascotWave.astro';
+---
+
+<div class="pah" data-anim="pah">
+  <div class="pah__canvas" aria-hidden="true">
+    <svg class="pah__svg" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="pah-grad" x1="18" y1="24" x2="142" y2="134" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#2FBF71" />
+          <stop offset="35%" stop-color="#FFC94D" />
+          <stop offset="68%" stop-color="#4DA6FF" />
+          <stop offset="100%" stop-color="#8B6FE0" />
+        </linearGradient>
+      </defs>
+      <path
+        class="pah__star-path"
+        d="M80 24 L96 66 L142 66 L104 92 L118 134 L80 108 L42 134 L56 92 L18 66 L64 66 Z"
+        stroke="url(#pah-grad)"
+        stroke-width="6"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      ></path>
+    </svg>
+  </div>
+
+  <div class="pah__mascot-wrap">
+    <span class="pah__brush" aria-hidden="true">🖌️</span>
+    <PytoMascotWave size={140} />
+  </div>
+
+  <span class="pah__sr">
+    Pyto memegang kuas ajaib kecil di depan kanvas kosong, menyapukan satu garis melengkung
+    warna-warni yang membentuk siluet bintang dalam satu sapuan, lalu mengagumi hasilnya sambil
+    berkedip.
+  </span>
+</div>
+
+<style>
+  .pah {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 26px;
+    flex-wrap: wrap;
+  }
+
+  .pah__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .pah__canvas {
+    width: 148px;
+    height: 148px;
+    background: var(--white);
+    border: 3px solid var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow-soft);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pah__svg {
+    width: 100%;
+    height: 100%;
+    padding: 8px;
+  }
+
+  .pah__star-path {
+    stroke-dasharray: 900;
+    stroke-dashoffset: 900;
+  }
+
+  .pah.is-in .pah__star-path {
+    animation: pah-draw 1.8s ease forwards;
+  }
+
+  @keyframes pah-draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .pah__mascot-wrap {
+    position: relative;
+    opacity: 0;
+    transform: translateX(14px);
+  }
+
+  .pah.is-in .pah__mascot-wrap {
+    animation: pah-mascot-in 0.7s ease 1.6s forwards;
+  }
+
+  @keyframes pah-mascot-in {
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .pah__brush {
+    position: absolute;
+    top: -4px;
+    right: -8px;
+    font-size: 28px;
+    transform: rotate(18deg);
+    z-index: 2;
+  }
+
+  .pah.is-in .pah__brush {
+    animation: pah-brush-idle 3.4s ease-in-out 2.4s infinite;
+  }
+
+  @keyframes pah-brush-idle {
+    0%,
+    100% {
+      transform: rotate(18deg) translateY(0);
+    }
+    50% {
+      transform: rotate(8deg) translateY(-4px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pah__star-path {
+      animation: none !important;
+      stroke-dashoffset: 0;
+    }
+
+    .pah__mascot-wrap {
+      animation: none !important;
+      opacity: 1;
+      transform: none;
+    }
+
+    .pah__brush {
+      animation: none !important;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .pah {
+      gap: 16px;
+    }
+
+    .pah__canvas {
+      width: 120px;
+      height: 120px;
+    }
+  }
+</style>
+
+<script>
+  import { wireReplay } from '../scripts/reveal-anim.js';
+
+  // Hero selalu terlihat begitu halaman dibuka (tidak perlu menunggu scroll),
+  // sama pola dengan PytoSecretAgentHero.astro (Bab 16).
+  document.querySelectorAll('[data-anim="pah"]').forEach((el) => {
+    setTimeout(() => el.classList.add('is-in'), 200);
+    wireReplay(el, 'is-in');
+  });
+</script>
