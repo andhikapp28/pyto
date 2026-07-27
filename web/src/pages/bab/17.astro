@@ -1,0 +1,297 @@
+---
+// Bab 17 — Seniman Digital (Menggambar dengan Kode).
+// Sumber naskah: plan/naskah/bab-17-seniman-digital.md.
+// Sumber animasi: plan/bab-17-animasi.md.
+// Sumber desain: plan/design/bab-17-desain.md — bab ini butuh API Python
+// KUSTOM ("Kanvas Ajaib Pyto": maju()/belok_kanan()/dst.) karena `turtle`
+// asli butuh Tkinter/jendela native yang mustahil jalan di Pyodide. Fungsi
+// kanvas ajaib disuntik lewat KANVAS_AJAIB_PREAMBLE (pyodide-runner.js) dan
+// TIDAK PERNAH ditampilkan isi implementasinya ke pembaca — beda dari Bab
+// 16 yang menulis penuh sandikan()/cek_kekuatan_sandi(). Jembatannya
+// SINKRON (Python memanggil balik JS tiap menggambar garis), BUKAN pola
+// input() async Bab 4/16. Hanya bagian "Coba Sendiri" (DrawingWorkbenchEditor)
+// yang benar-benar Pyodide sungguhan — semua demo Kotak Inti/Awas/Tahu
+// Lebih di bawah adalah ilustrasi kalengan CSS/SVG.
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import ChapterHero from '../../components/ChapterHero.astro';
+import PytoArtistHero from '../../components/PytoArtistHero.astro';
+import KanvasDasarDemo from '../../components/KanvasDasarDemo.astro';
+import StarLoopDemo from '../../components/StarLoopDemo.astro';
+import PenUpDownAwas from '../../components/PenUpDownAwas.astro';
+import MandalaLoopDemo from '../../components/MandalaLoopDemo.astro';
+import FireworksLoopDemo from '../../components/FireworksLoopDemo.astro';
+import StarAngleMathDemo from '../../components/StarAngleMathDemo.astro';
+import KotakAwas from '../../components/KotakAwas.astro';
+import KotakMainYuk from '../../components/KotakMainYuk.astro';
+import KotakTahuLebih from '../../components/KotakTahuLebih.astro';
+import DrawingWorkbenchEditor from '../../components/DrawingWorkbenchEditor.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import RangkumanList from '../../components/RangkumanList.astro';
+import Glossary from '../../components/Glossary.astro';
+import ChapterFooterNav from '../../components/ChapterFooterNav.astro';
+
+const base = import.meta.env.BASE_URL;
+
+const rangkuman = [
+  'Python asli punya modul <code>turtle</code> untuk menggambar, tapi tidak bisa jalan di browser — bab ini memakai <strong>Kanvas Ajaib Pyto</strong>, versi kustom buku ini yang terinspirasi dari <code>turtle</code>.',
+  'Posisi <code>(0, 0)</code> ada di <strong>tengah</strong> kanvas; arah <code>0°</code> menghadap ke <strong>kanan</strong>; <code>belok_kanan()</code>/<code>belok_kiri()</code> cuma mengubah arah hadap, tidak memindahkan posisi.',
+  '<code>maju(langkah)</code>/<code>mundur(langkah)</code> menggambar garis (kalau pena turun); <code>angkat_pena()</code>/<code>turun_pena()</code> mengatur apakah gerakan meninggalkan jejak garis atau tidak.',
+  '<code>warna_pena(nama_warna)</code> dan <code>tebal_pena(angka)</code> mengatur tampilan garis; <code>mulai_dari(x, y)</code> dan <code>arah_ke(derajat)</code> untuk mengatur posisi/arah secara langsung (absolut), berguna untuk pola yang selalu kembali ke satu titik pusat (seperti kembang api).',
+  'Aturan segi banyak beraturan: ulangi <code>n</code> kali, belok <code>360 ÷ n</code> derajat, bentuknya akan selalu menutup sempurna — loop <code>for _ in range(n):</code> dari Bab 7 adalah kunci di balik semua pola di bab ini.',
+  'Bintang tercipta dari sudut belokan yang lebih besar dari aturan segi banyak biasa (melompati satu titik, berputar dua kali <code>360°</code> bukan satu kali) — mandala dari loop bersarang yang mengganti warna & memutar sedikit tiap putaran — kembang api dari <code>mulai_dari()</code>+<code>arah_ke()</code> yang memancar dari satu titik pusat.',
+];
+
+const glossaryTerms = [
+  { term: 'Kanvas Ajaib Pyto', def: 'Kanvas gambar kustom buku ini yang bisa dikendalikan lewat kode, terinspirasi dari modul turtle Python asli.' },
+  { term: 'maju() / mundur()', def: 'Menggerakkan Pyto lurus ke depan/belakang sejauh sekian piksel, menggambar garis kalau pena sedang turun.' },
+  { term: 'belok_kanan() / belok_kiri()', def: 'Memutar arah hadap Pyto sejauh sekian derajat, tanpa memindahkan posisinya.' },
+  { term: 'arah_ke()', def: 'Mengatur arah hadap Pyto secara langsung (absolut), bukan relatif seperti belok_kanan/belok_kiri.' },
+  { term: 'mulai_dari()', def: 'Memindahkan Pyto ke posisi tertentu tanpa pernah menggambar garis.' },
+  { term: 'angkat_pena() / turun_pena()', def: 'Mengatur apakah gerakan Pyto meninggalkan jejak garis (turun) atau tidak (angkat).' },
+  { term: 'warna_pena()', def: 'Mengganti warna garis yang akan digambar berikutnya.' },
+  { term: 'tebal_pena()', def: 'Mengganti ketebalan garis yang akan digambar berikutnya.' },
+  { term: 'bersihkan()', def: 'Membersihkan kanvas dan mengembalikan semua pengaturan Pyto ke keadaan awal.' },
+];
+---
+
+<ChapterLayout
+  currentChapter={17}
+  description="Bab 17: Seniman Digital (Menggambar dengan Kode) — pakai loop for _ in range(n) dari Bab 7 buat menggambar kotak, bintang, mandala, sampai kembang api di Kanvas Ajaib Pyto, ditemani Pyto si robot ular."
+>
+  <ChapterHero
+    number={17}
+    title="Seniman Digital 🎨"
+    tagline={'Loop <code>for _ in range(n):</code> yang sudah kamu kuasai sejak Bab 7 sekarang dipakai untuk menggambar — mandala, bintang, sampai kembang api penuh warna, ditemani Kanvas Ajaib Pyto.'}
+  >
+    <PytoArtistHero slot="mascot" />
+  </ChapterHero>
+
+  <section data-reveal>
+    <h2>Kenalan dengan Kanvas Ajaib Pyto</h2>
+    <p>
+      Bayangkan Pyto berdiri tepat di <strong>tengah</strong> kanvas, menghadap ke
+      <strong>kanan</strong>. Titik itu adalah "rumah"-nya — di dalam kode, posisi tengah ini
+      disebut <code>(0, 0)</code>. Kamu tidak perlu mendefinisikan kanvas ajaib ini sendiri —
+      semua perintah di bawah sudah siap dipakai begitu saja, persis seperti <code>print()</code>
+      atau <code>input()</code> yang sudah "ada" tanpa perlu <code>import</code> apa pun.
+    </p>
+    <p>
+      Dua perintah paling dasar: <code>maju(langkah)</code> menggerakkan Pyto lurus ke depan
+      sejauh <code>langkah</code> piksel (dan menggambar garis di belakangnya), sementara
+      <code>belok_kanan(derajat)</code>/<code>belok_kiri(derajat)</code> cuma memutar arah
+      hadapnya — TIDAK memindahkan posisinya sama sekali.
+    </p>
+    <CodeBlock
+      code={`maju(80)\nbelok_kanan(90)\nmaju(80)\nbelok_kanan(90)\nmaju(80)\nbelok_kanan(90)\nmaju(80)\nbelok_kanan(90)`}
+    />
+    <p>
+      Jalankan kode ini dan kamu akan melihat sebuah <strong>kotak</strong> tergambar di kanvas:
+      Pyto maju 80 piksel, belok kanan 90°, maju lagi, belok lagi — empat kali berturut-turut,
+      sampai dia kembali persis ke titik awal sambil menghadap ke arah semula.
+    </p>
+    <p>
+      Selain <code>maju()</code>, ada juga <code>mundur(langkah)</code> (jalan mundur, bukan
+      berbalik badan) dan <code>tebal_pena(angka)</code> untuk mengatur ketebalan garis. Satu lagi
+      yang penting: <code>angkat_pena()</code> dan <code>turun_pena()</code>. Kalau pena
+      "diangkat", Pyto tetap bisa <code>maju()</code>/<code>mundur()</code>, tapi TIDAK
+      menggambar apa-apa — berguna kalau kamu mau pindah tempat tanpa meninggalkan jejak garis:
+    </p>
+    <CodeBlock code={`maju(50)\nangkat_pena()\nmaju(50)\nturun_pena()\nmaju(50)`} />
+    <div class="chapter-media">
+      <KanvasDasarDemo />
+    </div>
+    <p>
+      Hasilnya: garis sepanjang 50 piksel, lalu ada jarak kosong 50 piksel (karena pena
+      terangkat), lalu garis lagi 50 piksel — seperti garis putus-putus.
+    </p>
+  </section>
+
+  <section class="pyto-quote-box" data-reveal>
+    <span class="pyto-quote-box__mascot" role="img" aria-label="Pyto">🐍</span>
+    <p class="pyto-quote-box__text">
+      "Bayangkan aku sedang mengemudikan kapal kecil di atas kanvas. <code>maju()</code> itu
+      seperti menjalankan mesin kapal — badannya benar-benar berpindah. Tapi
+      <code>belok_kanan()</code>/<code>belok_kiri()</code> itu cuma memutar kemudi — hidung
+      kapalnya berubah arah, tapi kapalnya sendiri belum bergerak sama sekali sampai aku
+      <code>maju()</code> lagi."
+    </p>
+  </section>
+
+  <section data-reveal>
+    <h2>Ulangi Loop-nya, Jadi Bintang!</h2>
+    <p>
+      Kotak di atas ditulis manual empat kali — melelahkan kalau bentuknya lebih rumit.
+      Untungnya kamu sudah punya <code>for _ in range(n):</code> sejak Bab 7. Kotak yang sama
+      bisa ditulis jauh lebih ringkas:
+    </p>
+    <CodeBlock code={`warna_pena("hijau")\n\nfor _ in range(4):\n    maju(80)\n    belok_kanan(90)`} />
+    <p>
+      Perhatikan angkanya: kotak diulang <strong>4</strong> kali, dan tiap kali belok
+      <strong>90°</strong> (<code>360 ÷ 4 = 90</code>). Aturan ini berlaku umum untuk bentuk segi
+      banyak beraturan apa pun: ulangi <code>n</code> kali, belok <code>360 ÷ n</code> derajat
+      tiap putaran, dan bentuknya akan selalu menutup sempurna kembali ke titik awal.
+    </p>
+    <p>
+      Sekarang, bagaimana kalau sudut belokannya diperbesar sedikit lagi dari aturan itu? Alih-alih
+      menutup jadi segi banyak biasa, garis-garisnya akan saling menyilang dan membentuk
+      <strong>bintang</strong>:
+    </p>
+    <CodeBlock
+      code={`warna_pena("kuning")\ntebal_pena(3)\n\nfor _ in range(5):\n    maju(100)\n    belok_kanan(144)`}
+    />
+    <div class="chapter-media">
+      <StarLoopDemo />
+    </div>
+    <p>
+      Kode ini menggambar <strong>bintang bersudut lima</strong> berwarna kuning, tebal garis 3
+      piksel, tiap sisinya sepanjang 100 piksel — diulang 5 kali dari titik tengah kanvas, dan
+      tepat kembali ke titik awal (menghadap ke arah semula) di ulangan kelima.
+    </p>
+  </section>
+
+  <KotakAwas title="Awas — Lupa Turunkan Pena Lagi">
+    <p>
+      Kesalahan yang sering kejadian: mengangkat pena untuk pindah tempat, tapi lupa
+      menurunkannya lagi sebelum menggambar. Yang bikin ini extra menjebak: kodenya
+      <strong>tidak error sama sekali</strong> — cuma kanvasnya kosong melompong, dan kamu bisa
+      bingung lama mencari "bug" yang sebenarnya cuma pena yang belum diturunkan:
+    </p>
+    <CodeBlock
+      code={`# ✗ Jangan begini — lupa turun_pena() lagi\nangkat_pena()\nmaju(50)\nbelok_kanan(90)\nmaju(50)\nbelok_kanan(90)\nmaju(50)\nbelok_kanan(90)\nmaju(50)\n# Kanvas kosong! Padahal tidak ada satu pun pesan error 😳\n\n# ✓ Begini benar — turunkan lagi penanya sebelum menggambar\nturun_pena()\nmaju(50)\nbelok_kanan(90)\nmaju(50)\nbelok_kanan(90)\nmaju(50)\nbelok_kanan(90)\nmaju(50)\n# Kotaknya muncul dengan benar`}
+    />
+    <PenUpDownAwas />
+    <p>
+      Kalau kanvasmu tiba-tiba kosong padahal kodenya "kelihatan benar", ini yang pertama harus
+      dicek: apakah ada <code>angkat_pena()</code> yang lupa dipasangkan <code>turun_pena()</code>-nya
+      lagi.
+    </p>
+  </KotakAwas>
+
+  <section data-reveal>
+    <h2>Ubah Sudut &amp; Warna Tiap Putaran = Mandala</h2>
+    <p>
+      Sekarang gabungkan dua ide sekaligus: loop di dalam loop. Loop dalam menggambar satu kotak
+      (seperti sebelumnya), loop luar mengulang kotak itu berkali-kali sambil memutar arah sedikit
+      dan mengganti warna tiap putaran:
+    </p>
+    <CodeBlock
+      code={`warna_warni = ["merah", "kuning", "hijau", "biru", "ungu"]\n\nfor i in range(12):\n    warna_pena(warna_warni[i % len(warna_warni)])\n    for _ in range(4):\n        maju(80)\n        belok_kanan(90)\n    belok_kanan(30)`}
+    />
+    <div class="chapter-media">
+      <MandalaLoopDemo />
+    </div>
+    <p>
+      Loop dalam (<code>for _ in range(4):</code>) menggambar satu kotak penuh dan selalu kembali
+      persis ke titik tengah. Loop luar mengulang itu 12 kali, tiap kali memilih warna berikutnya
+      dari daftar <code>warna_warni</code> (memakai <code>i % len(warna_warni)</code> supaya
+      warnanya berputar ulang kalau daftarnya lebih pendek dari 12), lalu memutar arah 30° lagi
+      sebelum kotak berikutnya digambar (<code>12 × 30° = 360°</code>, jadi setelah 12 kotak,
+      arahnya kembali persis ke semula). Hasilnya: 12 kotak warna-warni yang semuanya menempel di
+      satu titik tengah, saling tumpuk membentuk pola bunga/mandala.
+    </p>
+  </section>
+
+  <section data-reveal>
+    <h2>Reset ke Tengah: Kembang Api!</h2>
+    <p>
+      Terakhir, satu trik baru: <code>mulai_dari(x, y)</code> untuk "meloncat" ke posisi tertentu
+      <strong>tanpa pernah menggambar garis</strong> (berapa pun status penanya), dan
+      <code>arah_ke(derajat)</code> untuk langsung mengatur arah hadap secara pasti, tanpa perlu
+      menghitung akumulasi belokan. Gabungan keduanya pas untuk membuat efek kembang api:
+      garis-garis yang memancar keluar dari satu titik pusat ke segala arah.
+    </p>
+    <CodeBlock
+      code={`warna_kembang_api = ["merah", "kuning", "hijau", "biru", "ungu"]\n\nfor i in range(24):\n    mulai_dari(0, 0)\n    arah_ke(i * 15)\n    warna_pena(warna_kembang_api[i % len(warna_kembang_api)])\n    maju(150)`}
+    />
+    <div class="chapter-media">
+      <FireworksLoopDemo />
+    </div>
+    <p>
+      Tiap putaran loop: Pyto diloncatkan balik ke titik tengah (<code>mulai_dari(0, 0)</code>),
+      diarahkan ke sudut yang berbeda-beda (<code>i * 15</code>, jadi <code>0°, 15°, 30°, ...</code>
+      sampai <code>345°</code> — total 24 garis mengelilingi penuh <code>360°</code>), diberi
+      warna berikutnya dari daftar, lalu <code>maju(150)</code> menggambar satu garis lurus
+      sepanjang 150 piksel ke arah itu. Hasilnya: lingkaran penuh garis-garis warna-warni yang
+      memancar dari tengah kanvas, persis seperti ledakan kembang api.
+    </p>
+  </section>
+
+  <KotakMainYuk title="Main Yuk! — Dari Kotak Jadi Bentuk Lain" icon="🎮" wiggleIcon>
+    <p>
+      Ingat aturan segi banyak beraturan tadi: ulangi <code>n</code> kali, belok
+      <code>360 ÷ n</code> derajat. Ubah kode kotak di bawah supaya jadi <strong>segitiga</strong>
+      (bukan kotak) dengan mengisi dua bagian kosongnya:
+    </p>
+    <CodeBlock code={`for _ in range(____):\n    maju(80)\n    belok_kanan(____)`} />
+    <details class="jawaban">
+      <summary>🔎 Lihat jawaban</summary>
+      <p>
+        Segitiga punya 3 sisi, jadi <code>range(3)</code>, dan sudut belokannya
+        <code>360 ÷ 3 = 120</code>, jadi <code>belok_kanan(120)</code>. Coba juga isi
+        <code>range(5)</code> dengan <code>belok_kanan(72)</code> — bentuk apa yang muncul?
+        (Jawaban: segilima beraturan, bukan bintang — bandingkan dengan bintang di atas yang
+        belokannya <code>144</code>, dua kali lipat dari <code>72</code>. Kenapa bisa begitu,
+        dibahas di bagian Tahu Lebih di bawah!)
+      </p>
+    </details>
+  </KotakMainYuk>
+
+  <KotakTahuLebih title="Tahu Lebih — Kenapa Bintang Butuh 144°, Bukan 72°?">
+    <p>
+      Untuk segi lima <strong>beraturan</strong> (bentuk tertutup biasa, lima sisi sama panjang,
+      tidak menyilang), aturan <code>360 ÷ n</code> berlaku persis: <code>360 ÷ 5 = 72°</code>.
+    </p>
+    <CodeBlock code={`for _ in range(5):\n    maju(80)\n    belok_kanan(72)`} />
+    <p>
+      Tapi untuk <strong>bintang</strong> bersudut lima, kita sengaja "melompati" satu titik
+      setiap kali belok, bukan berhenti di titik tetangga terdekat. Alih-alih berputar total
+      <code>360°</code> (satu putaran penuh) selama lima langkah, kita berputar total
+      <code>720°</code> (DUA putaran penuh) — karena garisnya menyilang balik ke titik yang lebih
+      jauh. Itu sebabnya sudutnya jadi <code>720 ÷ 5 = 144°</code>, bukan <code>72°</code>. Coba
+      ganti-ganti angka <code>144</code> di kode bintang tadi jadi angka lain (misalnya
+      <code>150</code> atau <code>100</code>) — perhatikan bagaimana bentuknya berubah drastis,
+      dan cuma sudut-sudut tertentu yang menghasilkan bintang yang menutup rapi.
+    </p>
+    <StarAngleMathDemo />
+  </KotakTahuLebih>
+
+  <section data-reveal>
+    <h2>Coba Sendiri, Yuk!</h2>
+    <p>
+      Coba langsung di kolom editor — kanvas ajaib Pyto sudah siap, tinggal panggil perintahnya.
+      Klik <strong>▶ Jalankan</strong>, lihat gambarnya muncul, lalu klik
+      <strong>Unduh Gambar</strong> kalau kamu suka hasilnya dan mau menyimpannya:
+    </p>
+    <DrawingWorkbenchEditor
+      idPrefix="bab17"
+      title="🐍 seniman_digital.py"
+      runLabel="▶ Jalankan"
+      codeAriaLabel="Kotak kode seniman digital Pyto"
+      rows={7}
+      minHeight={150}
+      downloadFileName="bintang-pyto.png"
+      starterCode={`warna_pena("kuning")\ntebal_pena(3)\n\nfor _ in range(5):\n    maju(100)\n    belok_kanan(144)\n`}
+      notes={[
+        '✏️ Coba ganti kode di atas dengan contoh mandala atau kembang api yang sudah kamu pelajari, atau modifikasi sendiri: ganti angka pengulangan, angka sudut belokan, urutan warna, atau panjang langkahnya. Kanvas otomatis dibersihkan tiap kali kamu menekan <strong>▶ Jalankan</strong> lagi, jadi bebas bereksperimen tanpa takut gambar lama menumpuk.',
+        '🎉 Begitu gambar pertamamu muncul di kanvas — kamu resmi jadi seniman digital! Jangan lupa unduh hasil karyamu buat dipamerkan.',
+      ]}
+    />
+  </section>
+
+  <section data-reveal>
+    <h2>Rangkuman Bab 17</h2>
+    <RangkumanList items={rangkuman} />
+  </section>
+
+  <section data-reveal>
+    <h2>📖 Kamus Kata</h2>
+    <Glossary terms={glossaryTerms} />
+  </section>
+
+  <ChapterFooterNav
+    prevHref={`${base}/bab/16/`}
+    prevLabel="← Bab 16: Agen Rahasia Pyto"
+    nextLabel="Bab 18: Detektif Teks"
+    nextDisabled
+  />
+</ChapterLayout>
