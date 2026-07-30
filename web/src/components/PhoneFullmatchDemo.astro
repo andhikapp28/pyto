@@ -1,0 +1,190 @@
+---
+// Animasi #3 (plan/bab-18-animasi.md), Centerpiece 1 — konsep terpenting
+// pertama bab ini. Cetakan pola nomor HP (PhoneStencil.astro, bagian bersama
+// dengan MatchVsFullmatchAwas.astro) tampil di atas, lalu tiap nomor dari
+// `daftar_nomor` "diketuk" masuk satu per satu: yang PAS masuk seluruh
+// cetakan menyala hijau + centang ✅, yang tidak pas "mental"/terpental
+// dengan getar kecil + tanda ❌ merah. Sekali jalan saat terlihat, boleh
+// diulang lewat hover/klik/keyboard.
+import PhoneStencil from './PhoneStencil.astro';
+
+const numbers = [
+  { text: '0812-3456-7890', valid: true },
+  { text: '021-7890123', valid: false },
+  { text: '08123456789', valid: false },
+  { text: '0813-9999-0000', valid: true },
+];
+---
+
+<div
+  class="pfd-demo"
+  data-anim="pfd-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi cek format nomor HP dengan re.fullmatch"
+>
+  <PhoneStencil idPrefix="pfd" />
+
+  <div class="pfd-demo__queue">
+    {
+      numbers.map((n, i) => (
+        <div
+          class={`pfd-demo__chip ${n.valid ? 'pfd-demo__chip--valid' : 'pfd-demo__chip--invalid'}`}
+          id={`pfd-chip-${i}`}
+          style={`--pfd-delay:${0.5 + i * 0.55}s`}
+        >
+          <span class="pfd-demo__chip-text">{n.text}</span>
+          <span class="pfd-demo__chip-icon" aria-hidden="true">{n.valid ? '✅' : '❌'}</span>
+        </div>
+      ))
+    }
+  </div>
+</div>
+
+<p class="pfd-demo__hint">
+  💡 Nomor yang PAS masuk seluruh cetakan diterima ✅ — yang bentuknya beda sedikit saja (kurang
+  tanda hubung, kepanjangan, dst.) langsung mental ❌. <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .pfd-demo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 24px;
+    cursor: pointer;
+  }
+
+  .pfd-demo__queue {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    max-width: 280px;
+  }
+
+  .pfd-demo__chip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    background: var(--cloud);
+    border: 2px solid var(--border);
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+
+  .pfd-demo.is-in .pfd-demo__chip {
+    animation: pfd-slide-in 0.4s ease var(--pfd-delay) forwards;
+  }
+
+  @keyframes pfd-slide-in {
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .pfd-demo.is-in .pfd-demo__chip--valid {
+    animation:
+      pfd-slide-in 0.4s ease var(--pfd-delay) forwards,
+      pfd-snap 0.35s ease calc(var(--pfd-delay) + 0.4s) forwards;
+  }
+
+  @keyframes pfd-snap {
+    0% {
+      border-color: var(--border);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    100% {
+      border-color: var(--pyto-green);
+      background: var(--pyto-green-soft);
+      transform: scale(1);
+    }
+  }
+
+  .pfd-demo.is-in .pfd-demo__chip--invalid {
+    animation:
+      pfd-slide-in 0.4s ease var(--pfd-delay) forwards,
+      pfd-reject 0.4s ease calc(var(--pfd-delay) + 0.4s) forwards;
+  }
+
+  @keyframes pfd-reject {
+    0%,
+    100% {
+      border-color: var(--coral);
+      background: var(--box-awas-bg);
+    }
+    20% {
+      transform: translateX(-6px);
+    }
+    40% {
+      transform: translateX(6px);
+    }
+    60% {
+      transform: translateX(-4px);
+    }
+    80% {
+      transform: translateX(4px);
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+
+  .pfd-demo__chip-text {
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--ink);
+  }
+
+  .pfd-demo__chip-icon {
+    flex-shrink: 0;
+    font-size: 15px;
+  }
+
+  .pfd-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pfd-demo__chip,
+    .pfd-demo__chip--valid,
+    .pfd-demo__chip--invalid {
+      animation: none !important;
+      opacity: 1;
+      transform: none;
+    }
+
+    .pfd-demo__chip--valid {
+      border-color: var(--pyto-green);
+      background: var(--pyto-green-soft);
+    }
+
+    .pfd-demo__chip--invalid {
+      border-color: var(--coral);
+      background: var(--box-awas-bg);
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="pfd-demo"]');
+  observeOnce(els, (el) => el.classList.add('is-in'));
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

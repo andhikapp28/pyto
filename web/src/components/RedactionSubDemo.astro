@@ -1,0 +1,243 @@
+---
+// Animasi #8 (plan/bab-18-animasi.md) — kotak "Tahu Lebih" sensor nomor HP
+// dengan `re.sub()`. Kalimat `pesan_asli` tampil utuh, kaca pembesar (echo
+// beat #2/6) menemukan nomor di tengah kalimat dan menyorotnya kuning, lalu
+// sebuah "stempel sensor" hitam turun dan menutup sebagian nomor itu (4
+// digit pertama tetap terlihat, sisanya jadi XXXX-XXXX) disertai efek
+// "cap!" singkat — kalimat hasil akhir muncul di bawah sebagai perbandingan
+// sebelum/sesudah. Sekali jalan saat terlihat, boleh diulang lewat
+// hover/klik/keyboard.
+---
+
+<div
+  class="rsub-demo"
+  data-anim="rsub-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi sensor nomor HP dengan re.sub"
+>
+  <div class="rsub-demo__stage">
+    <p class="rsub-demo__before">
+      Nomor WhatsApp saya
+      <span class="rsub-demo__number">
+        <span class="rsub-demo__prefix" id="rsub-prefix">0812-</span>
+        <span class="rsub-demo__swap">
+          <span class="rsub-demo__suffix-plain" id="rsub-suffix-plain">3456-7890</span>
+          <span class="rsub-demo__suffix-redacted" id="rsub-suffix-redacted">XXXX-XXXX</span>
+        </span>
+      </span>
+      , silakan hubungi kalau ada pertanyaan.
+    </p>
+    <span class="rsub-demo__stamp" id="rsub-stamp" aria-hidden="true">🔏</span>
+  </div>
+
+  <p class="rsub-demo__after" id="rsub-after">
+    <span class="rsub-demo__after-label">Hasil:</span> Nomor WhatsApp saya
+    <strong>0812-XXXX-XXXX</strong>, silakan hubungi kalau ada pertanyaan.
+  </p>
+</div>
+
+<p class="rsub-demo__hint">
+  💡 4 digit pertama tetap terlihat, sisanya disensor — <code>re.sub()</code> mengganti tiap
+  kecocokan lewat fungsi <code>sensor_nomor()</code>. <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .rsub-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 24px;
+    cursor: pointer;
+  }
+
+  .rsub-demo__stage {
+    position: relative;
+  }
+
+  .rsub-demo__before {
+    margin: 0;
+    font-family: var(--font-code);
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--ink);
+  }
+
+  .rsub-demo__number {
+    display: inline-flex;
+    border-radius: 5px;
+    padding: 1px 3px;
+    font-weight: 700;
+    background: transparent;
+    transition: background-color 0.3s ease;
+  }
+
+  .rsub-demo.is-in .rsub-demo__number {
+    animation: rsub-highlight 0.4s ease 0.5s forwards;
+  }
+
+  @keyframes rsub-highlight {
+    to {
+      background: var(--sunny-yellow);
+    }
+  }
+
+  .rsub-demo__swap {
+    position: relative;
+    display: inline-block;
+  }
+
+  .rsub-demo__suffix-plain,
+  .rsub-demo__suffix-redacted {
+    display: inline-block;
+  }
+
+  .rsub-demo__suffix-redacted {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    background: var(--ink);
+    color: var(--white);
+    border-radius: 4px;
+    padding: 0 2px;
+  }
+
+  .rsub-demo.is-in .rsub-demo__suffix-plain {
+    animation: rsub-fade-out 0.2s ease 1.3s forwards;
+  }
+
+  .rsub-demo.is-in .rsub-demo__suffix-redacted {
+    animation: rsub-fade-in 0.2s ease 1.3s forwards;
+  }
+
+  @keyframes rsub-fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes rsub-fade-in {
+    to {
+      opacity: 1;
+    }
+  }
+
+  .rsub-demo__stamp {
+    position: absolute;
+    top: -30px;
+    left: 42%;
+    font-size: 26px;
+    opacity: 0;
+    transform: translateY(-14px) scale(1.3) rotate(-8deg);
+  }
+
+  .rsub-demo.is-in .rsub-demo__stamp {
+    animation: rsub-stamp-hit 0.4s ease 1.15s forwards;
+  }
+
+  @keyframes rsub-stamp-hit {
+    0% {
+      opacity: 0;
+      transform: translateY(-14px) scale(1.3) rotate(-8deg);
+    }
+    60% {
+      opacity: 1;
+      transform: translateY(4px) scale(1) rotate(-8deg);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(4px) scale(0.9) rotate(-8deg);
+    }
+  }
+
+  .rsub-demo__after {
+    margin: 0;
+    font-family: var(--font-code);
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--ink);
+    padding-top: 12px;
+    border-top: 1px dashed var(--border);
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  .rsub-demo.is-in .rsub-demo__after {
+    animation: rsub-after-in 0.4s ease 1.7s forwards;
+  }
+
+  @keyframes rsub-after-in {
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .rsub-demo__after-label {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    color: var(--slate);
+    text-transform: uppercase;
+    font-size: 12px;
+    margin-right: 4px;
+  }
+
+  .rsub-demo__after strong {
+    color: var(--pyto-green-dark);
+  }
+
+  .rsub-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  .rsub-demo__hint code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rsub-demo__number,
+    .rsub-demo__suffix-plain,
+    .rsub-demo__suffix-redacted,
+    .rsub-demo__stamp,
+    .rsub-demo__after {
+      animation: none !important;
+    }
+
+    .rsub-demo__number {
+      background: var(--sunny-yellow);
+    }
+
+    .rsub-demo__suffix-plain {
+      opacity: 0;
+    }
+
+    .rsub-demo__suffix-redacted {
+      opacity: 1;
+    }
+
+    .rsub-demo__stamp {
+      opacity: 0;
+    }
+
+    .rsub-demo__after {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="rsub-demo"]');
+  observeOnce(els, (el) => el.classList.add('is-in'));
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

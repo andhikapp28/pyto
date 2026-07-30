@@ -1,0 +1,108 @@
+---
+// Komponen dasar bersama dipakai oleh PhoneFullmatchDemo.astro (beat #3,
+// plan/bab-18-animasi.md) dan MatchVsFullmatchAwas.astro (beat #5) — murni
+// ilustrasi statis (tidak ada JS/animasi sendiri) yang menggambar "cetakan"
+// visual pola r"^08\d{2}-\d{4}-\d{4}$": karakter literal (0, 8, -) tampil
+// sebagai chip solid, tiap \d tampil sebagai slot kotak putus-putus (▢).
+// Dibuat sekali di sini per saran plan/design/bab-18-desain.md supaya kedua
+// demo tidak menggambar ulang bentuk cetakan yang sama.
+interface Props {
+  idPrefix?: string;
+}
+
+const { idPrefix = 'stencil' } = Astro.props;
+
+type Cell = { type: 'lit' | 'slot'; ch?: string };
+
+const cells: Cell[] = [
+  { type: 'lit', ch: '0' },
+  { type: 'lit', ch: '8' },
+  { type: 'slot' },
+  { type: 'slot' },
+  { type: 'lit', ch: '-' },
+  { type: 'slot' },
+  { type: 'slot' },
+  { type: 'slot' },
+  { type: 'slot' },
+  { type: 'lit', ch: '-' },
+  { type: 'slot' },
+  { type: 'slot' },
+  { type: 'slot' },
+  { type: 'slot' },
+];
+---
+
+<div class="phone-stencil" id={`${idPrefix}-stencil`} aria-hidden="true">
+  <span class="phone-stencil__label">
+    Cetakan pola: <code>08\d&#123;2&#125;-\d&#123;4&#125;-\d&#123;4&#125;</code>
+  </span>
+  <div class="phone-stencil__row">
+    {
+      cells.map((c) => (
+        <span
+          class={`phone-stencil__cell ${
+            c.type === 'slot' ? 'phone-stencil__cell--slot' : 'phone-stencil__cell--lit'
+          }`}
+        >
+          {c.type === 'slot' ? '▢' : c.ch}
+        </span>
+      ))
+    }
+  </div>
+</div>
+
+<style>
+  .phone-stencil {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .phone-stencil__label {
+    font-size: 12px;
+    color: var(--slate);
+    text-align: center;
+  }
+
+  .phone-stencil__label code {
+    font-family: var(--font-code);
+    font-weight: 700;
+    color: var(--pyto-green-dark);
+  }
+
+  .phone-stencil__row {
+    display: flex;
+    gap: 3px;
+  }
+
+  .phone-stencil__cell {
+    width: 20px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 14px;
+    border-radius: 5px;
+  }
+
+  .phone-stencil__cell--lit {
+    background: var(--cloud);
+    color: var(--ink);
+  }
+
+  .phone-stencil__cell--slot {
+    border: 2px dashed var(--border);
+    color: var(--slate);
+  }
+
+  @media (max-width: 460px) {
+    .phone-stencil__cell {
+      width: 16px;
+      height: 24px;
+      font-size: 12px;
+    }
+  }
+</style>
