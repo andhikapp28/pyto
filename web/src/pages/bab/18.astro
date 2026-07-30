@@ -1,0 +1,459 @@
+---
+// Bab 18 — Detektif Teks (Pengenalan Pola/Regex).
+// Sumber naskah: plan/naskah/bab-18-detektif-teks.md.
+// Sumber animasi: plan/bab-18-animasi.md.
+// Sumber desain: plan/design/bab-18-desain.md — bab paling ringan secara
+// infrastruktur di Fase 2 bersama Bab 16 (bahkan sedikit lebih ringan dari
+// sisi paket): modul `re` adalah stdlib Python murni, TIDAK ada
+// micropip/loadPackage/jembatan upload-unduh/kanvas apa pun. PyodideEditor
+// dipakai apa adanya dengan mode="interactive" (dua input() berurutan),
+// identik pola Bab 16 — tidak ada baris baru di pyodide-runner.js. Pola
+// regex (pola_hp_valid, pola_email, pola_hp_cari) DISALIN VERBATIM dari
+// kontrak desain — jangan "disederhanakan"/"dirapikan" karena anchor
+// ^...$ vs tanpa anchor adalah poin pedagogis yang disengaja.
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import ChapterHero from '../../components/ChapterHero.astro';
+import PytoTextDetectiveHero from '../../components/PytoTextDetectiveHero.astro';
+import RegexSearchDemo from '../../components/RegexSearchDemo.astro';
+import PhoneFullmatchDemo from '../../components/PhoneFullmatchDemo.astro';
+import LockKeyMascotDemo from '../../components/LockKeyMascotDemo.astro';
+import MatchVsFullmatchAwas from '../../components/MatchVsFullmatchAwas.astro';
+import EmailFindallDemo from '../../components/EmailFindallDemo.astro';
+import RedactionSubDemo from '../../components/RedactionSubDemo.astro';
+import KotakAwas from '../../components/KotakAwas.astro';
+import KotakMainYuk from '../../components/KotakMainYuk.astro';
+import KotakTahuLebih from '../../components/KotakTahuLebih.astro';
+import PyodideEditor from '../../components/PyodideEditor.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import RangkumanList from '../../components/RangkumanList.astro';
+import Glossary from '../../components/Glossary.astro';
+import ChapterFooterNav from '../../components/ChapterFooterNav.astro';
+
+const base = import.meta.env.BASE_URL;
+
+const hpTable = [
+  { bagian: '^', arti: '"Mulai dari sini, awal teks" (anchor awal)' },
+  { bagian: '08', arti: 'Harus persis huruf/angka 08 (kode awal nomor HP Indonesia)' },
+  {
+    bagian: '\\d{2}',
+    arti: 'Dua digit angka apa saja berturut-turut (\\d sama dengan [0-9], cuma lebih ringkas; {2} artinya "tepat 2 kali")',
+  },
+  { bagian: '-', arti: 'Tanda hubung, harus ada persis di posisi ini' },
+  { bagian: '\\d{4}', arti: 'Empat digit angka berturut-turut' },
+  { bagian: '-', arti: 'Tanda hubung lagi' },
+  { bagian: '\\d{4}', arti: 'Empat digit angka lagi' },
+  { bagian: '$', arti: '"Sampai di sini, akhir teks" (anchor akhir)' },
+];
+
+const emailTable = [
+  {
+    bagian: '[a-zA-Z0-9._%+-]+',
+    arti: 'Satu atau lebih karakter: huruf besar/kecil, angka, titik, underscore, persen, plus, atau minus — ini bagian sebelum @',
+  },
+  { bagian: '@', arti: 'Tanda @ literal, harus ada persis' },
+  {
+    bagian: '[a-zA-Z0-9.-]+',
+    arti: 'Satu atau lebih karakter nama domain (huruf, angka, titik, minus) — mis. toko-baju',
+  },
+  {
+    bagian: '\\.',
+    arti: 'Titik literal — perhatikan ada \\ di depannya! Tanpa \\, tanda titik . di regex artinya "karakter apa saja", bukan titik sungguhan. \\. artinya "titik ini harus benar-benar titik"',
+  },
+  { bagian: '[a-zA-Z]+', arti: 'Akhiran domain, satu atau lebih huruf (com, id, dst.)' },
+];
+
+const rangkuman = [
+  'Modul <code>re</code> (bawaan Python, tidak perlu dipasang) adalah alat untuk mencari <strong>pola</strong> di dalam teks — dipanggil lewat <code>import re</code>.',
+  'Selalu tulis pola regex dengan awalan <code>r"..."</code> (<em>raw string</em>) supaya karakter seperti <code>\\</code> tidak disalahartikan Python.',
+  '<code>\\d</code> (satu digit), <code>&#123;n&#125;</code> (tepat n kali berturut-turut), <code>[...]</code> (satu karakter dari sekumpulan pilihan), dan <code>+</code> (satu atau lebih) adalah blok bangunan dasar pola regex.',
+  '<code>^</code> dan <code>$</code> adalah <strong>anchor</strong> — mengunci pola supaya harus dimulai dari awal teks (<code>^</code>) dan/atau berakhir tepat di akhir teks (<code>$</code>).',
+  '<code>re.search()</code> mengecek apakah pola ada <strong>di mana saja</strong> dalam teks. <code>re.match()</code> mengecek dari <strong>awal</strong> teks saja (sisa di belakang diabaikan — sumber jebakan umum!). <code>re.fullmatch()</code> mewajibkan <strong>SELURUH</strong> teks cocok, cocok dipakai untuk validasi format ketat.',
+  '<code>re.findall()</code> mengembalikan <strong>list</strong> semua bagian teks yang cocok pola — cocok untuk menemukan banyak kecocokan sekaligus (mis. semua email dalam satu paragraf).',
+  '<code>re.sub(pola, pengganti, teks)</code> mencari lalu <strong>mengganti</strong> semua kecocokan — berguna untuk menyensor/menyamarkan data sensitif seperti nomor HP.',
+];
+
+const glossaryTerms = [
+  { term: 're', def: 'Modul bawaan Python untuk mencari pola (regex) di dalam teks.' },
+  { term: 'Pola (regex)', def: 'Deskripsi "bentuk" teks yang ingin dicari, ditulis dengan simbol-simbol khusus.' },
+  {
+    term: 'Raw string (r"...")',
+    def: 'Cara menulis string supaya karakter seperti \\ tidak dianggap kode escape khusus oleh Python — kebiasaan wajib untuk menulis pola regex.',
+  },
+  { term: 'Anchor (^ $)', def: 'Simbol yang mengunci pola ke awal (^) atau akhir ($) teks.' },
+  { term: 're.search()', def: 'Mengecek apakah pola ditemukan di mana saja dalam teks.' },
+  { term: 're.match()', def: 'Mengecek kecocokan dari awal teks saja — sisa teks di belakang pola diabaikan.' },
+  {
+    term: 're.fullmatch()',
+    def: 'Mewajibkan SELURUH teks cocok dengan pola, dari awal sampai akhir — cocok untuk validasi format.',
+  },
+  { term: 're.findall()', def: 'Mengembalikan list semua bagian teks yang cocok dengan pola.' },
+  { term: 're.sub()', def: 'Mencari semua kecocokan pola, lalu menggantinya dengan teks lain.' },
+];
+---
+
+<ChapterLayout
+  currentChapter={18}
+  description="Bab 18: Detektif Teks (Pengenalan Pola/Regex) — pakai modul re bawaan Python buat mengecek format nomor HP dengan re.fullmatch() dan menemukan semua email dalam paragraf dengan re.findall(), ditemani Pyto si robot ular."
+>
+  <ChapterHero
+    number={18}
+    title="Detektif Teks 🔍"
+    tagline={'Kacamata detektif Pyto: temukan semua email atau nomor HP yang tersembunyi di tumpukan teks, pakai modul <code>re</code> bawaan Python.'}
+  >
+    <PytoTextDetectiveHero slot="mascot" />
+  </ChapterHero>
+
+  <section data-reveal>
+    <h2>Kenalan dengan Modul <code>re</code>: Detektif Pola Python</h2>
+    <p>
+      Sebelum bisa memakai <code>re</code>, kita harus "memanggilnya" dulu lewat <code>import</code>
+      — persis seperti <code>from pyodide.http import pyfetch</code> di Bab 12, tapi kali ini
+      <code>re</code> sudah bawaan Python, tidak perlu dipasang lewat internet sama sekali.
+    </p>
+    <p>
+      Fungsi paling dasar di <code>re</code> adalah <code>re.search(pola, teks)</code> — dia
+      menjelajahi <code>teks</code> dari awal sampai akhir, mencari apakah <code>pola</code> muncul
+      <strong>di mana saja</strong> di dalamnya:
+    </p>
+    <CodeBlock
+      code={`import re
+
+kalimat = "Nomor pesanan saya adalah INV-2024-5871"
+
+if re.search(r"[0-9]+", kalimat):
+    print("Ada angka di kalimat ini!")
+else:
+    print("Tidak ada angka sama sekali.")`}
+    />
+    <div class="chapter-media">
+      <RegexSearchDemo />
+    </div>
+    <p>Beberapa hal baru sekaligus di sini:</p>
+    <ul>
+      <li>
+        <code>r"[0-9]+"</code> adalah <strong>pola</strong> yang kita cari. Huruf <code>r</code> di
+        depan tanda kutip artinya <em>raw string</em> — supaya karakter seperti <code>\</code>
+        nanti tidak dianggap aneh oleh Python sendiri. Kebiasaan yang baik: selalu tulis pola
+        regex dengan awalan <code>r"..."</code>.
+      </li>
+      <li>
+        <code>[0-9]</code> artinya "satu karakter angka, dari 0 sampai 9" — mirip cara kamu
+        menulis rentang di Bab 6, cuma dibungkus kurung siku.
+      </li>
+      <li><code>+</code> artinya "satu atau lebih, berturut-turut" — jadi <code>[0-9]+</code> artinya "satu atau lebih digit angka yang menempel".</li>
+      <li>
+        <code>re.search()</code> mengembalikan sebuah objek "cocok" (dianggap <code>True</code>
+        oleh <code>if</code>) kalau pola ditemukan, atau <code>None</code> (dianggap
+        <code>False</code>) kalau tidak ada sama sekali — makanya bisa langsung dipakai di dalam
+        <code>if</code> tanpa perbandingan tambahan.
+      </li>
+    </ul>
+  </section>
+
+  <section data-reveal>
+    <h2>Kotak Inti #1 — Cek Format Nomor HP dengan <code>re.fullmatch()</code></h2>
+    <p>
+      Sekarang ke kasus nyata: memeriksa apakah sebuah teks <strong>benar-benar</strong> berformat
+      nomor HP Indonesia, misalnya <code>08xx-xxxx-xxxx</code>. Untuk validasi seperti ini, kita
+      tidak cukup pakai <code>re.search()</code> (yang cuma mengecek "ada di mana saja") — kita
+      butuh <code>re.fullmatch()</code>, yang mewajibkan <strong>SELURUH</strong> teks cocok pola,
+      dari huruf pertama sampai terakhir, tanpa sisa:
+    </p>
+    <CodeBlock
+      code={`import re
+
+pola_hp_valid = r"^08\\d{2}-\\d{4}-\\d{4}$"
+
+daftar_nomor = ["0812-3456-7890", "021-7890123", "08123456789", "0813-9999-0000"]
+
+for nomor in daftar_nomor:
+    if re.fullmatch(pola_hp_valid, nomor):
+        print(f"{nomor} -> format nomor HP valid ✅")
+    else:
+        print(f"{nomor} -> BUKAN format nomor HP yang dikenali ❌")`}
+    />
+    <div class="chapter-media">
+      <PhoneFullmatchDemo />
+    </div>
+    <p>
+      Mari bedah pola <code>r"^08\d&#123;2&#125;-\d&#123;4&#125;-\d&#123;4&#125;$"</code> sepotong-sepotong:
+    </p>
+    <table class="chapter-table">
+      <thead>
+        <tr><th>Bagian</th><th>Artinya</th></tr>
+      </thead>
+      <tbody>
+        {
+          hpTable.map((row) => (
+            <tr>
+              <td><code>{row.bagian}</code></td>
+              <td>{row.arti}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+    <p>
+      Kombinasi <code>^</code> di depan dan <code>$</code> di belakang itulah yang membuat
+      <code>re.fullmatch()</code> sangat cocok untuk validasi: nomor <code>"08123456789"</code>
+      (tanpa tanda hubung) ditolak karena bentuknya tidak persis sama, walaupun sama-sama diawali
+      <code>08</code>.
+    </p>
+  </section>
+
+  <section class="pyto-quote-box" data-reveal>
+    <span class="pyto-quote-box__mascot" role="img" aria-label="Pyto">🐍</span>
+    <p class="pyto-quote-box__text">
+      "Bayangkan pola regex itu seperti bentuk anak kunci untuk gembok tertentu.
+      <code>re.search()</code> itu detektif yang santai — dia cuma mengecek 'apakah ada bentuk
+      yang cocok DI MANA SAJA di dalam teks ini?' Tapi <code>re.fullmatch()</code> itu detektif
+      yang teliti banget — dia bertanya 'apakah SELURUH teks ini, dari awal sampai akhir, pas
+      persis dengan bentuk kuncinya, tanpa kelebihan atau kekurangan sedikit pun?' Untuk
+      memvalidasi format (nomor HP harus PAS sesuai aturan), kita butuh detektif yang teliti — itu
+      sebabnya kita pakai <code>fullmatch()</code>, bukan cuma <code>search()</code>."
+    </p>
+  </section>
+
+  <div class="chapter-media">
+    <LockKeyMascotDemo />
+  </div>
+
+  <KotakAwas title="Awas — re.match() Bukan re.fullmatch()">
+    <p>
+      Regex punya satu fungsi lagi yang mirip tapi jebakan: <code>re.match()</code>. Fungsi ini
+      kelihatannya mirip <code>re.fullmatch()</code>, tapi cuma menjamin kecocokan <strong>dimulai</strong>
+      dari awal teks — dia tidak otomatis memeriksa sampai akhir, kecuali polanya sendiri diberi
+      anchor akhir <code>$</code>. Kalau pola itu (sengaja atau tidak sengaja) lupa diberi
+      <code>$</code>, sisa teks di belakangnya bisa lolos begitu saja tanpa disadari:
+    </p>
+    <CodeBlock
+      code={`# ✗ Jangan begini — pola ini lupa diberi $ di akhir, dan re.match() cuma mengecek AWAL teks
+pola_ceroboh = r"^08\\d{2}-\\d{4}-\\d{4}"   # <- perhatikan: TIDAK ada $ di akhir!
+
+nomor_aneh = "0812-3456-7890 (WhatsApp saja ya, jangan telepon)"
+
+if re.match(pola_ceroboh, nomor_aneh):
+    print("Valid!")
+# Valid!   😱 padahal ada tambahan teks aneh di belakang nomornya!
+
+# ✓ Begini benar — re.fullmatch() TETAP aman walau polanya lupa diberi $ di akhir
+if re.fullmatch(pola_ceroboh, nomor_aneh):
+    print("Valid!")
+else:
+    print("Bukan format yang dikenali")
+# Bukan format yang dikenali   -- fullmatch() selalu memeriksa sampai akhir, apa pun polanya`}
+    />
+    <MatchVsFullmatchAwas />
+    <p>
+      Kenapa begini? Karena <code>re.match()</code> cuma menjamin kecocokan <strong>dimulai</strong>
+      dari awal teks — kalau kamu (atau orang lain yang menulis ulang kodemu nanti) lupa
+      menambahkan <code>$</code> di pola, <code>re.match()</code> akan diam-diam menerima teks
+      yang sebenarnya salah. <code>re.fullmatch()</code> tidak punya masalah ini sama sekali — dia
+      <strong>selalu</strong> mewajibkan kecocokan penuh dari awal sampai akhir, apa pun isi
+      polanya, jadi jauh lebih aman dipakai untuk validasi format. Itu sebabnya
+      <code>pola_hp_valid</code> yang dipakai di Kotak Inti #1 sengaja sudah diberi <code>^</code>...<code>$</code>
+      <strong>dan</strong> dipasangkan dengan <code>re.fullmatch()</code> — dua lapis pengaman
+      sekaligus. Aturan sederhana buat bab ini: <strong>kalau tujuanmu memvalidasi format (harus
+      PAS seluruhnya), selalu pakai <code>re.fullmatch()</code></strong>, bukan <code>re.match()</code>.
+    </p>
+  </KotakAwas>
+
+  <section data-reveal>
+    <h2>Kotak Inti #2 — Menemukan Semua Pola dengan <code>re.findall()</code></h2>
+    <p>
+      Validasi satu-satu nomor itu berguna, tapi bagaimana kalau kamu punya satu paragraf panjang
+      dan ingin <strong>menemukan semua</strong> alamat email yang tersembunyi di dalamnya, tanpa
+      tahu sebelumnya ada berapa dan di mana letaknya? Untuk itu,
+      <code>re.findall(pola, teks)</code> adalah alat yang tepat — dia mengembalikan
+      <strong>daftar (list)</strong> semua bagian teks yang cocok dengan pola:
+    </p>
+    <CodeBlock
+      code={`import re
+
+pola_email = r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]+"
+
+pesan_pelanggan = (
+    "Halo, saya butuh bantuan soal pesanan saya. Bisa dibalas ke "
+    "budi.santoso@email.com atau cs.cabang2@toko-baju.co.id ya, terima kasih!"
+)
+
+email_ditemukan = re.findall(pola_email, pesan_pelanggan)
+print(email_ditemukan)
+# ['budi.santoso@email.com', 'cs.cabang2@toko-baju.co.id']`}
+    />
+    <div class="chapter-media">
+      <EmailFindallDemo />
+    </div>
+    <p>
+      Bedah pola <code>r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]+"</code>:
+    </p>
+    <table class="chapter-table">
+      <thead>
+        <tr><th>Bagian</th><th>Artinya</th></tr>
+      </thead>
+      <tbody>
+        {
+          emailTable.map((row) => (
+            <tr>
+              <td><code>{row.bagian}</code></td>
+              <td>{row.arti}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+    <p>
+      List hasil <code>re.findall()</code> bisa langsung dipakai seperti list biasa dari Bab 8 —
+      di-<code>for</code>-kan, dihitung dengan <code>len()</code>, atau ditampilkan satu-satu.
+    </p>
+  </section>
+
+  <KotakMainYuk title="Main Yuk! — Hitung Berapa Email yang Ditemukan" icon="🎮" wiggleIcon>
+    <p>
+      Isi bagian kosong supaya kode ini menghitung ada <strong>berapa banyak</strong> email yang
+      ditemukan di pesan, bukan cuma menampilkan daftarnya:
+    </p>
+    <CodeBlock
+      code={`pesan_pelanggan = "Hubungi kami di admin@tokokita.com atau owner@tokokita.com untuk komplain."
+
+jumlah_email = ____(re.findall(pola_email, pesan_pelanggan))
+print(f"Ada {jumlah_email} email ditemukan di pesan ini.")`}
+    />
+    <details class="jawaban">
+      <summary>🔎 Lihat jawaban</summary>
+      <p>
+        Isi dengan <code>len</code> — karena <code>re.findall()</code> mengembalikan
+        <strong>list</strong>, kamu tinggal memakai <code>len()</code> dari Bab 8 untuk menghitung
+        berapa anggotanya, persis seperti menghitung panjang list biasa. Jawabannya:
+        <code>Ada 2 email ditemukan di pesan ini.</code>
+      </p>
+    </details>
+  </KotakMainYuk>
+
+  <KotakTahuLebih title="Tahu Lebih — Sensor Nomor HP dengan re.sub()">
+    <p>
+      Satu fungsi <code>re</code> lagi yang berguna banget: <code>re.sub(pola, pengganti, teks)</code>
+      — mencari semua bagian teks yang cocok pola, lalu <strong>menggantinya</strong>. Ini cocok
+      dipakai untuk menyensor data sensitif sebelum ditampilkan ke orang lain, mengingatkan lagi
+      soal keamanan dari Bab 16:
+    </p>
+    <CodeBlock
+      code={`import re
+
+pola_hp_cari = r"08\\d{2}-\\d{4}-\\d{4}"   # perhatikan: TANPA ^ dan $
+
+def sensor_nomor(cocok):
+    nomor = cocok.group()
+    return nomor[:4] + "-XXXX-XXXX"
+
+pesan_asli = "Nomor WhatsApp saya 0812-3456-7890, silakan hubungi kalau ada pertanyaan."
+pesan_tersensor = re.sub(pola_hp_cari, sensor_nomor, pesan_asli)
+
+print(pesan_tersensor)
+# Nomor WhatsApp saya 0812-XXXX-XXXX, silakan hubungi kalau ada pertanyaan.`}
+    />
+    <RedactionSubDemo />
+    <p>
+      Perhatikan <code>pola_hp_cari</code> di sini <strong>tidak</strong> memakai <code>^</code>/<code>$</code>
+      seperti <code>pola_hp_valid</code> di Kotak Inti #1 — itu sengaja! Di Kotak Inti #1 kita mau
+      <strong>memvalidasi</strong> (nomor harus PAS sama semua, makanya dikunci <code>^...$</code>),
+      sementara di sini kita mau <strong>menemukan</strong> nomor di tengah kalimat yang lebih
+      panjang, jadi anchor-nya dilepas supaya <code>re.sub()</code> bisa menemukannya di mana saja
+      dalam kalimat.
+    </p>
+    <p>
+      Bagian <code>sensor_nomor(cocok)</code> adalah fungsi kecil yang dipanggil <code>re.sub()</code>
+      setiap kali dia menemukan kecocokan — <code>cocok.group()</code> mengembalikan teks nomor HP
+      yang ditemukan itu sendiri (mis. <code>"0812-3456-7890"</code>), lalu kita potong 4 karakter
+      pertamanya (<code>nomor[:4]</code>, teknik slicing dari Bab 8) dan tempelkan
+      <code>-XXXX-XXXX</code> di belakangnya. Hasilnya: nomor asli tersembunyi, cuma 4 digit awal
+      yang masih terlihat.
+    </p>
+  </KotakTahuLebih>
+
+  <section data-reveal>
+    <h2>Coba Sendiri, Yuk!</h2>
+    <p>
+      Coba langsung di kolom editor — jadi detektif teks sungguhan: tempel sebuah paragraf untuk
+      mencari semua email di dalamnya, lalu cek juga format nomor HP-mu sendiri. Klik
+      <strong>▶ Jalankan</strong>, lalu jawab pertanyaan yang muncul di console:
+    </p>
+    <PyodideEditor
+      mode="interactive"
+      idPrefix="bab18"
+      title="🐍 detektif_teks.py"
+      runLabel="▶ Jalankan"
+      codeAriaLabel="Kotak kode detektif teks Pyto"
+      rows={22}
+      minHeight={340}
+      consoleLabel="Console:"
+      starterCode={`import re
+
+pola_email = r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]+"
+pola_hp_valid = r"^08\\d{2}-\\d{4}-\\d{4}$"
+
+teks = input("Tempel pesan/paragraf yang mau diperiksa: ")
+email_ditemukan = re.findall(pola_email, teks)
+
+if email_ditemukan:
+    print(f"Ditemukan {len(email_ditemukan)} email:")
+    for email in email_ditemukan:
+        print(f"- {email}")
+else:
+    print("Tidak ada email ditemukan di teks ini.")
+
+nomor_hp = input("Sekarang coba ketik satu nomor HP (format 08xx-xxxx-xxxx): ")
+if re.fullmatch(pola_hp_valid, nomor_hp):
+    print(f"{nomor_hp} -> format nomor HP valid ✅")
+else:
+    print(f"{nomor_hp} -> BUKAN format nomor HP yang dikenali ❌ (harus 08xx-xxxx-xxxx)")
+`}
+      notes={[
+        '✏️ Coba tempel paragraf yang punya beberapa email berbeda sekaligus (mis. tiru contoh pesan pelanggan di atas), lalu lihat semuanya ditemukan satu per satu. Untuk nomor HP, coba juga ketik nomor dengan format salah (tanpa tanda hubung, atau kepanjangan) dan lihat pesan penolakannya.',
+        '🎉 Kalau layar menampilkan daftar email yang berhasil ditemukan dan hasil cek nomor HP-mu — kamu resmi jadi detektif teks Pyto, siap menemukan pola tersembunyi di teks apa pun!',
+      ]}
+    />
+  </section>
+
+  <section data-reveal>
+    <h2>Rangkuman Bab 18</h2>
+    <RangkumanList items={rangkuman} />
+  </section>
+
+  <section data-reveal>
+    <h2>📖 Kamus Kata</h2>
+    <Glossary terms={glossaryTerms} />
+  </section>
+
+  <ChapterFooterNav
+    prevHref={`${base}/bab/17/`}
+    prevLabel="← Bab 17: Seniman Digital"
+    nextLabel="Bab 19: Proyek Level Up"
+    nextDisabled
+  />
+</ChapterLayout>
+
+<style>
+  .chapter-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 15px;
+  }
+
+  .chapter-table th,
+  .chapter-table td {
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  .chapter-table th {
+    font-family: var(--font-heading);
+    color: var(--slate);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+</style>

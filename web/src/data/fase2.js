@@ -1,11 +1,11 @@
 // Kurikulum Fase 2 ("Python Lanjutan") — Bab 11-20. Sumber: plan/Fase2/plan.md
 // (draf kurikulum, riset lengkap di plan/Fase2/riset-topik-fase2.md).
 //
-// Bab 11-17 sekarang sudah punya halaman sungguhan (`live: true`) — lihat
-// AVAILABLE_CHAPTERS di chapters.js dan src/pages/bab/11.astro s.d. 17.astro.
-// Bab 18-20 masih pengumuman "Segera Hadir" saja: belum ada halaman bab
+// Bab 11-18 sekarang sudah punya halaman sungguhan (`live: true`) — lihat
+// AVAILABLE_CHAPTERS di chapters.js dan src/pages/bab/11.astro s.d. 18.astro.
+// Bab 19-20 masih pengumuman "Segera Hadir" saja: belum ada halaman bab
 // sungguhan, jangan tambahkan ke AVAILABLE_CHAPTERS atau bikin route
-// /bab/18/ dst. sebelum naskah + implementasinya benar-benar ada.
+// /bab/19/ dst. sebelum naskah + implementasinya benar-benar ada.
 // Ini tetap satu-satunya sumber judul/blurb untuk seluruh Bab 11-20 — dipakai
 // bareng oleh chapters.js, Fase2Teaser.astro, dan halaman /fase2/.
 
@@ -95,6 +95,7 @@ export const fase2Chapters = [
     blurb:
       'Kacamata detektif Pyto: temukan semua email atau nomor HP yang tersembunyi di tumpukan teks.',
     group: 'susulan',
+    live: true,
   },
   {
     number: 19,
