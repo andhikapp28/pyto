@@ -1,0 +1,246 @@
+---
+// Animasi #4 (plan/bab-18-animasi.md) — analogi Kata Pyto: gembok & kunci.
+// Dua adegan berdampingan: "search()" — kunci cukup menyentuh SEBAGIAN
+// lubang gembok dari mana saja dan gemboknya sudah "klik" terbuka sedikit;
+// "fullmatch()" — kunci harus masuk PENUH sampai pangkal sebelum gemboknya
+// benar-benar terbuka lebar, disertai kilau ekstra. Sekali jalan saat
+// terlihat, boleh diulang lewat hover/klik/keyboard.
+---
+
+<div
+  class="lkm-demo"
+  data-anim="lkm-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi analogi kunci dan gembok search versus fullmatch"
+>
+  <div class="lkm-demo__scene">
+    <span class="lkm-demo__label">search()</span>
+    <div class="lkm-demo__lock-wrap">
+      <span class="lkm-demo__lock lkm-demo__lock--closed" id="lkm-closed-search" aria-hidden="true">🔒</span>
+      <span class="lkm-demo__lock lkm-demo__lock--open" id="lkm-open-search" aria-hidden="true">🔓</span>
+      <span class="lkm-demo__key lkm-demo__key--search" id="lkm-key-search" aria-hidden="true">🔑</span>
+    </div>
+    <p class="lkm-demo__caption">Cukup sentuh sebagian — sudah "klik" cocok.</p>
+  </div>
+
+  <div class="lkm-demo__scene">
+    <span class="lkm-demo__label">fullmatch()</span>
+    <div class="lkm-demo__lock-wrap">
+      <span class="lkm-demo__lock lkm-demo__lock--closed" id="lkm-closed-full" aria-hidden="true">🔒</span>
+      <span class="lkm-demo__lock lkm-demo__lock--open" id="lkm-open-full" aria-hidden="true">🔓</span>
+      <span class="lkm-demo__key lkm-demo__key--full" id="lkm-key-full" aria-hidden="true">🔑</span>
+      <span class="lkm-demo__sparkle" id="lkm-sparkle" aria-hidden="true">✨</span>
+    </div>
+    <p class="lkm-demo__caption">Harus masuk PENUH sampai pangkal — baru benar-benar terbuka.</p>
+  </div>
+</div>
+
+<p class="lkm-demo__hint">💡 <em>(Klik / hover untuk ulangi.)</em></p>
+
+<style>
+  .lkm-demo {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .lkm-demo__scene {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 160px;
+  }
+
+  .lkm-demo__label {
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--pyto-green-dark);
+    background: var(--pyto-green-soft);
+    border-radius: 999px;
+    padding: 4px 12px;
+  }
+
+  .lkm-demo__lock-wrap {
+    position: relative;
+    width: 84px;
+    height: 84px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .lkm-demo__lock {
+    position: absolute;
+    font-size: 44px;
+    opacity: 0;
+  }
+
+  .lkm-demo__lock--closed {
+    opacity: 1;
+  }
+
+  .lkm-demo.is-in #lkm-closed-search {
+    animation: lkm-fade-out 0.3s ease 0.9s forwards;
+  }
+
+  .lkm-demo.is-in #lkm-open-search {
+    animation: lkm-fade-in-half 0.3s ease 0.9s forwards;
+  }
+
+  .lkm-demo.is-in #lkm-closed-full {
+    animation: lkm-fade-out 0.3s ease 1.3s forwards;
+  }
+
+  .lkm-demo.is-in #lkm-open-full {
+    animation: lkm-fade-in-full 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 1.3s forwards;
+  }
+
+  @keyframes lkm-fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes lkm-fade-in-half {
+    to {
+      opacity: 0.55;
+    }
+  }
+
+  @keyframes lkm-fade-in-full {
+    to {
+      opacity: 1;
+      transform: scale(1.08);
+    }
+  }
+
+  .lkm-demo__key {
+    position: absolute;
+    font-size: 26px;
+    left: -30px;
+    opacity: 0;
+    transform: rotate(-90deg);
+  }
+
+  .lkm-demo.is-in .lkm-demo__key--search {
+    animation: lkm-key-partial 0.6s ease 0.35s forwards;
+  }
+
+  @keyframes lkm-key-partial {
+    0% {
+      opacity: 0;
+      left: -30px;
+    }
+    20% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 1;
+      left: 4px;
+    }
+  }
+
+  .lkm-demo.is-in .lkm-demo__key--full {
+    animation: lkm-key-full 0.7s ease 0.55s forwards;
+  }
+
+  @keyframes lkm-key-full {
+    0% {
+      opacity: 0;
+      left: -30px;
+    }
+    20% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 1;
+      left: 26px;
+    }
+  }
+
+  .lkm-demo__sparkle {
+    position: absolute;
+    top: -6px;
+    right: 2px;
+    font-size: 20px;
+    opacity: 0;
+    transform: scale(0.4);
+  }
+
+  .lkm-demo.is-in .lkm-demo__sparkle {
+    animation: lkm-sparkle-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 1.35s forwards;
+  }
+
+  @keyframes lkm-sparkle-pop {
+    0% {
+      opacity: 0;
+      transform: scale(0.4);
+    }
+    60% {
+      opacity: 1;
+      transform: scale(1.3);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .lkm-demo__caption {
+    margin: 0;
+    font-size: 13px;
+    color: var(--slate);
+    text-align: center;
+  }
+
+  .lkm-demo__hint {
+    font-size: 14px;
+    color: var(--slate);
+    margin: 0 2px;
+    text-align: center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lkm-demo__lock,
+    .lkm-demo__key,
+    .lkm-demo__sparkle {
+      animation: none !important;
+    }
+
+    #lkm-closed-search,
+    #lkm-closed-full {
+      opacity: 0;
+    }
+
+    #lkm-open-search {
+      opacity: 0.55;
+    }
+
+    #lkm-open-full {
+      opacity: 1;
+    }
+
+    .lkm-demo__key {
+      opacity: 1;
+      left: 6px;
+    }
+
+    .lkm-demo__sparkle {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="lkm-demo"]');
+  observeOnce(els, (el) => el.classList.add('is-in'));
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

@@ -1,0 +1,196 @@
+---
+// Animasi #6 (plan/bab-18-animasi.md), Centerpiece 2 — konsep terpenting
+// kedua bab ini. Paragraf `pesan_pelanggan` tampil utuh, kaca pembesar (echo
+// beat #2) menyisir dari kiri ke kanan TIDAK berhenti di kecocokan pertama —
+// menyorot (highlight kuning) SETIAP email yang dilewati satu per satu, lalu
+// keduanya "terbang keluar" jadi daftar/list Python di area hasil. Sekali
+// jalan saat terlihat, boleh diulang lewat hover/klik/keyboard.
+---
+
+<div
+  class="efd-demo"
+  data-anim="efd-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi re.findall menemukan semua email dalam paragraf"
+>
+  <div class="efd-demo__stage">
+    <span class="efd-demo__glass" id="efd-glass" aria-hidden="true">🔍</span>
+    <p class="efd-demo__paragraph">
+      Halo, saya butuh bantuan soal pesanan saya. Bisa dibalas ke
+      <span class="efd-demo__email" id="efd-email-0">budi.santoso@email.com</span> atau
+      <span class="efd-demo__email" id="efd-email-1">cs.cabang2@toko-baju.co.id</span> ya, terima
+      kasih!
+    </p>
+  </div>
+
+  <div class="efd-demo__list" aria-hidden="true">
+    <span class="efd-demo__bracket">[</span>
+    <span class="efd-demo__list-item" id="efd-list-0">'budi.santoso@email.com'</span>
+    <span class="efd-demo__list-item" id="efd-list-1">'cs.cabang2@toko-baju.co.id'</span>
+    <span class="efd-demo__bracket">]</span>
+  </div>
+</div>
+
+<p class="efd-demo__hint">
+  💡 <code>re.findall()</code> tidak berhenti di kecocokan pertama — dia menyisir SAMPAI SELESAI
+  dan mengumpulkan SEMUA kecocokan jadi satu list. <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .efd-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 24px;
+    cursor: pointer;
+  }
+
+  .efd-demo__stage {
+    position: relative;
+    padding-top: 22px;
+  }
+
+  .efd-demo__glass {
+    position: absolute;
+    top: -4px;
+    left: 2%;
+    font-size: 24px;
+    opacity: 0;
+  }
+
+  .efd-demo.is-in .efd-demo__glass {
+    animation: efd-sweep 2s ease 0.1s forwards;
+  }
+
+  @keyframes efd-sweep {
+    0% {
+      opacity: 0;
+      left: 2%;
+    }
+    6% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 1;
+      left: 92%;
+    }
+  }
+
+  .efd-demo__paragraph {
+    margin: 0;
+    font-family: var(--font-code);
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--ink);
+  }
+
+  .efd-demo__email {
+    display: inline;
+    border-radius: 5px;
+    padding: 1px 3px;
+    font-weight: 700;
+    background: transparent;
+    transition: background-color 0.3s ease;
+  }
+
+  .efd-demo.is-in #efd-email-0 {
+    animation: efd-highlight 0.4s ease 0.7s forwards;
+  }
+
+  .efd-demo.is-in #efd-email-1 {
+    animation: efd-highlight 0.4s ease 1.4s forwards;
+  }
+
+  @keyframes efd-highlight {
+    to {
+      background: var(--sunny-yellow);
+    }
+  }
+
+  .efd-demo__list {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    font-family: var(--font-code);
+    font-size: 13px;
+    justify-content: center;
+    padding: 14px;
+    background: var(--cloud);
+    border-radius: 10px;
+  }
+
+  .efd-demo__bracket {
+    font-weight: 800;
+    color: var(--grape);
+  }
+
+  .efd-demo__list-item {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  .efd-demo.is-in #efd-list-0 {
+    animation: efd-list-in 0.35s ease 2s forwards;
+  }
+
+  .efd-demo.is-in #efd-list-1 {
+    animation: efd-list-in 0.35s ease 2.3s forwards;
+  }
+
+  @keyframes efd-list-in {
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .efd-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  .efd-demo__hint code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .efd-demo__glass,
+    .efd-demo__email,
+    .efd-demo__list-item {
+      animation: none !important;
+    }
+
+    .efd-demo__glass {
+      opacity: 1;
+      left: 92%;
+    }
+
+    .efd-demo__email {
+      background: var(--sunny-yellow);
+    }
+
+    .efd-demo__list-item {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="efd-demo"]');
+  observeOnce(els, (el) => el.classList.add('is-in'));
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>
