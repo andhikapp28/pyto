@@ -24,29 +24,33 @@ Siapa pun yang belum pernah ngoding — dari anak SD sampai orang dewasa yang pe
 
 ```
 .
+├── code/        # Skrip referensi Python tiap bab (dijalankan & diverifikasi)
+├── web/         # Website interaktif (Astro + Pyodide)
+│   └── src/
+│       ├── pages/bab/   # Halaman tiap bab (1.astro, 2.astro, ...)
+│       ├── components/  # Komponen ilustrasi & interaktif per bab
+│       └── data/        # chapters.js & fase2.js (sumber judul/status bab)
 ├── docs/        # Dokumentasi PDF
-├── code/        # Berkas kode Python (dipakai web & buku)
-├── buku/        # Output PDF per bab
-├── web/         # Website interaktif (HTML/CSS/JS)
-│   ├── css/
-│   ├── js/
-│   ├── bab/     # Halaman tiap bab
-│   └── assets/
-├── konten/      # Kartu konten pendek untuk media sosial
+├── buku/        # Output PDF per bab (belum digenerate)
+├── konten/      # Kartu konten pendek untuk media sosial (belum digenerate)
 └── assets/      # Gambar bersama: maskot Pyto, ilustrasi, ikon
 ```
 
 > Catatan: folder **`plan/`** (dokumen kerja: rencana, design system, naskah, catatan animasi) sengaja **tidak diupload** ke GitHub — hanya ada di komputer pengembang.
 
-Alur kerja: tulis naskah di **`plan/naskah/`** → hasilkan **`buku/`**, **`web/`**, dan **`konten/`**. Semua mengikuti warna & gaya di `plan/design-system.md`.
+Alur kerja: tulis naskah di **`plan/naskah/`** → implementasikan jadi halaman di **`web/`** (dengan skrip referensi di **`code/`**) → nanti diturunkan juga ke **`buku/`** dan **`konten/`**. Semua mengikuti warna & gaya di `plan/design-system.md`.
+
+Web dibangun pakai [Astro](https://astro.build) dan menjalankan Python langsung di browser lewat [Pyodide](https://pyodide.org) — jadi pembaca bisa coba-coba kode tanpa install apa pun.
 
 ---
 
-## 📚 Daftar Bab (Python Dasar)
+## 📚 Daftar Bab
 
-1. Kenalan dengan Python ✅
-2. Menyapa Dunia (`print`)✅
-3. Kotak Ajaib (Variabel)✅
+**Fase 1 — Python Dasar (Bab 1-10)** ✅ Selesai
+
+1. Kenalan dengan Python
+2. Menyapa Dunia (`print`)
+3. Kotak Ajaib (Variabel)
 4. Ngobrol dengan Komputer (`input`)
 5. Angka & Hitung-hitungan
 6. Kalau Begini, Maka Begitu (`if`)
@@ -55,17 +59,35 @@ Alur kerja: tulis naskah di **`plan/naskah/`** → hasilkan **`buku/`**, **`web/
 9. Salah itu Wajar (Error & memperbaiki)
 10. Proyek Seru (Tebak Angka, Kuis, Kalkulator)
 
+**Fase 2 — Python Lanjutan (Bab 11-20)** 🚧 Bab 11-18 sudah live, Bab 19-20 masih rencana
+
+11. Kamus / Kotak Berlabel (Dictionary) ✅
+12. Data dari Internet (API & JSON) ✅
+13. Bengkel Foto Mini (Olah Gambar) ✅
+14. Bikin Barcode Ajaib (QR Code) ✅
+15. Asisten Kantor Kilat (Excel & PDF Sederhana) ✅
+16. Agen Rahasia Pyto (Kode Rahasia & Keamanan Kata Sandi) ✅
+17. Seniman Digital (Menggambar dengan Kode) ✅
+18. Detektif Teks (Pengenalan Pola / Regex) ✅
+19. Proyek Level Up (Game Teks) — segera
+20. Kalkulator Keuangan Mini (Capstone) — segera
+
 ---
 
-## 🚀 Cara Menjalankan Web (nanti)
-
-Web bersifat statis, tanpa perlu server khusus:
+## 🚀 Cara Menjalankan Web
 
 ```bash
-# buka folder web lalu jalankan server sederhana
 cd web
-python -m http.server 8000
-# buka http://localhost:8000 di browser
+npm install
+npm run dev
+# buka http://localhost:4321 di browser
+```
+
+Untuk build produksi (hasil statis di `web/dist/`):
+
+```bash
+npm run build
+npm run preview
 ```
 
 ---
