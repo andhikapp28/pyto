@@ -1,0 +1,139 @@
+---
+// Papan huruf dasar dipakai ulang oleh GuessBoardRevealDemo.astro (beat #3)
+// dan MainGameLoopDemo.astro (beat #6) — lihat plan/design/bab-19-desain.md,
+// bagian "Elemen UI Baru": "sebaiknya dibuat sebagai satu komponen visual
+// dasar yang menerima props (kata, huruf tertebak) dan dipakai ulang oleh
+// kedua demo, bukan digambar ulang tiap kali."
+// Kotak tertutup: tepi putus-putus --border. Kotak terbuka: tepi solid
+// --pyto-green. Highlight sesaat (dipicu parent lewat class
+// guess-board__box--flash) memakai --sunny-yellow. Murni presentational —
+// parent (demo) yang mengatur kapan box mana terbuka lewat prop `openIndexes`
+// atau lewat animasi CSS bertarget id `${idPrefix}-box-{i}`.
+interface Props {
+  idPrefix: string;
+  word: string;
+  openIndexes?: number[];
+  faded?: boolean;
+}
+
+const { idPrefix, word, openIndexes = [], faded = false } = Astro.props;
+const letters = word.split('');
+---
+
+<div class:list={['guess-board', { 'guess-board--faded': faded }]} id={`${idPrefix}-board`}>
+  {
+    letters.map((ch, i) => (
+      <div
+        class:list={['guess-board__box', { 'guess-board__box--open': openIndexes.includes(i) }]}
+        id={`${idPrefix}-box-${i}`}
+      >
+        <span class="guess-board__letter">{ch}</span>
+        <span class="guess-board__blank" aria-hidden="true">_</span>
+      </div>
+    ))
+  }
+</div>
+
+<style>
+  .guess-board {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    transition: filter 0.4s ease, opacity 0.4s ease;
+  }
+
+  .guess-board--faded {
+    filter: grayscale(1);
+    opacity: 0.55;
+  }
+
+  .guess-board__box {
+    position: relative;
+    width: 36px;
+    height: 44px;
+    border-radius: 8px;
+    border: 2px dashed var(--border);
+    background: var(--cloud);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-code);
+    font-weight: 800;
+    font-size: 17px;
+    color: var(--ink);
+    text-transform: uppercase;
+    transition: border-color 0.3s ease, background-color 0.3s ease, transform 0.3s ease;
+  }
+
+  .guess-board__letter {
+    display: none;
+  }
+
+  .guess-board__blank {
+    color: var(--slate);
+  }
+
+  .guess-board__box--open {
+    border-style: solid;
+    border-color: var(--pyto-green);
+    background: var(--pyto-green-soft);
+  }
+
+  .guess-board__box--open .guess-board__letter {
+    display: inline;
+    color: var(--pyto-green-dark);
+  }
+
+  .guess-board__box--open .guess-board__blank {
+    display: none;
+  }
+
+  .guess-board__box--flash {
+    animation: guess-board-flash 0.6s ease;
+  }
+
+  @keyframes guess-board-flash {
+    0% {
+      transform: scale(1);
+      box-shadow: none;
+    }
+    45% {
+      transform: scale(1.16);
+      box-shadow: 0 0 0 4px rgba(255, 201, 77, 0.55);
+    }
+    100% {
+      transform: scale(1);
+      box-shadow: none;
+    }
+  }
+
+  .guess-board__box--win {
+    animation: guess-board-win 0.7s ease;
+  }
+
+  @keyframes guess-board-win {
+    0%,
+    100% {
+      box-shadow: none;
+    }
+    50% {
+      box-shadow: 0 0 0 5px rgba(47, 191, 113, 0.4);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .guess-board__box--flash,
+    .guess-board__box--win {
+      animation: none !important;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .guess-board__box {
+      width: 30px;
+      height: 38px;
+      font-size: 15px;
+    }
+  }
+</style>

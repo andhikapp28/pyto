@@ -1,0 +1,103 @@
+---
+// Animasi #4 (plan/bab-19-animasi.md) — pendamping kecil kotak Kata Pyto.
+// Echo mini rak berlabel (beat #2) dan papan huruf (beat #3) berdampingan,
+// keduanya berkilau bergantian, dihubungkan panah melengkung kecil, sesuai
+// analogi Pyto: "rak berlabel" (dictionary+list) dan "asisten papan"
+// (tampilkan_progres) adalah dua alat berbeda yang bekerja sama. Komponen
+// ringan (bukan ilustrasi besar) sesuai catatan desain. Sekali jalan saat
+// terlihat, boleh diulang lewat hover/klik/keyboard.
+---
+
+<div
+  class="sam-demo"
+  data-anim="sam-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi analogi rak berlabel dan asisten papan"
+>
+  <div class="sam-demo__mini sam-demo__mini--shelf" id="sam-shelf">
+    <span class="sam-demo__mini-icon" aria-hidden="true">🗄️</span>
+    <span class="sam-demo__mini-label">rak berlabel</span>
+  </div>
+
+  <span class="sam-demo__arrow" aria-hidden="true">↝</span>
+
+  <div class="sam-demo__mini sam-demo__mini--board" id="sam-board">
+    <span class="sam-demo__mini-icon" aria-hidden="true">🔤</span>
+    <span class="sam-demo__mini-label">asisten papan</span>
+  </div>
+</div>
+
+<style>
+  .sam-demo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 4px 0;
+  }
+
+  .sam-demo__mini {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: var(--white);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 14px;
+    transition: border-color 0.35s ease, background-color 0.35s ease;
+  }
+
+  .sam-demo__mini-icon {
+    font-size: 22px;
+  }
+
+  .sam-demo__mini-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--slate);
+  }
+
+  .sam-demo.is-in .sam-demo__mini--shelf {
+    animation: sam-glow 1.4s ease 0.2s;
+  }
+
+  .sam-demo.is-in .sam-demo__mini--board {
+    animation: sam-glow 1.4s ease 1.5s;
+  }
+
+  @keyframes sam-glow {
+    0%,
+    100% {
+      border-color: var(--border);
+      background: var(--white);
+    }
+    40% {
+      border-color: var(--grape);
+      background: var(--pyto-green-soft);
+    }
+  }
+
+  .sam-demo__arrow {
+    font-size: 20px;
+    color: var(--grape);
+    opacity: 0.6;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sam-demo__mini--shelf,
+    .sam-demo__mini--board {
+      animation: none !important;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="sam-demo"]');
+  observeOnce(els, (el) => el.classList.add('is-in'));
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

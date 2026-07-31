@@ -1,0 +1,360 @@
+---
+// Animasi #7 (plan/bab-19-animasi.md), Centerpiece 2 — kode Kotak Inti #2
+// (Batu-Gunting-Kertas dengan Skor). Dua "tangan" berhadapan (Kamu aksen
+// --sky-blue, Pyto aksen --pyto-green), dadu pemilih gerakan Pyto aksen
+// --grape (echo tema random Bab 10). 3 ronde disimulasikan berurutan,
+// masing-masing menunjukkan hasil (menang/kalah/seri) dan menambah salah
+// satu dari dua papan skor. Dikoreografikan lewat JS (setTimeout), sama
+// pola dengan MainGameLoopDemo.astro. Sekali jalan saat terlihat, boleh
+// diulang lewat hover/klik/keyboard.
+const MOVE_ICON: Record<string, string> = { batu: '✊', gunting: '✌️', kertas: '✋' };
+
+// Ronde disengaja bervariasi: menang, kalah, menang — supaya pembaca melihat
+// ketiga kemungkinan hasil (bukan cuma menang terus).
+const rounds = [
+  { pemain: 'batu', pyto: 'gunting', result: 'win' },
+  { pemain: 'gunting', pyto: 'batu', result: 'lose' },
+  { pemain: 'kertas', pyto: 'batu', result: 'win' },
+];
+---
+
+<div
+  class="rps-demo"
+  data-anim="rps-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi simulasi duel batu gunting kertas 3 ronde"
+>
+  <div class="rps-demo__scoreboard">
+    <div class="rps-demo__score-box rps-demo__score-box--player">
+      <span class="rps-demo__score-label">Kamu</span>
+      <span class="rps-demo__score-value" id="rps-score-player">0</span>
+    </div>
+    <span class="rps-demo__vs">VS</span>
+    <div class="rps-demo__score-box rps-demo__score-box--pyto">
+      <span class="rps-demo__score-label">Pyto</span>
+      <span class="rps-demo__score-value" id="rps-score-pyto">0</span>
+    </div>
+  </div>
+
+  <span class="rps-demo__round" id="rps-round">Ronde 1</span>
+
+  <div class="rps-demo__duel">
+    <div class="rps-demo__hand rps-demo__hand--player">
+      <span class="rps-demo__hand-label">Kamu</span>
+      <span class="rps-demo__hand-icon" id="rps-hand-player">✊</span>
+    </div>
+
+    <span class="rps-demo__dice" id="rps-dice" aria-hidden="true">🎲</span>
+
+    <div class="rps-demo__hand rps-demo__hand--pyto">
+      <span class="rps-demo__hand-label">Pyto</span>
+      <span class="rps-demo__hand-icon" id="rps-hand-pyto">✊</span>
+    </div>
+  </div>
+
+  <span class="rps-demo__result" id="rps-result">&nbsp;</span>
+</div>
+
+<p class="rps-demo__hint">
+  💡 Gerakan Pyto dipilih lewat <code>random.choice(pilihan_valid)</code> — dadu berputar sebelum
+  mendarat di satu gerakan. <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .rps-demo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 24px;
+    cursor: pointer;
+  }
+
+  .rps-demo__scoreboard {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .rps-demo__score-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    width: 56px;
+    padding: 8px 4px;
+    border-radius: 10px;
+  }
+
+  .rps-demo__score-box--player {
+    background: rgba(77, 166, 255, 0.12);
+    border: 2px solid var(--sky-blue);
+  }
+
+  .rps-demo__score-box--pyto {
+    background: var(--pyto-green-soft);
+    border: 2px solid var(--pyto-green);
+  }
+
+  .rps-demo__score-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--slate);
+  }
+
+  .rps-demo__score-value {
+    font-family: var(--font-code);
+    font-weight: 800;
+    font-size: 20px;
+    color: var(--ink);
+    transition: transform 0.25s ease;
+  }
+
+  .rps-demo__score-value.is-bump {
+    animation: rps-score-bump 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes rps-score-bump {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.4);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+
+  .rps-demo__vs {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    color: var(--grape);
+    font-size: 13px;
+  }
+
+  .rps-demo__round {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--slate);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  .rps-demo__duel {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .rps-demo__hand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .rps-demo__hand-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--slate);
+  }
+
+  .rps-demo__hand-icon {
+    font-size: 34px;
+    display: inline-block;
+    transition: transform 0.15s ease;
+  }
+
+  .rps-demo__hand-icon.is-bump {
+    animation: rps-hand-bump 0.5s ease;
+  }
+
+  @keyframes rps-hand-bump {
+    0%,
+    100% {
+      transform: scale(1) rotate(0);
+    }
+    30% {
+      transform: scale(0.85) rotate(-6deg);
+    }
+    60% {
+      transform: scale(1.2) rotate(6deg);
+    }
+  }
+
+  .rps-demo__dice {
+    font-size: 24px;
+    display: inline-block;
+    opacity: 0.4;
+  }
+
+  .rps-demo__dice.is-spinning {
+    animation: rps-dice-spin 0.5s linear;
+    opacity: 1;
+  }
+
+  @keyframes rps-dice-spin {
+    0% {
+      transform: rotate(0deg) scale(1);
+    }
+    50% {
+      transform: rotate(180deg) scale(1.3);
+    }
+    100% {
+      transform: rotate(360deg) scale(1);
+    }
+  }
+
+  .rps-demo__result {
+    min-height: 20px;
+    font-weight: 800;
+    font-size: 14px;
+  }
+
+  .rps-demo__result[data-kind='win'] {
+    color: var(--sky-blue);
+  }
+
+  .rps-demo__result[data-kind='lose'] {
+    color: var(--pyto-green-dark);
+  }
+
+  .rps-demo__result[data-kind='seri'] {
+    color: var(--slate);
+  }
+
+  .rps-demo__result[data-kind='final'] {
+    color: var(--grape);
+  }
+
+  .rps-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  .rps-demo__hint code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rps-demo__score-value.is-bump,
+    .rps-demo__hand-icon.is-bump,
+    .rps-demo__dice.is-spinning {
+      animation: none !important;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const MOVE_ICON: Record<string, string> = { batu: '✊', gunting: '✌️', kertas: '✋' };
+
+  const rounds = [
+    { pemain: 'batu', pyto: 'gunting', result: 'win' },
+    { pemain: 'gunting', pyto: 'batu', result: 'lose' },
+    { pemain: 'kertas', pyto: 'batu', result: 'win' },
+  ];
+
+  const ROUND_MS = 950;
+  const START_MS = 300;
+
+  function reset(el: Element) {
+    (el.querySelector('#rps-score-player') as HTMLElement).textContent = '0';
+    (el.querySelector('#rps-score-pyto') as HTMLElement).textContent = '0';
+    (el.querySelector('#rps-round') as HTMLElement).textContent = 'Ronde 1';
+    (el.querySelector('#rps-hand-player') as HTMLElement).textContent = '✊';
+    (el.querySelector('#rps-hand-pyto') as HTMLElement).textContent = '✊';
+    const result = el.querySelector('#rps-result') as HTMLElement;
+    result.textContent = ' ';
+    result.removeAttribute('data-kind');
+  }
+
+  function play(el: Element) {
+    reset(el);
+    let skorPemain = 0;
+    let skorPyto = 0;
+
+    rounds.forEach((round, i) => {
+      const base = START_MS + i * ROUND_MS;
+
+      setTimeout(() => {
+        (el.querySelector('#rps-round') as HTMLElement).textContent = `Ronde ${i + 1}`;
+        const dice = el.querySelector('#rps-dice') as HTMLElement;
+        dice.classList.remove('is-spinning');
+        void dice.offsetWidth;
+        dice.classList.add('is-spinning');
+
+        const playerHand = el.querySelector('#rps-hand-player') as HTMLElement;
+        const pytoHand = el.querySelector('#rps-hand-pyto') as HTMLElement;
+        playerHand.textContent = MOVE_ICON[round.pemain];
+        pytoHand.classList.remove('is-bump');
+      }, base);
+
+      setTimeout(() => {
+        const pytoHand = el.querySelector('#rps-hand-pyto') as HTMLElement;
+        pytoHand.textContent = MOVE_ICON[round.pyto];
+        pytoHand.classList.add('is-bump');
+        (el.querySelector('#rps-hand-player') as HTMLElement).classList.add('is-bump');
+      }, base + 500);
+
+      setTimeout(() => {
+        const result = el.querySelector('#rps-result') as HTMLElement;
+        if (round.result === 'win') {
+          skorPemain += 1;
+          result.textContent = 'Kamu menang ronde ini!';
+          result.dataset.kind = 'win';
+          const val = el.querySelector('#rps-score-player') as HTMLElement;
+          val.textContent = String(skorPemain);
+          val.classList.remove('is-bump');
+          void val.offsetWidth;
+          val.classList.add('is-bump');
+        } else if (round.result === 'lose') {
+          skorPyto += 1;
+          result.textContent = 'Pyto menang ronde ini!';
+          result.dataset.kind = 'lose';
+          const val = el.querySelector('#rps-score-pyto') as HTMLElement;
+          val.textContent = String(skorPyto);
+          val.classList.remove('is-bump');
+          void val.offsetWidth;
+          val.classList.add('is-bump');
+        } else {
+          result.textContent = 'Seri!';
+          result.dataset.kind = 'seri';
+        }
+      }, base + 700);
+    });
+
+    setTimeout(() => {
+      const result = el.querySelector('#rps-result') as HTMLElement;
+      result.dataset.kind = 'final';
+      if (skorPemain > skorPyto) {
+        result.textContent = `Skor akhir ${skorPemain}-${skorPyto} → Kamu menang keseluruhan! 🎉`;
+      } else if (skorPemain < skorPyto) {
+        result.textContent = `Skor akhir ${skorPemain}-${skorPyto} → Pyto menang keseluruhan!`;
+      } else {
+        result.textContent = `Skor akhir ${skorPemain}-${skorPyto} → Hasil akhir seri!`;
+      }
+    }, START_MS + rounds.length * ROUND_MS + 200);
+  }
+
+  const els = document.querySelectorAll('[data-anim="rps-demo"]');
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+    play(el);
+  });
+  els.forEach((el) => {
+    wireReplay(el, 'is-in');
+    el.addEventListener('mouseenter', () => play(el));
+    el.addEventListener('click', () => play(el));
+  });
+</script>

@@ -1,0 +1,165 @@
+---
+// Animasi #3 (plan/bab-19-animasi.md), Centerpiece 1b — kode fungsi
+// tampilkan_progres(kata, tebakan_benar) (Langkah 2 Kotak Inti #1). Papan
+// GuessBoard.astro dengan kata "gajah" (semua kotak tertutup), lalu kartu
+// huruf "a" melayang masuk dari atas dan "menyentuh" papan — kotak indeks
+// ke-2 & ke-4 (huruf "a" muncul dua kali di "gajah") membalik BERSAMAAN,
+// menampilkan bahwa satu tebakan bisa membuka lebih dari satu kotak
+// sekaligus. Dipicu lewat JS (classList.add pada class yang SUDAH
+// didefinisikan GuessBoard.astro sendiri) daripada CSS lintas-komponen,
+// supaya tidak terjebak isolasi scoped-CSS Astro antar komponen. Sekali
+// jalan saat terlihat, boleh diulang lewat hover/klik/keyboard.
+import GuessBoard from './GuessBoard.astro';
+
+const word = 'gajah';
+// index huruf "a" di "gajah": g(0) a(1) j(2) a(3) h(4)
+const aIndexes = [1, 3];
+---
+
+<div
+  class="gbr-demo"
+  data-anim="gbr-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi tampilkan_progres membuka huruf a yang berulang"
+>
+  <div class="gbr-demo__stage">
+    <span class="gbr-demo__letter-card" id="gbr-letter-card" aria-hidden="true">a</span>
+    <GuessBoard idPrefix="gbr" word={word} />
+  </div>
+
+  <p class="gbr-demo__caption" id="gbr-caption">
+    <code>tampilkan_progres("gajah", [])</code> → <span class="gbr-demo__mono">_ _ _ _ _</span>
+  </p>
+</div>
+
+<p class="gbr-demo__hint">
+  💡 Begitu huruf <code>"a"</code> ditebak, KEDUA huruf <code>a</code> di <code>"gajah"</code>{' '}
+  langsung terbuka bersamaan. <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .gbr-demo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    padding: 24px;
+    cursor: pointer;
+  }
+
+  .gbr-demo__stage {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    padding-top: 44px;
+  }
+
+  .gbr-demo__letter-card {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%) translateY(-16px);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--sunny-yellow);
+    border: 2px solid #f2b430;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-code);
+    font-weight: 800;
+    font-size: 16px;
+    color: var(--wood-label-text);
+    text-transform: uppercase;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.6s ease;
+  }
+
+  .gbr-demo__letter-card.is-dropped {
+    opacity: 1;
+    transform: translateX(-50%) translateY(34px);
+  }
+
+  .gbr-demo__caption {
+    margin: 0;
+    font-size: 13px;
+    color: var(--slate);
+  }
+
+  .gbr-demo__mono {
+    font-family: var(--font-code);
+    font-weight: 700;
+    color: var(--pyto-green-dark);
+  }
+
+  .gbr-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  .gbr-demo__hint code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gbr-demo__letter-card {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const A_INDEXES = [1, 3];
+
+  function play(el: Element) {
+    const card = el.querySelector('#gbr-letter-card');
+    const caption = el.querySelector('#gbr-caption');
+
+    card?.classList.remove('is-dropped');
+    A_INDEXES.forEach((i) => {
+      const box = document.getElementById(`gbr-box-${i}`);
+      box?.classList.remove('guess-board__box--open', 'guess-board__box--flash');
+    });
+    if (caption) {
+      caption.innerHTML =
+        '<code>tampilkan_progres("gajah", [])</code> → <span class="gbr-demo__mono">_ _ _ _ _</span>';
+    }
+
+    setTimeout(() => card?.classList.add('is-dropped'), 200);
+
+    setTimeout(() => {
+      A_INDEXES.forEach((i) => {
+        const box = document.getElementById(`gbr-box-${i}`);
+        box?.classList.add('guess-board__box--open', 'guess-board__box--flash');
+      });
+      if (caption) {
+        caption.innerHTML =
+          '<code>tampilkan_progres("gajah", ["a"])</code> → <span class="gbr-demo__mono">_ a _ a _</span>';
+      }
+    }, 900);
+  }
+
+  const els = document.querySelectorAll('[data-anim="gbr-demo"]');
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+    play(el);
+  });
+  els.forEach((el) => {
+    wireReplay(el, 'is-in');
+    el.addEventListener('mouseenter', () => play(el));
+    el.addEventListener('click', () => play(el));
+  });
+</script>

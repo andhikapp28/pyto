@@ -1,0 +1,355 @@
+---
+// Animasi #5 (plan/bab-19-animasi.md) — kotak "Awas" huruf besar vs huruf
+// kecil. Kontras dua kolom: "✗ Jangan begini" (kartu "A" dijatuhkan ke kata
+// "gajah" tanpa .lower() dulu, mental/terpental + getar + ❌, huruf "a" di
+// dalam kata ikut berkedip bingung), "✓ Begini benar" (kartu "A" melewati
+// mesin kecil ".lower()" jadi kartu "a", lalu masuk mulus + ✅). Pola dua
+// kolom mengikuti MatchVsFullmatchAwas.astro (Bab 18). Tepi/getar --coral
+// untuk versi salah, tepi --pyto-green untuk versi benar, aksen "mesin
+// .lower()" --grape (lihat pemetaan token bab-19-desain.md). Sekali jalan
+// saat terlihat, boleh diulang lewat hover/klik/keyboard.
+const word = 'gajah';
+---
+
+<div
+  class="csa-demo"
+  data-anim="csa-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi kontras tebakan huruf besar tanpa lower vs dengan lower"
+>
+  <div class="csa-demo__cols">
+    <div class="csa-demo__col csa-demo__col--wrong">
+      <span class="csa-demo__title">✗ Tanpa <code>.lower()</code></span>
+      <div class="csa-demo__row">
+        <span class="csa-demo__card csa-demo__card--drop" id="csa-card-wrong">A</span>
+        <span class="csa-demo__word" aria-hidden="true">
+          {word.split('').map((ch, i) => (
+            <span class:list={['csa-demo__letter', { 'csa-demo__letter--target': ch === 'a' }]} id={`csa-w-letter-${i}`}>
+              {ch}
+            </span>
+          ))}
+        </span>
+      </div>
+      <span class="csa-demo__result csa-demo__result--wrong" id="csa-result-wrong">❌ Salah!</span>
+    </div>
+
+    <div class="csa-demo__col csa-demo__col--right">
+      <span class="csa-demo__title">✓ Dengan <code>.lower()</code></span>
+      <div class="csa-demo__row">
+        <span class="csa-demo__card csa-demo__card--in" id="csa-card-in">A</span>
+        <span class="csa-demo__machine" id="csa-machine">.lower()</span>
+        <span class="csa-demo__card csa-demo__card--out" id="csa-card-out">a</span>
+        <span class="csa-demo__word" aria-hidden="true">
+          {word.split('').map((ch, i) => (
+            <span class:list={['csa-demo__letter', { 'csa-demo__letter--target': ch === 'a' }]} id={`csa-r-letter-${i}`}>
+              {ch}
+            </span>
+          ))}
+        </span>
+      </div>
+      <span class="csa-demo__result csa-demo__result--right" id="csa-result-right">✅ Benar!</span>
+    </div>
+  </div>
+</div>
+
+<p class="csa-demo__hint">
+  💡 Python membandingkan huruf besar/kecil sebagai karakter yang berbeda total —
+  <code>.lower()</code> menyamakan dulu sebelum dibandingkan. <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .csa-demo {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    cursor: pointer;
+  }
+
+  .csa-demo__cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .csa-demo__col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    background: var(--white);
+    border-radius: var(--radius-card);
+    padding: 18px 14px;
+  }
+
+  .csa-demo__col--wrong {
+    border: 2px solid rgba(255, 122, 107, 0.4);
+  }
+
+  .csa-demo__col--right {
+    border: 2px solid rgba(47, 191, 113, 0.35);
+  }
+
+  .csa-demo__title {
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 12px;
+    color: var(--slate);
+    text-align: center;
+  }
+
+  .csa-demo__title code {
+    color: var(--grape);
+  }
+
+  .csa-demo__row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+  }
+
+  .csa-demo__card {
+    width: 30px;
+    height: 30px;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-code);
+    font-weight: 800;
+    font-size: 15px;
+    background: var(--cloud);
+    border: 2px solid var(--border);
+    color: var(--ink);
+  }
+
+  .csa-demo__card--drop {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+
+  .csa-demo.is-in .csa-demo__card--drop {
+    animation: csa-drop-in 0.4s ease 0.2s forwards, csa-drop-reject 0.5s ease 0.7s forwards;
+  }
+
+  @keyframes csa-drop-in {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes csa-drop-reject {
+    0% {
+      border-color: var(--border);
+      transform: translateY(0);
+    }
+    20% {
+      transform: translateX(-6px);
+      border-color: var(--coral);
+    }
+    40% {
+      transform: translateX(6px);
+    }
+    60% {
+      transform: translateX(-4px);
+    }
+    80% {
+      transform: translateX(10px) translateY(-2px);
+    }
+    100% {
+      transform: translateX(16px) translateY(-4px) rotate(12deg);
+      border-color: var(--coral);
+      background: var(--box-awas-bg);
+    }
+  }
+
+  .csa-demo__word {
+    display: inline-flex;
+    gap: 1px;
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--ink);
+  }
+
+  .csa-demo__letter {
+    padding: 2px 3px;
+    border-radius: 4px;
+  }
+
+  .csa-demo.is-in .csa-demo__col--wrong .csa-demo__letter--target {
+    animation: csa-confused 0.4s ease 1.1s 2;
+  }
+
+  @keyframes csa-confused {
+    0%,
+    100% {
+      background: transparent;
+    }
+    50% {
+      background: var(--box-awas-bg);
+      box-shadow: inset 0 0 0 1px var(--coral);
+    }
+  }
+
+  .csa-demo__result {
+    font-size: 13px;
+    font-weight: 700;
+    opacity: 0;
+  }
+
+  .csa-demo.is-in .csa-demo__result--wrong {
+    animation: csa-result-in 0.3s ease 1.5s forwards;
+    color: #c0392b;
+  }
+
+  @keyframes csa-result-in {
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* --- kolom kanan (benar) --- */
+  .csa-demo__machine {
+    font-family: var(--font-code);
+    font-weight: 800;
+    font-size: 11px;
+    color: #fff;
+    background: var(--grape);
+    border-radius: 999px;
+    padding: 4px 9px;
+    opacity: 0;
+    transform: scale(0.7);
+  }
+
+  .csa-demo.is-in .csa-demo__machine {
+    animation: csa-machine-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 1s forwards;
+  }
+
+  @keyframes csa-machine-in {
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .csa-demo__card--in {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+
+  .csa-demo.is-in .csa-demo__card--in {
+    animation: csa-drop-in 0.4s ease 0.2s forwards, csa-fade-out 0.2s ease 1s forwards;
+  }
+
+  @keyframes csa-fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+
+  .csa-demo__card--out {
+    opacity: 0;
+  }
+
+  .csa-demo.is-in .csa-demo__card--out {
+    animation: csa-card-out-in 0.4s ease 1.3s forwards;
+  }
+
+  @keyframes csa-card-out-in {
+    0% {
+      opacity: 0;
+      transform: translateX(-8px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+      border-color: var(--pyto-green);
+      background: var(--pyto-green-soft);
+      color: var(--pyto-green-dark);
+    }
+  }
+
+  .csa-demo.is-in .csa-demo__col--right .csa-demo__letter--target {
+    animation: csa-match-glow 0.4s ease 1.9s forwards;
+  }
+
+  @keyframes csa-match-glow {
+    to {
+      background: var(--pyto-green-soft);
+      color: var(--pyto-green-dark);
+    }
+  }
+
+  .csa-demo.is-in .csa-demo__result--right {
+    animation: csa-result-in 0.3s ease 2.2s forwards;
+    color: var(--pyto-green-dark);
+  }
+
+  .csa-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  .csa-demo__hint code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .csa-demo__card--drop,
+    .csa-demo__card--in,
+    .csa-demo__card--out,
+    .csa-demo__machine,
+    .csa-demo__letter--target,
+    .csa-demo__result {
+      animation: none !important;
+    }
+
+    .csa-demo__card--drop {
+      opacity: 1;
+      transform: translateX(16px) translateY(-4px) rotate(12deg);
+      border-color: var(--coral);
+      background: var(--box-awas-bg);
+    }
+
+    .csa-demo__card--in {
+      opacity: 0;
+    }
+
+    .csa-demo__card--out {
+      opacity: 1;
+      border-color: var(--pyto-green);
+      background: var(--pyto-green-soft);
+      color: var(--pyto-green-dark);
+    }
+
+    .csa-demo__machine {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .csa-demo__result {
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 620px) {
+    .csa-demo__cols {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="csa-demo"]');
+  observeOnce(els, (el) => el.classList.add('is-in'));
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>
