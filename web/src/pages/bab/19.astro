@@ -1,0 +1,557 @@
+---
+// Bab 19 — Proyek Level Up: Game Teks.
+// Sumber naskah: plan/naskah/bab-19-proyek-level-up.md.
+// Sumber animasi: plan/bab-19-animasi.md.
+// Sumber desain: plan/design/bab-19-desain.md — bab PROYEK GABUNGAN (pola
+// Bab 10 di Fase 1), bukan bab satu-konsep seperti Bab 16/17/18. Dua
+// proyek (Tebak Kata + Batu-Gunting-Kertas) menggabungkan konsep LAMA
+// (dictionary Bab 11, fungsi Bab 12, loop Bab 7, random Bab 10) — satu-
+// satunya elemen genuinely baru adalah method string `.lower()`. Bab ini
+// paling ringan infrastruktur di Fase 2 bersama Bab 16/18: tidak ada
+// micropip, tidak ada perubahan pyodide-runner.js, cukup SATU
+// PyodideEditor mode="interactive" yang menjalankan KEDUA game berurutan
+// dalam satu skrip. Kode kontrak (kategori_kata, tampilkan_progres,
+// tebakan_benar, sisa_nyawa, menang, pilihan_valid, skor_pemain, skor_pyto,
+// jumlah_ronde, .lower()) DISALIN VERBATIM dari desain — jangan diubah.
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import ChapterHero from '../../components/ChapterHero.astro';
+import PytoLevelUpHero from '../../components/PytoLevelUpHero.astro';
+import WordBankShelfDemo from '../../components/WordBankShelfDemo.astro';
+import GuessBoardRevealDemo from '../../components/GuessBoardRevealDemo.astro';
+import ShelfAssistantMascotDemo from '../../components/ShelfAssistantMascotDemo.astro';
+import CaseSensitivityAwas from '../../components/CaseSensitivityAwas.astro';
+import MainGameLoopDemo from '../../components/MainGameLoopDemo.astro';
+import RockPaperScissorsDuelDemo from '../../components/RockPaperScissorsDuelDemo.astro';
+import DifficultyScaleDemo from '../../components/DifficultyScaleDemo.astro';
+import KotakAwas from '../../components/KotakAwas.astro';
+import KotakMainYuk from '../../components/KotakMainYuk.astro';
+import KotakTahuLebih from '../../components/KotakTahuLebih.astro';
+import PyodideEditor from '../../components/PyodideEditor.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import RangkumanList from '../../components/RangkumanList.astro';
+import Glossary from '../../components/Glossary.astro';
+import ChapterFooterNav from '../../components/ChapterFooterNav.astro';
+
+const base = import.meta.env.BASE_URL;
+
+const rangkuman = [
+  'Bab ini adalah bab <strong>proyek gabungan</strong> (sintesis), bukan konsep baru — menggabungkan dictionary (Bab 11), fungsi (Bab 12), loop (Bab 7), dan <code>random</code> (Bab 10) jadi dua game teks utuh.',
+  '<strong>Tebak Kata</strong>: <code>kategori_kata</code> adalah dictionary yang tiap nilainya berupa <strong>list</strong> kata (dictionary + list digabung); <code>random.choice()</code> dipanggil dua kali untuk memilih kategori lalu kata secara acak (ingat bungkus <code>.keys()</code> dengan <code>list(...)</code> dulu).',
+  'Fungsi <code>tampilkan_progres(kata, tebakan_benar)</code> dipanggil ulang setiap giliran untuk menggambar papan tebakan terbaru — pola "satu fungsi, dipanggil berkali-kali" dari Bab 12.',
+  '<code>while ... and not menang:</code> mengulang permainan sampai salah satu dari dua syarat berhenti terpenuhi (nyawa habis, atau menang) — status "menang" disimpan di sebuah variabel penanda (<code>True</code>/<code>False</code>) yang dicek ulang tiap putaran.',
+  'PENTING: Python membandingkan huruf besar dan kecil sebagai karakter yang berbeda total — selalu panggil <code>.lower()</code> pada tebakan pemain SEBELUM dibandingkan, supaya <code>"A"</code> dan <code>"a"</code> dianggap sama.',
+  '<strong>Batu-Gunting-Kertas dengan Skor</strong>: <code>for ronde in range(1, jumlah_ronde + 1)</code> mengulang beberapa ronde, <code>if</code>/<code>elif</code>/<code>else</code> (dengan <code>or</code> menggabungkan tiga kombinasi kemenangan) menentukan pemenang tiap ronde, dan dua variabel (<code>skor_pemain</code>, <code>skor_pyto</code>) terus bertambah sebagai skor berjalan.',
+  '<code>random.choice(daftar)</code> dipakai ulang di kedua game — sekali untuk memilih kata/kategori, sekali lagi untuk gerakan Pyto — bukti kalau satu alat kecil bisa dipakai di banyak tempat berbeda.',
+];
+
+const glossaryTerms = [
+  {
+    term: 'Proyek gabungan (sintesis)',
+    def: 'Bab yang tidak mengajarkan konsep baru, tapi menggabungkan beberapa konsep yang sudah dikuasai jadi satu program utuh.',
+  },
+  { term: 'random.choice(daftar)', def: 'Memilih satu anggota secara acak dari sebuah list.' },
+  {
+    term: 'Flag / penanda boolean',
+    def: 'Variabel bernilai True/False yang dipakai untuk mengingat status sesuatu (mis. sudah menang atau belum), dicek lagi setelah/selama loop berjalan.',
+  },
+  {
+    term: 'Nyawa (attempts)',
+    def: 'Jumlah kesempatan tebakan salah yang masih tersisa sebelum permainan berakhir.',
+  },
+  {
+    term: 'Skor (score)',
+    def: 'Angka yang menghitung pencapaian/kemenangan, bertambah tiap kali syarat tertentu terpenuhi.',
+  },
+  {
+    term: '.lower()',
+    def: 'Method string yang mengubah semua huruf pada teks jadi huruf kecil — dipakai supaya perbandingan teks tidak terganggu beda huruf besar/kecil.',
+  },
+];
+---
+
+<ChapterLayout
+  currentChapter={19}
+  description="Bab 19: Proyek Level Up: Game Teks — gabungkan dictionary, fungsi, loop, dan random jadi dua game teks yang benar-benar bisa dimainkan: Tebak Kata dan Batu-Gunting-Kertas dengan Skor, ditemani Pyto si robot ular."
+>
+  <ChapterHero
+    number={19}
+    title="Proyek Level Up: Game Teks 🎮"
+    tagline={'Gabungkan <code>dictionary</code>, fungsi, loop, dan <code>random</code> jadi dua game teks yang benar-benar bisa kamu mainkan — <strong>Tebak Kata</strong> dan <strong>Batu-Gunting-Kertas</strong>.'}
+  >
+    <PytoLevelUpHero slot="mascot" />
+  </ChapterHero>
+
+  <section data-reveal>
+    <h2>Selamat Datang di Level Up: Waktunya Bikin Game Sungguhan 🎮</h2>
+    <p>
+      Coba ingat-ingat lagi Bab 10 di Fase 1 — waktu itu kamu tidak belajar konsep baru, tapi
+      menggabungkan semua yang sudah dikuasai (variabel, <code>if</code>, loop, list) jadi tiga
+      proyek nyata. Bab ini persis polanya, cuma levelnya naik satu tingkat: kali ini kamu akan
+      menggabungkan empat alat besar yang sudah kamu kuasai sepanjang Fase 2 dan Fase 1 —
+      <strong>dictionary</strong> (Bab 11), <strong>fungsi</strong> (Bab 12), <strong>loop</strong>
+      (Bab 7), dan <code>random</code> (Bab 10) — jadi dua game teks yang benar-benar bisa
+      dimainkan: <strong>Tebak Kata</strong> dan <strong>Batu-Gunting-Kertas dengan Skor</strong>.
+    </p>
+    <p>
+      Tidak ada rumus atau perintah baru yang berat di bab ini. Yang baru justru caranya:
+      bagaimana empat alat yang tadinya kamu pakai satu-satu ternyata bisa saling menopang jadi
+      satu program yang jauh lebih seru daripada bagian-bagiannya sendirian. Inilah yang disebut
+      proyek <strong>sintesis</strong> — bukan "1 konsep baru", tapi "semua konsepmu, digabung
+      jadi sesuatu yang bisa dipamerkan ke teman".
+    </p>
+  </section>
+
+  <section data-reveal>
+    <h2>Kotak Inti #1 — Tebak Kata: Dictionary + <code>random.choice()</code> + Fungsi + Loop</h2>
+    <p>
+      Proyek pertama: <strong>Tebak Kata</strong>, versi ringan dari Hangman. Pyto menyimpan satu
+      kata rahasia dari kategori acak, dan tugasmu menebaknya huruf demi huruf sebelum nyawamu
+      habis. Mari bangun potongan demi potongan.
+    </p>
+
+    <h3>Langkah 1 — Siapkan Bank Kata (Dictionary di Dalam Dictionary... eh, List!)</h3>
+    <p>
+      Kita butuh tempat menyimpan banyak kata, dikelompokkan per kategori. Pas sekali dipakai buat
+      dictionary dari Bab 11 — tapi kali ini, tiap <strong>nilai</strong>-nya bukan satu kata,
+      melainkan satu <strong>list</strong> berisi beberapa kata (gabungan dictionary Bab 11 + list
+      Bab 8!):
+    </p>
+    <CodeBlock
+      code={`import random
+
+kategori_kata = {
+    "hewan": ["gajah", "jerapah", "kucing", "musang"],
+    "buah": ["mangga", "apel", "nanas", "duku"],
+    "negara": ["indonesia", "jepang", "brasil", "mesir"],
+}
+
+kategori = random.choice(list(kategori_kata.keys()))
+kata_rahasia = random.choice(kategori_kata[kategori])
+
+print(f"Kategori: {kategori}")
+print(f"Kata terdiri dari {len(kata_rahasia)} huruf.")`}
+    />
+    <div class="chapter-media">
+      <WordBankShelfDemo />
+    </div>
+    <p>Dua kali <code>random.choice()</code> dipakai berturut-turut di sini, dan masing-masing punya tugas beda:</p>
+    <ul>
+      <li>
+        <code>random.choice(list(kategori_kata.keys()))</code> — <code>kategori_kata.keys()</code>
+        memberi daftar semua <strong>label</strong> dictionary (<code>"hewan"</code>,
+        <code>"buah"</code>, <code>"negara"</code>), lalu <code>random.choice()</code> memilih satu
+        secara acak. Perhatikan <code>.keys()</code> sengaja dibungkus <code>list(...)</code> dulu
+        — <code>random.choice()</code> butuh sesuatu yang bisa "diambil pakai nomor urut",
+        sementara <code>.keys()</code> sendirian belum benar-benar berbentuk list (coba hilangkan
+        <code>list(...)</code>-nya, Python akan menolak dengan error
+        <code>'dict_keys' object is not subscriptable</code>).
+      </li>
+      <li>
+        <code>random.choice(kategori_kata[kategori])</code> — setelah kategori terpilih (misalnya
+        <code>"hewan"</code>), <code>kategori_kata[kategori]</code> mengambil list kata di kategori
+        itu (Bab 11: akses dictionary pakai kurung siku), lalu <code>random.choice()</code>
+        memilih <strong>satu kata</strong> dari list itu.
+      </li>
+    </ul>
+
+    <h3>Langkah 2 — Gambar Ulang Papan Tebakan: Fungsi <code>tampilkan_progres()</code></h3>
+    <p>
+      Setiap giliran, kita perlu menampilkan kata rahasia dengan huruf yang belum ditebak
+      disamarkan jadi garis bawah (<code>_</code>). Daripada menulis ulang logikanya tiap kali,
+      kita bungkus jadi fungsi (mantra dari Bab 12) supaya bisa dipanggil ulang-ulang sepanjang
+      permainan:
+    </p>
+    <CodeBlock
+      code={`def tampilkan_progres(kata, tebakan_benar):
+    tampilan = ""
+    for huruf in kata:
+        if huruf in tebakan_benar:
+            tampilan += huruf + " "
+        else:
+            tampilan += "_ "
+    return tampilan.strip()
+
+print(tampilkan_progres("gajah", []))
+# _ _ _ _ _
+
+print(tampilkan_progres("gajah", ["a"]))
+# _ a _ a _`}
+    />
+    <div class="chapter-media">
+      <GuessBoardRevealDemo />
+    </div>
+    <p>
+      Perhatikan hal seru di contoh kedua: begitu huruf <code>"a"</code> ditebak,
+      <strong>kedua</strong> huruf <code>"a"</code> di <code>"gajah"</code> langsung ikut terbuka
+      sekaligus — karena <code>for huruf in kata</code> memeriksa tiap huruf satu per satu, tanpa
+      peduli itu kemunculan yang keberapa.
+    </p>
+  </section>
+
+  <section class="pyto-quote-box" data-reveal>
+    <span class="pyto-quote-box__mascot" role="img" aria-label="Pyto">🐍</span>
+    <p class="pyto-quote-box__text">
+      "Bayangkan <code>kategori_kata</code> itu seperti rak-rak berlabel di gudang mainanku — rak
+      'hewan' isinya kartu nama hewan, rak 'buah' isinya kartu nama buah, persis lemari berlabel
+      yang kita kenal di Bab 11. Waktu <code>random.choice()</code> dipanggil dua kali berturut-
+      turut, itu seperti aku menutup mata, menarik SATU rak secara acak, lalu menarik SATU kartu
+      acak lagi dari dalam rak itu. Nah, <code>tampilkan_progres()</code> itu seperti asisten
+      kecilku yang setia kupanggil ulang tiap giliran — tugasnya cuma satu: gambar ulang papan
+      tebakan sesuai huruf yang sudah ketahuan, sesabar apa pun aku memintanya. Rak berlabel,
+      tarikan acak, dan asisten yang setia menggambar ulang — gabungan tiganya itulah mesin di
+      balik game Tebak Kata kita!"
+    </p>
+  </section>
+
+  <div class="chapter-media">
+    <ShelfAssistantMascotDemo />
+  </div>
+
+  <KotakAwas title="Awas — Huruf Besar vs Huruf Kecil Bikin Tebakan Benar Dianggap Salah">
+    <p>
+      Ini jebakan paling umum kalau kamu lupa satu langkah kecil: Python membandingkan huruf
+      <strong>persis apa adanya</strong>, huruf besar dan huruf kecil dianggap dua karakter yang
+      sama sekali berbeda. Kalau tebakan pemain tidak disamakan dulu ke huruf kecil, tebakan yang
+      sebenarnya benar bisa dianggap salah:
+    </p>
+    <CodeBlock
+      code={`# ✗ Jangan begini — tebakan pemain tidak diubah ke huruf kecil dulu
+kata_rahasia = "gajah"
+tebakan_benar = []
+
+tebakan = "A"   # pemain mengetik huruf besar
+if tebakan in kata_rahasia:
+    tebakan_benar.append(tebakan)
+    print("Benar!")
+else:
+    print("Salah!")
+# Salah!   😱 padahal huruf "a" jelas-jelas ada di kata "gajah"!
+
+# ✓ Begini benar — ubah dulu ke huruf kecil sebelum dibandingkan
+tebakan = "A".lower()
+if tebakan in kata_rahasia:
+    tebakan_benar.append(tebakan)
+    print("Benar!")
+else:
+    print("Salah!")
+# Benar!   -- "A".lower() jadi "a", baru cocok dengan huruf di kata_rahasia`}
+    />
+    <CaseSensitivityAwas />
+    <p>
+      Kenapa begini? Karena <code>"A" in "gajah"</code> benar-benar mengecek apakah karakter
+      <code>A</code> (huruf besar) muncul di <code>"gajah"</code> — dan memang tidak ada, sebab
+      <code>"gajah"</code> semuanya huruf kecil. Bagi Python, <code>"A"</code> dan <code>"a"</code>
+      itu dua karakter yang sepenuhnya berbeda, sama seperti dua huruf yang berlainan. Solusinya
+      satu perintah baru yang kecil tapi penting: <code>.lower()</code>, method string yang
+      mengubah semua huruf pada teks jadi huruf kecil. Aturan sederhana buat bab ini:
+      <strong>selalu panggil <code>.lower()</code> pada tebakan pemain SEBELUM dibandingkan dengan
+      kata rahasia</strong> — itu sebabnya kode lengkap game nanti langsung menulis
+      <code>input("Tebak satu huruf: ").lower()</code>, bukan menyimpan tebakan mentah dulu baru
+      dicek belakangan.
+    </p>
+  </KotakAwas>
+
+  <section data-reveal>
+    <h3>Kotak Inti #1 (lanjutan) — Loop Utama: Main Sampai Menang atau Nyawa Habis</h3>
+    <p>
+      Sekarang gabungkan semuanya jadi satu game utuh. Kita pakai <code>while</code> (Bab 7)
+      supaya permainan terus berlanjut sampai salah satu dari dua hal terjadi: kata berhasil
+      ditebak lengkap, atau nyawa habis. Kita simpan status "sudah menang atau belum" di sebuah
+      variabel penanda (mirip <code>ada_angka</code>/<code>ada_huruf_besar</code> di pengecek kata
+      sandi Bab 16) supaya gampang dicek kapan saja:
+    </p>
+    <CodeBlock
+      code={`tebakan_benar = []
+sisa_nyawa = 5
+menang = False
+
+while sisa_nyawa > 0 and not menang:
+    print(tampilkan_progres(kata_rahasia, tebakan_benar))
+    print("❤️" * sisa_nyawa + "💔" * (5 - sisa_nyawa))
+
+    tebakan = input("Tebak satu huruf: ").lower()
+
+    if tebakan in tebakan_benar:
+        print("Huruf itu sudah pernah kamu tebak.")
+    elif tebakan in kata_rahasia:
+        tebakan_benar.append(tebakan)
+        print("Benar! Ada huruf itu di kata rahasia.")
+    else:
+        sisa_nyawa -= 1
+        print(f"Salah! Sisa nyawa: {sisa_nyawa}")
+
+    if "_" not in tampilkan_progres(kata_rahasia, tebakan_benar):
+        menang = True
+
+if menang:
+    print(f"🎉 Selamat! Kata rahasianya adalah '{kata_rahasia}'.")
+else:
+    print(f"Nyawa habis! Kata rahasianya adalah '{kata_rahasia}'.")`}
+    />
+    <div class="chapter-media">
+      <MainGameLoopDemo />
+    </div>
+    <p>Bedah bagian pentingnya:</p>
+    <ul>
+      <li>
+        <code>while sisa_nyawa &gt; 0 and not menang:</code> — loop terus berjalan selama DUA
+        syarat sekaligus terpenuhi: nyawa masih ada, DAN belum menang (<code>and</code> dari Bab
+        6). Begitu salah satu jadi <code>False</code>, loop berhenti.
+      </li>
+      <li>
+        <code>"❤️" * sisa_nyawa + "💔" * (5 - sisa_nyawa)</code> — trik perkalian string (Bab 8)
+        yang menggambar baris hati: hati utuh sejumlah nyawa tersisa, hati pecah sejumlah nyawa
+        yang sudah hilang.
+      </li>
+      <li>
+        Tiga cabang <code>if</code>/<code>elif</code>/<code>else</code> menangani tiga kemungkinan
+        tebakan: huruf yang <strong>sudah pernah</strong> ditebak (supaya nyawa tidak berkurang
+        percuma), huruf <strong>benar</strong> (ditambahkan ke <code>tebakan_benar</code>), atau
+        huruf <strong>salah</strong> (nyawa berkurang satu).
+      </li>
+      <li>
+        Baris terakhir sebelum loop mengulang, <code>if "_" not in tampilkan_progres(...): menang
+        = True</code>, memanggil ulang fungsi dari Langkah 2 untuk mengecek apakah semua huruf
+        sudah terbuka — kalau tidak ada lagi garis bawah tersisa, berarti kata sudah lengkap
+        ditebak.
+      </li>
+    </ul>
+  </section>
+
+  <section data-reveal>
+    <h2>Kotak Inti #2 — Batu-Gunting-Kertas dengan Skor</h2>
+    <p>
+      Proyek kedua lebih singkat, tapi tetap menggabungkan beberapa alat:
+      <code>if</code>/<code>elif</code>/<code>else</code> (Bab 6) untuk menentukan pemenang tiap
+      ronde, loop <code>for</code> (Bab 7) yang mengulang beberapa ronde, dua variabel skor yang
+      terus bertambah, dan <code>random.choice()</code> lagi — kali ini bukan konsep baru, cuma
+      dipakai ulang buat gerakan Pyto:
+    </p>
+    <CodeBlock
+      code={`import random
+
+pilihan_valid = ["batu", "gunting", "kertas"]
+skor_pemain = 0
+skor_pyto = 0
+jumlah_ronde = 3
+
+for ronde in range(1, jumlah_ronde + 1):
+    print(f"--- Ronde {ronde} ---")
+    pilihan_pemain = input("Pilih batu/gunting/kertas: ").lower()
+    pilihan_pyto = random.choice(pilihan_valid)
+    print(f"Pyto memilih: {pilihan_pyto}")
+
+    if pilihan_pemain == pilihan_pyto:
+        print("Seri!")
+    elif (
+        (pilihan_pemain == "batu" and pilihan_pyto == "gunting")
+        or (pilihan_pemain == "gunting" and pilihan_pyto == "kertas")
+        or (pilihan_pemain == "kertas" and pilihan_pyto == "batu")
+    ):
+        print("Kamu menang ronde ini!")
+        skor_pemain += 1
+    else:
+        print("Pyto menang ronde ini!")
+        skor_pyto += 1
+
+print(f"Skor akhir -> Kamu: {skor_pemain} | Pyto: {skor_pyto}")
+
+if skor_pemain > skor_pyto:
+    print("Kamu menang keseluruhan! 🎉")
+elif skor_pemain < skor_pyto:
+    print("Pyto menang keseluruhan, coba lagi lain kali!")
+else:
+    print("Hasil akhir seri!")`}
+    />
+    <div class="chapter-media">
+      <RockPaperScissorsDuelDemo />
+    </div>
+    <p>
+      Bagian yang paling penting dipahami: <code>elif (...)</code> panjang itu memeriksa TIGA
+      kombinasi kemenangan pemain sekaligus (batu mengalahkan gunting, gunting mengalahkan kertas,
+      kertas mengalahkan batu) digabung pakai <code>or</code> — kalau salah satu dari ketiganya
+      <code>True</code>, pemain menang ronde itu. Kalau tidak seri dan tidak masuk salah satu
+      kombinasi kemenangan pemain, otomatis giliran Pyto yang menang (<code>else</code>) —
+      logikanya sama sekali tidak perlu menuliskan kombinasi kemenangan Pyto secara terpisah.
+    </p>
+  </section>
+
+  <KotakMainYuk title="Main Yuk! — Pilih Gerakan Pyto Secara Acak" icon="🎮" wiggleIcon>
+    <p>
+      Isi bagian kosong supaya Pyto benar-benar memilih gerakannya secara acak dari
+      <code>pilihan_valid</code>, bukan selalu gerakan yang sama:
+    </p>
+    <CodeBlock
+      code={`pilihan_valid = ["batu", "gunting", "kertas"]
+pilihan_pyto = ____(pilihan_valid)
+print(pilihan_pyto)`}
+    />
+    <details class="jawaban">
+      <summary>🔎 Lihat jawaban</summary>
+      <p>
+        Isi dengan <code>random.choice</code> — persis fungsi yang sudah kamu pakai dua kali di
+        Tebak Kata (memilih kategori, lalu memilih kata) dan sekali lagi di sini untuk memilih
+        gerakan Pyto. <code>random.choice(daftar)</code> selalu mengembalikan satu anggota acak
+        dari list yang kamu berikan, apa pun isinya.
+      </p>
+    </details>
+  </KotakMainYuk>
+
+  <KotakTahuLebih title="Tahu Lebih — Bikin Levelnya Makin Menantang">
+    <p>
+      Ide bonus: kenapa semua kata dapat jatah nyawa yang sama? Kata pendek seperti
+      <code>"duku"</code> (4 huruf) harusnya lebih mudah daripada kata panjang seperti
+      <code>"indonesia"</code> (9 huruf). Kita bisa bikin fungsi kecil baru yang menghitung jatah
+      nyawa berdasarkan panjang kata, memakai <code>len()</code> dari Bab 8:
+    </p>
+    <CodeBlock
+      code={`def hitung_nyawa_awal(kata):
+    if len(kata) <= 5:
+        return 5
+    else:
+        return 7
+
+sisa_nyawa = hitung_nyawa_awal(kata_rahasia)
+print(f"Kata kali ini dapat jatah {sisa_nyawa} nyawa.")`}
+    />
+    <div class="chapter-media">
+      <DifficultyScaleDemo />
+    </div>
+    <p>
+      Tinggal panggil <code>hitung_nyawa_awal(kata_rahasia)</code> sebagai ganti angka
+      <code>5</code> tetap di Kotak Inti #1 tadi, dan permainan otomatis menyesuaikan tingkat
+      kesulitan sesuai panjang kata yang keluar. Coba juga tambahkan aturan ketiga (misalnya kata
+      di atas 8 huruf dapat 8 nyawa) — ini latihan bagus untuk berlatih <code>if</code>/<code
+        >elif</code
+      >/<code>else</code> bertingkat.
+    </p>
+  </KotakTahuLebih>
+
+  <section data-reveal>
+    <h2>Coba Sendiri, Yuk!</h2>
+    <p>
+      Coba langsung di kolom editor — mainkan kedua game sekaligus dari awal sampai akhir. Klik
+      <strong>▶ Jalankan</strong>, lalu jawab pertanyaan yang muncul di console. Tebak Kata jalan
+      duluan (tebak huruf sampai menang atau nyawa habis), lalu disusul Batu-Gunting-Kertas 3
+      ronde:
+    </p>
+    <PyodideEditor
+      mode="interactive"
+      idPrefix="bab19"
+      title="🐍 level_up.py"
+      runLabel="▶ Jalankan"
+      codeAriaLabel="Kotak kode proyek level up game teks"
+      rows={26}
+      minHeight={380}
+      consoleLabel="Console:"
+      starterCode={`import random
+
+kategori_kata = {
+    "hewan": ["gajah", "jerapah", "kucing", "musang"],
+    "buah": ["mangga", "apel", "nanas", "duku"],
+    "negara": ["indonesia", "jepang", "brasil", "mesir"],
+}
+
+def tampilkan_progres(kata, tebakan_benar):
+    tampilan = ""
+    for huruf in kata:
+        if huruf in tebakan_benar:
+            tampilan += huruf + " "
+        else:
+            tampilan += "_ "
+    return tampilan.strip()
+
+print("=== TEBAK KATA ===")
+
+kategori = random.choice(list(kategori_kata.keys()))
+kata_rahasia = random.choice(kategori_kata[kategori])
+tebakan_benar = []
+sisa_nyawa = 5
+menang = False
+
+print(f"Kategori: {kategori}")
+print(f"Kata terdiri dari {len(kata_rahasia)} huruf.")
+
+while sisa_nyawa > 0 and not menang:
+    print(tampilkan_progres(kata_rahasia, tebakan_benar))
+    print("❤️" * sisa_nyawa + "💔" * (5 - sisa_nyawa))
+
+    tebakan = input("Tebak satu huruf: ").lower()
+
+    if tebakan in tebakan_benar:
+        print("Huruf itu sudah pernah kamu tebak.")
+    elif tebakan in kata_rahasia:
+        tebakan_benar.append(tebakan)
+        print("Benar! Ada huruf itu di kata rahasia.")
+    else:
+        sisa_nyawa -= 1
+        print(f"Salah! Sisa nyawa: {sisa_nyawa}")
+
+    if "_" not in tampilkan_progres(kata_rahasia, tebakan_benar):
+        menang = True
+
+if menang:
+    print(f"🎉 Selamat! Kata rahasianya adalah '{kata_rahasia}'.")
+else:
+    print(f"Nyawa habis! Kata rahasianya adalah '{kata_rahasia}'.")
+
+print()
+print("=== BATU-GUNTING-KERTAS ===")
+
+pilihan_valid = ["batu", "gunting", "kertas"]
+skor_pemain = 0
+skor_pyto = 0
+jumlah_ronde = 3
+
+for ronde in range(1, jumlah_ronde + 1):
+    print(f"--- Ronde {ronde} ---")
+    pilihan_pemain = input("Pilih batu/gunting/kertas: ").lower()
+    pilihan_pyto = random.choice(pilihan_valid)
+    print(f"Pyto memilih: {pilihan_pyto}")
+
+    if pilihan_pemain == pilihan_pyto:
+        print("Seri!")
+    elif (
+        (pilihan_pemain == "batu" and pilihan_pyto == "gunting")
+        or (pilihan_pemain == "gunting" and pilihan_pyto == "kertas")
+        or (pilihan_pemain == "kertas" and pilihan_pyto == "batu")
+    ):
+        print("Kamu menang ronde ini!")
+        skor_pemain += 1
+    else:
+        print("Pyto menang ronde ini!")
+        skor_pyto += 1
+
+print(f"Skor akhir -> Kamu: {skor_pemain} | Pyto: {skor_pyto}")
+
+if skor_pemain > skor_pyto:
+    print("Kamu menang keseluruhan! 🎉")
+elif skor_pemain < skor_pyto:
+    print("Pyto menang keseluruhan, coba lagi lain kali!")
+else:
+    print("Hasil akhir seri!")
+`}
+      notes={[
+        '✏️ Coba jalankan berkali-kali — kategori dan kata rahasia di Tebak Kata berubah acak tiap kali, begitu juga gerakan Pyto di Batu-Gunting-Kertas. Coba juga sengaja mengetik huruf besar saat menebak (<code>"A"</code> bukan <code>"a"</code>) dan perhatikan tebakanmu tetap dianggap benar — berkat <code>.lower()</code> yang sudah dipasang sejak awal.',
+        '🎉 Kalau layar menampilkan hasil akhir kedua game — kamu resmi lulus jadi pembuat game Pyto, menggabungkan dictionary, fungsi, loop, dan <code>random</code> jadi dua permainan yang bisa langsung kamu ajak main teman atau keluarga!',
+      ]}
+    />
+  </section>
+
+  <section data-reveal>
+    <h2>Rangkuman Bab 19</h2>
+    <RangkumanList items={rangkuman} />
+  </section>
+
+  <section data-reveal>
+    <h2>📖 Kamus Kata</h2>
+    <Glossary terms={glossaryTerms} />
+  </section>
+
+  <ChapterFooterNav
+    prevHref={`${base}/bab/18/`}
+    prevLabel="← Bab 18: Detektif Teks"
+    nextLabel="Bab 20: Kalkulator Keuangan Mini"
+    nextDisabled
+  />
+</ChapterLayout>
