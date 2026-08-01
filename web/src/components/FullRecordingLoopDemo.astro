@@ -1,0 +1,390 @@
+---
+// Animasi #6 (plan/bab-20-animasi.md), Centerpiece 1c — PALING PENTING
+// BAGIAN PENCATATAN. Simulasi siklus penuh loop lengkap: dompet (amplop
+// kategori) di kiri, meteran saldo di kanan atas. Beberapa transaksi
+// disimulasikan cepat: "masuk" menambah saldo langsung, "keluar" membuat
+// amplop kategori terisi/bertambah (lewat pola .get()) SEKALIGUS
+// mengurangi saldo. Ditutup kartu ringkasan kecil (echo
+// `for kategori, total in kategori_pengeluaran.items():`). Pola koreografi
+// JS mengikuti MainGameLoopDemo.astro (Bab 19). Sekali jalan saat terlihat,
+// boleh diulang lewat hover/klik/keyboard.
+const steps = [
+  { n: 1, jenis: 'masuk', jumlah: 5000 },
+  { n: 2, jenis: 'keluar', jumlah: 2000, kategori: 'jajan' },
+  { n: 3, jenis: 'masuk', jumlah: 4000 },
+  { n: 4, jenis: 'keluar', jumlah: 1500, kategori: 'transportasi' },
+  { n: 5, jenis: 'keluar', jumlah: 1000, kategori: 'jajan' },
+];
+---
+
+<div
+  class="frl-demo card"
+  data-anim="frl-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi simulasi loop lengkap pencatatan transaksi dan ringkasan"
+>
+  <span class="frl-demo__label" id="frl-transaksi-label">--- Transaksi ke-1 ---</span>
+
+  <div class="frl-demo__stage">
+    <div class="frl-demo__wallet">
+      <span class="frl-demo__wallet-title">Dompet</span>
+      <span class="frl-demo__envelope" id="frl-env-jajan" hidden>
+        ✉️ jajan: <span id="frl-env-jajan-val">Rp0</span>
+      </span>
+      <span class="frl-demo__envelope" id="frl-env-transportasi" hidden>
+        ✉️ transportasi: <span id="frl-env-transportasi-val">Rp0</span>
+      </span>
+    </div>
+
+    <div class="frl-demo__meter">
+      <span class="frl-demo__meter-label">Saldo</span>
+      <span class="frl-demo__meter-value" id="frl-saldo">Rp0</span>
+    </div>
+  </div>
+
+  <div class="frl-demo__log" id="frl-log" aria-live="polite"></div>
+
+  <div class="frl-demo__summary" id="frl-summary">
+    <p class="frl-demo__summary-title">=== RINGKASAN KEUANGAN ===</p>
+    <p class="frl-demo__summary-row" id="frl-summary-saldo">Saldo akhir: Rp0</p>
+    <p class="frl-demo__summary-row" id="frl-summary-jajan">- jajan: Rp0</p>
+    <p class="frl-demo__summary-row" id="frl-summary-transportasi">- transportasi: Rp0</p>
+  </div>
+</div>
+
+<p class="frl-demo__hint">
+  💡 Transaksi "masuk" langsung menambah saldo. Transaksi "keluar" mengurangi saldo SEKALIGUS
+  mengisi amplop kategori yang tepat lewat <code>.get(kategori, 0)</code> — kalau amplopnya belum
+  ada, ia muncul dulu dari <code>0</code>. <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .frl-demo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 24px;
+    cursor: pointer;
+  }
+
+  .frl-demo__label {
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--slate);
+  }
+
+  .frl-demo__stage {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .frl-demo__wallet {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    background: var(--cloud);
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    min-width: 170px;
+  }
+
+  .frl-demo__wallet-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: var(--slate);
+  }
+
+  .frl-demo__envelope {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--pyto-green-dark);
+    background: var(--pyto-green-soft);
+    border-radius: 999px;
+    padding: 4px 10px;
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  .frl-demo__envelope.is-shown {
+    opacity: 1;
+    transform: scale(1);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .frl-demo__envelope.is-flash {
+    animation: frl-flash 0.4s ease;
+  }
+
+  @keyframes frl-flash {
+    50% {
+      background: var(--pyto-green);
+      color: #fff;
+    }
+  }
+
+  .frl-demo__meter {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: var(--cloud);
+    border-radius: 12px;
+    padding: 12px 24px;
+    min-width: 130px;
+  }
+
+  .frl-demo__meter-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    color: var(--slate);
+  }
+
+  .frl-demo__meter-value {
+    font-family: var(--font-code);
+    font-weight: 800;
+    font-size: 20px;
+    color: var(--ink);
+    transition: color 0.2s ease;
+  }
+
+  .frl-demo__meter-value.is-up {
+    color: var(--pyto-green-dark);
+  }
+
+  .frl-demo__meter-value.is-down {
+    color: var(--coral);
+  }
+
+  .frl-demo__log {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-height: 22px;
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .frl-demo__log :global(.frl-demo__log-row) {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--slate);
+    background: var(--cloud);
+    border-radius: 8px;
+    padding: 4px 10px;
+    opacity: 0;
+    transform: translateY(4px);
+    animation: frl-log-in 0.3s ease forwards;
+  }
+
+  @keyframes frl-log-in {
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .frl-demo__log :global(.frl-demo__log-row--masuk) {
+    color: var(--pyto-green-dark);
+    background: var(--pyto-green-soft);
+  }
+
+  .frl-demo__log :global(.frl-demo__log-row--keluar) {
+    color: #c0392b;
+    background: var(--box-awas-bg);
+  }
+
+  .frl-demo__summary {
+    width: 100%;
+    max-width: 300px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-card);
+    padding: 14px 18px;
+    text-align: center;
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  .frl-demo__summary.is-shown {
+    animation: frl-summary-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  @keyframes frl-summary-in {
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .frl-demo__summary-title {
+    margin: 0 0 6px;
+    font-family: var(--font-code);
+    font-weight: 800;
+    font-size: 12px;
+    color: var(--pyto-green-dark);
+  }
+
+  .frl-demo__summary-row {
+    margin: 2px 0;
+    font-family: var(--font-code);
+    font-size: 13px;
+    color: var(--ink);
+  }
+
+  .frl-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  .frl-demo__hint code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .frl-demo__log :global(.frl-demo__log-row),
+    .frl-demo__summary,
+    .frl-demo__envelope.is-flash {
+      animation: none !important;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const steps = [
+    { n: 1, jenis: 'masuk', jumlah: 5000 },
+    { n: 2, jenis: 'keluar', jumlah: 2000, kategori: 'jajan' },
+    { n: 3, jenis: 'masuk', jumlah: 4000 },
+    { n: 4, jenis: 'keluar', jumlah: 1500, kategori: 'transportasi' },
+    { n: 5, jenis: 'keluar', jumlah: 1000, kategori: 'jajan' },
+  ];
+  const STEP_MS = 620;
+  const START_MS = 300;
+
+  function fmt(n: number) {
+    return `Rp${n.toLocaleString('id-ID')}`;
+  }
+
+  function reset(el: Element) {
+    const log = el.querySelector('#frl-log');
+    if (log) log.innerHTML = '';
+    const saldo = el.querySelector('#frl-saldo');
+    if (saldo) {
+      saldo.textContent = 'Rp0';
+      saldo.classList.remove('is-up', 'is-down');
+    }
+    const label = el.querySelector('#frl-transaksi-label');
+    if (label) label.textContent = '--- Transaksi ke-1 ---';
+
+    ['jajan', 'transportasi'].forEach((kat) => {
+      const env = el.querySelector(`#frl-env-${kat}`) as HTMLElement | null;
+      const val = el.querySelector(`#frl-env-${kat}-val`);
+      if (env) {
+        env.hidden = true;
+        env.classList.remove('is-shown', 'is-flash');
+      }
+      if (val) val.textContent = 'Rp0';
+    });
+
+    const summary = el.querySelector('#frl-summary');
+    summary?.classList.remove('is-shown');
+  }
+
+  function addLogRow(el: Element, text: string, variant: string) {
+    const log = el.querySelector('#frl-log');
+    if (!log) return;
+    const row = document.createElement('div');
+    row.className = `frl-demo__log-row frl-demo__log-row--${variant}`;
+    row.textContent = text;
+    log.appendChild(row);
+    while (log.children.length > 2) {
+      log.removeChild(log.firstChild as ChildNode);
+    }
+  }
+
+  function play(el: Element) {
+    reset(el);
+    let saldo = 0;
+    const kategoriTotal: Record<string, number> = {};
+
+    steps.forEach((step, i) => {
+      const delay = START_MS + i * STEP_MS;
+      setTimeout(() => {
+        const label = el.querySelector('#frl-transaksi-label');
+        if (label) label.textContent = `--- Transaksi ke-${step.n} ---`;
+
+        const saldoEl = el.querySelector('#frl-saldo') as HTMLElement | null;
+
+        if (step.jenis === 'masuk') {
+          saldo += step.jumlah;
+          saldoEl?.classList.remove('is-down');
+          saldoEl?.classList.add('is-up');
+          addLogRow(el, `masuk Rp${step.jumlah.toLocaleString('id-ID')}`, 'masuk');
+        } else {
+          saldo -= step.jumlah;
+          saldoEl?.classList.remove('is-up');
+          saldoEl?.classList.add('is-down');
+          const kat = step.kategori as string;
+          kategoriTotal[kat] = (kategoriTotal[kat] || 0) + step.jumlah;
+          addLogRow(el, `keluar Rp${step.jumlah.toLocaleString('id-ID')} → "${kat}"`, 'keluar');
+
+          const env = el.querySelector(`#frl-env-${kat}`) as HTMLElement | null;
+          const val = el.querySelector(`#frl-env-${kat}-val`);
+          if (env) {
+            env.hidden = false;
+            env.classList.add('is-shown');
+            env.classList.remove('is-flash');
+            void env.offsetWidth;
+            env.classList.add('is-flash');
+          }
+          if (val) val.textContent = fmt(kategoriTotal[kat]);
+        }
+
+        if (saldoEl) saldoEl.textContent = fmt(saldo);
+
+        if (i === steps.length - 1) {
+          setTimeout(() => {
+            const summarySaldo = el.querySelector('#frl-summary-saldo');
+            if (summarySaldo) summarySaldo.textContent = `Saldo akhir: ${fmt(saldo)}`;
+            const summaryJajan = el.querySelector('#frl-summary-jajan');
+            if (summaryJajan) summaryJajan.textContent = `- jajan: ${fmt(kategoriTotal.jajan || 0)}`;
+            const summaryTransportasi = el.querySelector('#frl-summary-transportasi');
+            if (summaryTransportasi) {
+              summaryTransportasi.textContent = `- transportasi: ${fmt(kategoriTotal.transportasi || 0)}`;
+            }
+            el.querySelector('#frl-summary')?.classList.add('is-shown');
+          }, 500);
+        }
+      }, delay);
+    });
+  }
+
+  const els = document.querySelectorAll('[data-anim="frl-demo"]');
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+    play(el);
+  });
+  els.forEach((el) => {
+    wireReplay(el, 'is-in');
+    el.addEventListener('mouseenter', () => play(el));
+    el.addEventListener('click', () => play(el));
+  });
+</script>

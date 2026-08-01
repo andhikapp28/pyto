@@ -59,7 +59,7 @@ const availableCount = AVAILABLE_CHAPTERS.length;
               <Tag
                 id={available ? `bab-${chapter.number}` : undefined}
                 href={available ? `${import.meta.env.BASE_URL}/bab/${chapter.number}/` : undefined}
-                class={`chapter-card ${available ? 'chapter-card--active' : ''}`}
+                class={`card chapter-card ${available ? 'chapter-card--active' : ''}`}
                 data-reveal
               >
                 <span class="chapter-card__number">{chapter.number}</span>
@@ -101,10 +101,6 @@ const availableCount = AVAILABLE_CHAPTERS.length;
     align-items: center;
     gap: 20px;
     padding: 22px 24px;
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-soft);
     text-decoration: none;
     color: inherit;
     transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;

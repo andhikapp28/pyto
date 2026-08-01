@@ -1,0 +1,280 @@
+---
+// Animasi #3 (plan/bab-20-animasi.md), Centerpiece 1b — loop mencatat
+// beberapa transaksi (saldo saja, sebelum kategori disinggung). Meteran
+// "Saldo" mulai Rp0, tiga transaksi disimulasikan cepat: masuk (panah hijau
+// naik, saldo bertambah) atau keluar (panah coral turun, saldo berkurang),
+// masing-masing berlabel "Transaksi ke-N" (echo print f-string naskah). Pola
+// koreografi JS mengikuti MainGameLoopDemo.astro (Bab 19). Sekali jalan saat
+// terlihat, boleh diulang lewat hover/klik/keyboard.
+const steps = [
+  { n: 1, jenis: 'masuk', jumlah: 5000 },
+  { n: 2, jenis: 'keluar', jumlah: 2000 },
+  { n: 3, jenis: 'masuk', jumlah: 3000 },
+];
+---
+
+<div
+  class="tld-demo card"
+  data-anim="tld-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi simulasi loop mencatat tiga transaksi saldo"
+>
+  <span class="tld-demo__label" id="tld-transaksi-label">--- Transaksi ke-1 ---</span>
+
+  <div class="tld-demo__row">
+    <span class="tld-demo__arrow" id="tld-arrow" aria-hidden="true">➡️</span>
+    <div class="tld-demo__meter">
+      <span class="tld-demo__meter-label">Saldo</span>
+      <span class="tld-demo__meter-value" id="tld-saldo">Rp0</span>
+    </div>
+  </div>
+
+  <div class="tld-demo__log" id="tld-log" aria-live="polite"></div>
+</div>
+
+<p class="tld-demo__hint">
+  💡 <code>for i in range(jumlah_transaksi):</code> mengulang tanya-jawab, <code>.lower()</code>
+  menyamakan jawaban, dan <code>if</code>/<code>else</code> memilih apakah saldo bertambah atau
+  berkurang. <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .tld-demo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: 24px;
+    cursor: pointer;
+  }
+
+  .tld-demo__label {
+    font-family: var(--font-code);
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--slate);
+  }
+
+  .tld-demo__row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .tld-demo__arrow {
+    font-size: 26px;
+    display: inline-block;
+  }
+
+  .tld-demo__arrow.is-up {
+    animation: tld-arrow-up 0.5s ease;
+  }
+
+  .tld-demo__arrow.is-down {
+    animation: tld-arrow-down 0.5s ease;
+  }
+
+  @keyframes tld-arrow-up {
+    0% {
+      transform: translateY(0) rotate(-45deg);
+    }
+    40% {
+      transform: translateY(-10px) rotate(-45deg);
+      filter: hue-rotate(0deg);
+    }
+    100% {
+      transform: translateY(0) rotate(-45deg);
+    }
+  }
+
+  @keyframes tld-arrow-down {
+    0% {
+      transform: translateY(0) rotate(45deg);
+    }
+    40% {
+      transform: translateY(10px) rotate(45deg);
+    }
+    100% {
+      transform: translateY(0) rotate(45deg);
+    }
+  }
+
+  .tld-demo__meter {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: var(--cloud);
+    border-radius: 12px;
+    padding: 12px 24px;
+    min-width: 130px;
+  }
+
+  .tld-demo__meter-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    color: var(--slate);
+  }
+
+  .tld-demo__meter-value {
+    font-family: var(--font-code);
+    font-weight: 800;
+    font-size: 20px;
+    color: var(--ink);
+    transition: color 0.2s ease;
+  }
+
+  .tld-demo__meter-value.is-up {
+    color: var(--pyto-green-dark);
+  }
+
+  .tld-demo__meter-value.is-down {
+    color: var(--coral);
+  }
+
+  .tld-demo__log {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-height: 26px;
+    width: 100%;
+    max-width: 280px;
+  }
+
+  .tld-demo__log :global(.tld-demo__log-row) {
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--slate);
+    background: var(--cloud);
+    border-radius: 8px;
+    padding: 4px 10px;
+    opacity: 0;
+    transform: translateY(4px);
+    animation: tld-log-in 0.3s ease forwards;
+  }
+
+  @keyframes tld-log-in {
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .tld-demo__log :global(.tld-demo__log-row--masuk) {
+    color: var(--pyto-green-dark);
+    background: var(--pyto-green-soft);
+  }
+
+  .tld-demo__log :global(.tld-demo__log-row--keluar) {
+    color: #c0392b;
+    background: var(--box-awas-bg);
+  }
+
+  .tld-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  .tld-demo__hint code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tld-demo__arrow,
+    .tld-demo__log :global(.tld-demo__log-row) {
+      animation: none !important;
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const steps = [
+    { n: 1, jenis: 'masuk', jumlah: 5000 },
+    { n: 2, jenis: 'keluar', jumlah: 2000 },
+    { n: 3, jenis: 'masuk', jumlah: 3000 },
+  ];
+  const STEP_MS = 800;
+  const START_MS = 300;
+
+  function reset(el: Element) {
+    const log = el.querySelector('#tld-log');
+    if (log) log.innerHTML = '';
+    const saldo = el.querySelector('#tld-saldo');
+    if (saldo) {
+      saldo.textContent = 'Rp0';
+      saldo.classList.remove('is-up', 'is-down');
+    }
+    const label = el.querySelector('#tld-transaksi-label');
+    if (label) label.textContent = '--- Transaksi ke-1 ---';
+  }
+
+  function addLogRow(el: Element, text: string, variant: string) {
+    const log = el.querySelector('#tld-log');
+    if (!log) return;
+    const row = document.createElement('div');
+    row.className = `tld-demo__log-row tld-demo__log-row--${variant}`;
+    row.textContent = text;
+    log.appendChild(row);
+    while (log.children.length > 3) {
+      log.removeChild(log.firstChild as ChildNode);
+    }
+  }
+
+  function play(el: Element) {
+    reset(el);
+    let saldo = 0;
+
+    steps.forEach((step, i) => {
+      const delay = START_MS + i * STEP_MS;
+      setTimeout(() => {
+        const label = el.querySelector('#tld-transaksi-label');
+        if (label) label.textContent = `--- Transaksi ke-${step.n} ---`;
+
+        const arrow = el.querySelector('#tld-arrow');
+        const saldoEl = el.querySelector('#tld-saldo') as HTMLElement | null;
+
+        if (step.jenis === 'masuk') {
+          saldo += step.jumlah;
+          arrow?.classList.remove('is-down');
+          void (arrow as HTMLElement)?.offsetWidth;
+          arrow?.classList.add('is-up');
+          saldoEl?.classList.remove('is-down');
+          saldoEl?.classList.add('is-up');
+          addLogRow(el, `masuk Rp${step.jumlah.toLocaleString('id-ID')} → saldo naik`, 'masuk');
+        } else {
+          saldo -= step.jumlah;
+          arrow?.classList.remove('is-up');
+          void (arrow as HTMLElement)?.offsetWidth;
+          arrow?.classList.add('is-down');
+          saldoEl?.classList.remove('is-up');
+          saldoEl?.classList.add('is-down');
+          addLogRow(el, `keluar Rp${step.jumlah.toLocaleString('id-ID')} → saldo turun`, 'keluar');
+        }
+
+        if (saldoEl) saldoEl.textContent = `Rp${saldo.toLocaleString('id-ID')}`;
+      }, delay);
+    });
+  }
+
+  const els = document.querySelectorAll('[data-anim="tld-demo"]');
+  observeOnce(els, (el) => {
+    el.classList.add('is-in');
+    play(el);
+  });
+  els.forEach((el) => {
+    wireReplay(el, 'is-in');
+    el.addEventListener('mouseenter', () => play(el));
+    el.addEventListener('click', () => play(el));
+  });
+</script>

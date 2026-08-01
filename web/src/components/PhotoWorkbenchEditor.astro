@@ -78,7 +78,7 @@ const {
     </div>
 
     <div class="pwe__previews" id={`${idPrefix}-previews`} hidden>
-      <div class="pwe__preview-card">
+      <div class="pwe__preview-card card">
         <span class="pwe__preview-label">Foto asli</span>
         <img class="pwe__preview-img" id={`${idPrefix}-original-img`} alt="Pratinjau foto asli" />
         <span class="pwe__preview-dims" id={`${idPrefix}-original-dims`}>&nbsp;</span>
@@ -88,7 +88,7 @@ const {
       </div>
 
       <div
-        class="pwe__preview-card pwe__preview-card--result"
+        class="pwe__preview-card pwe__preview-card--result card"
         id={`${idPrefix}-result-card`}
         hidden
       >
@@ -215,10 +215,6 @@ const {
     flex-direction: column;
     align-items: center;
     gap: 8px;
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-soft);
     padding: 16px;
   }
 
@@ -316,6 +312,11 @@ const {
     line-height: 1.7;
     padding: 20px;
     tab-size: 4;
+  }
+
+  .pwe__code:focus-visible {
+    outline: 2px solid var(--sunny-yellow);
+    outline-offset: -2px;
   }
 
   .pwe__status {

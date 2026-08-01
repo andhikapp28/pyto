@@ -13,7 +13,7 @@ interface Props {
 const { typed = 'Halo' } = Astro.props;
 ---
 
-<div class="input-wait" data-anim="input-wait">
+<div class="input-wait card" data-anim="input-wait">
   <div class="input-wait__code">
     <pre class="input-wait__pre"><code
       ><span class="input-wait__line input-wait__run"><span class="tok-fn">print</span>(<span class="tok-str">&quot;Selamat datang!&quot;</span>)</span
@@ -39,10 +39,6 @@ const { typed = 'Halo' } = Astro.props;
 
 <style>
   .input-wait {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-soft);
     overflow: hidden;
   }
 

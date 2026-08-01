@@ -1,0 +1,98 @@
+---
+// Animasi #4 (plan/bab-20-animasi.md) — pendamping kecil kotak Kata Pyto.
+// Versi mini dompet (echo EmptyWalletGrowDemo) dengan 2-3 amplop kecil
+// berlabel ("jajan", "transportasi") terlihat di dalamnya, plus satu sudut
+// KOSONG yang berkedip pelan (menyiapkan pembaca ke beat Awas berikutnya).
+// Pola ringan mengikuti ShelfAssistantMascotDemo.astro (Bab 19). Sekali
+// jalan saat terlihat, boleh diulang lewat hover/klik/keyboard.
+---
+
+<div
+  class="wem-demo"
+  data-anim="wem-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi animasi dompet berisi amplop berlabel dan satu sudut kosong"
+>
+  <div class="wem-demo__wallet" aria-hidden="true">
+    <span class="wem-demo__envelope">✉️ jajan</span>
+    <span class="wem-demo__envelope">✉️ transportasi</span>
+    <span class="wem-demo__empty" id="wem-empty">＋ ?</span>
+  </div>
+
+  <span class="wem-demo__pyto" role="img" aria-label="Pyto menunjuk sudut kosong">🐍👉</span>
+</div>
+
+<style>
+  .wem-demo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 4px 0;
+  }
+
+  .wem-demo__wallet {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    max-width: 190px;
+    background: var(--white);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 12px;
+  }
+
+  .wem-demo__envelope {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--pyto-green-dark);
+    background: var(--pyto-green-soft);
+    border-radius: 999px;
+    padding: 4px 9px;
+  }
+
+  .wem-demo__empty {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--slate);
+    border: 1px dashed var(--border);
+    border-radius: 999px;
+    padding: 4px 9px;
+  }
+
+  .wem-demo.is-in .wem-demo__empty {
+    animation: wem-pulse 1.4s ease-in-out 0.5s infinite;
+  }
+
+  @keyframes wem-pulse {
+    0%,
+    100% {
+      border-color: var(--border);
+      background: transparent;
+    }
+    50% {
+      border-color: var(--grape);
+      background: var(--pyto-green-soft);
+    }
+  }
+
+  .wem-demo__pyto {
+    font-size: 20px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wem-demo__empty {
+      animation: none !important;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="wem-demo"]');
+  observeOnce(els, (el) => el.classList.add('is-in'));
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

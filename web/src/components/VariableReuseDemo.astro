@@ -11,7 +11,7 @@ interface Props {
 const { varName = 'nama', value = 'Kirana' } = Astro.props;
 ---
 
-<div class="reuse" data-anim="reuse">
+<div class="reuse card" data-anim="reuse">
   <div class="reuse__code card">
     <pre class="reuse__pre"><code
       ><span class="reuse__line"><span class="tok-var">{varName}</span> <span class="tok-eq">=</span> <span class="tok-str">&quot;{value}&quot;</span></span
@@ -38,10 +38,6 @@ const { varName = 'nama', value = 'Kirana' } = Astro.props;
     gap: 22px;
     align-items: center;
     flex-wrap: wrap;
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-soft);
     padding: 22px 24px;
   }
 

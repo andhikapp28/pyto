@@ -4,7 +4,7 @@
 // GuessBoard.astro / beat #3), baris hati berkurang, berujung menang.
 // Kata contoh "jerapah" (7 huruf, ada di kategori_kata["hewan"]).
 // Rangkaian ditampilkan lewat JS (setTimeout) mengikuti pola
-// CaseSensitiveAwas.astro (Bab 16) yang juga mengoreografikan animasi
+// WordGuessCaseSensitivityAwas.astro (Bab 19) yang juga mengoreografikan animasi
 // bertahap lewat JS, bukan murni CSS keyframe lintas-komponen. Sekali
 // jalan saat terlihat, boleh diulang lewat hover/klik/keyboard.
 import GuessBoard from './GuessBoard.astro';
@@ -25,7 +25,7 @@ const steps = [
 ---
 
 <div
-  class="mgl-demo"
+  class="mgl-demo card"
   data-anim="mgl-demo"
   tabindex="0"
   role="button"
@@ -66,10 +66,6 @@ const steps = [
     flex-direction: column;
     align-items: center;
     gap: 16px;
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-soft);
     padding: 24px;
     cursor: pointer;
   }

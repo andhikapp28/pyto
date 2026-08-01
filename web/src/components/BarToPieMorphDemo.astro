@@ -1,0 +1,255 @@
+---
+// Animasi #9 (plan/bab-20-animasi.md) — kotak "Tahu Lebih" plt.pie(). Grafik
+// batang (echo ChartGrowFromWalletDemo, versi mini, data SAMA persis dengan
+// contoh Kotak Inti #2: jajan 25.000, transportasi 10.000, tabungan 15.000)
+// bertransisi (crossfade+scale, bukan morph SVG per-elemen -- lebih ringan
+// untuk HP, efek visualnya tetap terasa "berubah wujud") jadi pie chart
+// penuh warna memakai palet Pyto (warna_pyto). Angka persentase muncul
+// fade-in di tiap potongan setelah transisi selesai. Sekali jalan saat
+// terlihat, boleh diulang lewat hover/klik/keyboard.
+const categories = [
+  { label: 'jajan', value: 25000, pct: 50, color: 'var(--pyto-green)' },
+  { label: 'transportasi', value: 10000, pct: 20, color: 'var(--sky-blue)' },
+  { label: 'tabungan', value: 15000, pct: 30, color: 'var(--sunny-yellow)' },
+];
+
+const heights = { jajan: 100, transportasi: 40, tabungan: 60 };
+---
+
+<div
+  class="btp-demo card"
+  data-anim="btp-demo"
+  tabindex="0"
+  role="button"
+  aria-label="Ulangi transisi grafik batang menjadi grafik lingkaran"
+>
+  <div class="btp-demo__stage">
+    <div class="btp-demo__bars" id="btp-bars">
+      {
+        categories.map((c) => (
+          <div class="btp-demo__bar-col">
+            <span class="btp-demo__bar" style={`height:${heights[c.label]}%; background:${c.color};`} />
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="btp-demo__pie-wrap" id="btp-pie-wrap">
+      <div
+        class="btp-demo__pie"
+        style={`background: conic-gradient(var(--pyto-green) 0% 50%, var(--sky-blue) 50% 70%, var(--sunny-yellow) 70% 100%);`}
+      />
+      <div class="btp-demo__pct btp-demo__pct--1" id="btp-pct-1">50%</div>
+      <div class="btp-demo__pct btp-demo__pct--2" id="btp-pct-2">20%</div>
+      <div class="btp-demo__pct btp-demo__pct--3" id="btp-pct-3">30%</div>
+    </div>
+  </div>
+
+  <div class="btp-demo__legend">
+    {
+      categories.map((c) => (
+        <span class="btp-demo__legend-item">
+          <span class="btp-demo__legend-dot" style={`background:${c.color};`} />
+          {c.label}
+        </span>
+      ))
+    }
+  </div>
+</div>
+
+<p class="btp-demo__hint">
+  💡 Ganti <code>plt.bar(...)</code> jadi <code>plt.pie(..., autopct="%1.0f%%")</code> — data yang
+  SAMA persis, cuma bentuk tampilannya yang berubah. <em>(Klik / hover untuk ulangi.)</em>
+</p>
+
+<style>
+  .btp-demo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: 24px;
+    cursor: pointer;
+  }
+
+  .btp-demo__stage {
+    position: relative;
+    width: 160px;
+    height: 130px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btp-demo__bars {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 12px;
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .btp-demo.is-in .btp-demo__bars {
+    animation: btp-bars-out 0.6s ease 1.1s forwards;
+  }
+
+  @keyframes btp-bars-out {
+    to {
+      opacity: 0;
+      transform: scale(0.7) rotate(20deg);
+    }
+  }
+
+  .btp-demo__bar-col {
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .btp-demo__bar {
+    display: block;
+    width: 26px;
+    border-radius: 4px 4px 0 0;
+  }
+
+  .btp-demo__pie-wrap {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.6) rotate(-30deg);
+  }
+
+  .btp-demo.is-in .btp-demo__pie-wrap {
+    animation: btp-pie-in 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 1.3s forwards;
+  }
+
+  @keyframes btp-pie-in {
+    to {
+      opacity: 1;
+      transform: scale(1) rotate(0deg);
+    }
+  }
+
+  .btp-demo__pie {
+    width: 108px;
+    height: 108px;
+    border-radius: 50%;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .btp-demo__pct {
+    position: absolute;
+    font-size: 11px;
+    font-weight: 800;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+    opacity: 0;
+  }
+
+  .btp-demo__pct--1 {
+    top: 30%;
+    left: 34%;
+  }
+
+  .btp-demo__pct--2 {
+    top: 58%;
+    right: 14%;
+  }
+
+  .btp-demo__pct--3 {
+    bottom: 12%;
+    left: 24%;
+  }
+
+  .btp-demo.is-in .btp-demo__pct {
+    animation: btp-fade-in 0.35s ease forwards;
+  }
+
+  .btp-demo.is-in .btp-demo__pct--1 {
+    animation-delay: 2s;
+  }
+
+  .btp-demo.is-in .btp-demo__pct--2 {
+    animation-delay: 2.15s;
+  }
+
+  .btp-demo.is-in .btp-demo__pct--3 {
+    animation-delay: 2.3s;
+  }
+
+  @keyframes btp-fade-in {
+    to {
+      opacity: 1;
+    }
+  }
+
+  .btp-demo__legend {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .btp-demo__legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--slate);
+  }
+
+  .btp-demo__legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .btp-demo__hint {
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0 2px;
+    color: var(--slate);
+  }
+
+  .btp-demo__hint code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .btp-demo__bars,
+    .btp-demo__pie-wrap,
+    .btp-demo__pct {
+      animation: none !important;
+    }
+
+    .btp-demo__bars {
+      opacity: 0;
+    }
+
+    .btp-demo__pie-wrap {
+      opacity: 1;
+      transform: none;
+    }
+
+    .btp-demo__pct {
+      opacity: 1;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce, wireReplay } from '../scripts/reveal-anim.js';
+
+  const els = document.querySelectorAll('[data-anim="btp-demo"]');
+  observeOnce(els, (el) => el.classList.add('is-in'));
+  els.forEach((el) => wireReplay(el, 'is-in'));
+</script>

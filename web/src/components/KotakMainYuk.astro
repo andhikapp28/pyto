@@ -13,7 +13,7 @@ const { title = 'Main Yuk!', icon = '🎮', wiggleIcon = false } = Astro.props;
 <div class="kotak-main-yuk" data-reveal>
   <span class:list={['kotak-main-yuk__icon', { 'kotak-main-yuk__icon--wiggle': wiggleIcon }]} aria-hidden="true">{icon}</span>
   <div class="kotak-main-yuk__body">
-    <span class="kotak-main-yuk__title">{title}</span>
+    <h3 class="kotak-main-yuk__title">{title}</h3>
     <div class="kotak-main-yuk__content">
       <slot />
     </div>
@@ -64,9 +64,11 @@ const { title = 'Main Yuk!', icon = '🎮', wiggleIcon = false } = Astro.props;
   }
 
   .kotak-main-yuk__title {
+    margin: 0;
     font-family: var(--font-heading);
     font-weight: 700;
     font-size: 18px;
+    line-height: inherit;
     color: var(--ink);
   }
 

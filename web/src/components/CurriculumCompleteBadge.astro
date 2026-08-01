@@ -10,11 +10,10 @@
 interface Props {
   homeHref: string;
   firstChapterHref: string;
-  // Opsional: tautan ke pengumuman "Fase 2 — Segera Hadir" (lihat
-  // web/src/pages/fase2/index.astro). Ini adalah titik temu paling wajar
-  // buat pembaca yang baru saja lulus Bab 10 untuk tahu ada lanjutannya —
-  // jangan hardcode URL-nya di komponen ini, biar tetap generik; kalau
-  // Fase 2 belum siap diumumkan, cukup jangan isi prop ini dari pemanggil.
+  // Opsional: tautan ke halaman Fase 2 (lihat web/src/pages/fase2/index.astro,
+  // sekarang lengkap 10 bab). Ini adalah titik temu paling wajar buat
+  // pembaca yang baru saja lulus Bab 10 untuk tahu ada lanjutannya — jangan
+  // hardcode URL-nya di komponen ini, biar tetap generik.
   fase2Href?: string;
 }
 
@@ -54,7 +53,7 @@ const { homeHref, firstChapterHref, fase2Href } = Astro.props;
   {
     fase2Href && (
       <a href={fase2Href} class="ccb__fase2-link">
-        ✨ Intip Fase 2 — Python Lanjutan (Segera Hadir) →
+        ✨ Lanjut ke Fase 2 — Python Lanjutan →
       </a>
     )
   }

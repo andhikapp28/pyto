@@ -1,0 +1,210 @@
+---
+// Penutup perayaan Bab 19 — Proyek Level Up: Game Teks. BUKAN pengganti
+// CurriculumCompleteBadge.astro (Bab 10, penutup SELURUH kurikulum dasar):
+// komponen ini cuma menandai bahwa DUA proyek game bab ini (Tebak Kata +
+// Batu-Gunting-Kertas) sudah selesai dibangun — Bab 20 dan sisa Fase 2 masih
+// menyusul, jadi copy-nya sengaja tidak memakai kata "kurikulum selesai".
+// Dua lencana mini (🔤 Tebak Kata, ✂️ Batu-Gunting-Kertas) melebur jadi satu
+// medali "🎮", disertai SATU ledakan confetti (pola ConfettiBurst.astro,
+// beda dari 3 ledakan besar berturut-turut khusus penutup kurikulum Bab 10)
+// — perayaan tetap terasa istimewa tapi berskala "akhir proyek", bukan
+// "akhir kurikulum". Dipicu sekali lewat observeOnce saat elemen terlihat;
+// launchConfetti() sendiri sudah melewati efeknya kalau prefers-reduced-
+// motion aktif, dan medali/caption tetap tampil penuh tanpa animasi lewat
+// media query di bawah.
+---
+
+<div class="gpcb" data-anim="gpcb">
+  <div class="gpcb__stage">
+    <div class="gpcb__badges" aria-hidden="true">
+      <span class="gpcb__mini-badge gpcb__mini-badge--1">🔤</span>
+      <span class="gpcb__mini-badge gpcb__mini-badge--2">✂️</span>
+    </div>
+
+    <div class="gpcb__medal">
+      <span class="gpcb__medal-disc" aria-hidden="true">🎮</span>
+      <p class="gpcb__medal-text">Proyek Game Selesai!</p>
+    </div>
+
+    <div class="gpcb__confetti" id="gpcb-confetti" aria-hidden="true"></div>
+  </div>
+
+  <p class="gpcb__caption">
+    Kamu baru saja menyelesaikan <strong>dua game teks sungguhan</strong> — Tebak Kata dan
+    Batu-Gunting-Kertas — hasil gabungan dictionary, fungsi, loop, dan <code>random</code> yang
+    sudah kamu pelajari sejauh ini. Proyeknya kelar, siap diajak main teman atau keluarga.
+    Pyto bangga banget sama kamu! 🎮
+  </p>
+</div>
+
+<style>
+  .gpcb {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    text-align: center;
+    padding: 8px 0;
+  }
+
+  .gpcb__stage {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 320px;
+    height: 150px;
+  }
+
+  .gpcb__badges {
+    position: absolute;
+    inset: 0;
+  }
+
+  .gpcb__mini-badge {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--pyto-green-soft);
+    border: 2px solid var(--pyto-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    opacity: 0;
+  }
+
+  .gpcb__mini-badge--1 {
+    left: 14%;
+    top: 22%;
+  }
+
+  .gpcb__mini-badge--2 {
+    left: 76%;
+    top: 66%;
+  }
+
+  .gpcb.is-in .gpcb__mini-badge {
+    animation: gpcb-badge-orbit-in 0.6s ease forwards, gpcb-badge-merge 0.45s ease 0.75s forwards;
+  }
+
+  @keyframes gpcb-badge-orbit-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.5) rotate(0deg);
+    }
+    60% {
+      opacity: 1;
+      transform: scale(1.1) rotate(180deg);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) rotate(360deg);
+    }
+  }
+
+  @keyframes gpcb-badge-merge {
+    to {
+      opacity: 0;
+      transform: scale(0.3) translate(calc(50% - 50%), 0);
+    }
+  }
+
+  .gpcb__medal {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    opacity: 0;
+    transform: scale(0.5);
+  }
+
+  .gpcb.is-in .gpcb__medal {
+    animation: gpcb-medal-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 1.1s forwards;
+  }
+
+  @keyframes gpcb-medal-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.5) rotate(-15deg);
+    }
+    60% {
+      opacity: 1;
+      transform: scale(1.15) rotate(6deg);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) rotate(0);
+    }
+  }
+
+  .gpcb__medal-disc {
+    font-size: 56px;
+    line-height: 1;
+    filter: drop-shadow(0 8px 14px rgba(47, 191, 113, 0.35));
+  }
+
+  .gpcb__medal-text {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 17px;
+    color: var(--pyto-green-dark);
+    background: var(--pyto-green-soft);
+    padding: 4px 16px;
+    border-radius: 999px;
+  }
+
+  .gpcb__confetti {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .gpcb__caption {
+    max-width: 480px;
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--ink);
+  }
+
+  .gpcb__caption code {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gpcb__mini-badge,
+    .gpcb__medal {
+      animation: none !important;
+    }
+
+    .gpcb__mini-badge {
+      opacity: 0;
+    }
+
+    .gpcb__medal {
+      opacity: 1;
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  import { observeOnce } from '../scripts/reveal-anim.js';
+  import { launchConfetti } from '../scripts/confetti.js';
+
+  observeOnce(document.querySelectorAll('[data-anim="gpcb"]'), (el) => {
+    el.classList.add('is-in');
+
+    const container = el.querySelector('#gpcb-confetti');
+    // Perayaan level "akhir proyek" (satu ledakan) — bukan level "akhir
+    // kurikulum" seperti CurriculumCompleteBadge (tiga ledakan susulan).
+    setTimeout(() => launchConfetti(container, { pieces: 30 }), 1000);
+  });
+</script>

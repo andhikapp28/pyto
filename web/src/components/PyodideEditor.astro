@@ -71,6 +71,15 @@ const isInteractive = mode === 'interactive';
         <button type="button" class="btn btn-secondary pyoed__reset" id={`${idPrefix}-reset`}>
           {resetLabel}
         </button>
+        <button
+          type="button"
+          class="btn btn-secondary pyoed__stop"
+          id={`${idPrefix}-stop`}
+          disabled
+          title="Hentikan paksa kalau kodenya nyangkut (mis. perulangan tak berhenti)"
+        >
+          ⏹ Stop
+        </button>
         <button type="button" class="btn btn-primary pyoed__run" id={`${idPrefix}-run`}>
           {runLabel}
         </button>
@@ -164,6 +173,11 @@ const isInteractive = mode === 'interactive';
     line-height: 1.7;
     padding: 20px;
     tab-size: 4;
+  }
+
+  .pyoed__code:focus-visible {
+    outline: 2px solid var(--sunny-yellow);
+    outline-offset: -2px;
   }
 
   /* ---- mode simple: kotak hasil tunggal ---- */
@@ -314,6 +328,20 @@ const isInteractive = mode === 'interactive';
     transform: none;
   }
 
+  /* Tombol darurat: cuma menyala (border+teks coral) selagi kode betulan
+     sedang berjalan, supaya tidak mengganggu secara visual saat idle. */
+  .pyoed__stop {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .pyoed__stop:not(:disabled) {
+    opacity: 1;
+    cursor: pointer;
+    border-color: var(--coral);
+    color: var(--coral);
+  }
+
   .pyoed__confetti {
     position: absolute;
     inset: 0;
@@ -351,6 +379,7 @@ const isInteractive = mode === 'interactive';
     runPython,
     runPythonInteractive,
     friendlyError,
+    stopPython,
   } from '../scripts/pyodide-runner.js';
   import { launchConfetti } from '../scripts/confetti.js';
 
@@ -364,10 +393,53 @@ const isInteractive = mode === 'interactive';
     const codeEl = document.getElementById(`${idPrefix}-code`);
     const runBtn = document.getElementById(`${idPrefix}-run`);
     const resetBtn = document.getElementById(`${idPrefix}-reset`);
+    const stopBtn = document.getElementById(`${idPrefix}-stop`);
     const confettiEl = document.getElementById(`${idPrefix}-confetti`);
 
     const STARTER_CODE = codeEl ? codeEl.value : '';
     let confettiFired = false;
+
+    // Jaring pengaman tambahan (di luar tombol Stop): kalau kode yang sedang
+    // diketik pembaca kelamaan jalan lalu tab tak sengaja ditutup/dimuat
+    // ulang (bukan skenario "freeze" — itu sudah ditangani Worker+Stop di
+    // atas — tapi skenario lain, mis. baterai HP mati/laptop tertutup),
+    // ketikan pembaca tidak hilang percuma. Disimpan per-halaman+per-editor,
+    // dipulihkan otomatis kalau beda dari kode awal, dan dihapus lagi saat
+    // pembaca menekan Reset (supaya Reset tetap benar-benar mengembalikan
+    // ke kode awal, bukan balik lagi ke draft lama).
+    const DRAFT_KEY = `pyto:draft:${location.pathname}:${idPrefix}`;
+    try {
+      const savedDraft = localStorage.getItem(DRAFT_KEY);
+      if (codeEl && savedDraft != null && savedDraft !== STARTER_CODE) {
+        codeEl.value = savedDraft;
+      }
+    } catch {
+      // localStorage bisa saja tidak tersedia (mis. mode privat) — abaikan,
+      // bukan fitur inti.
+    }
+    codeEl?.addEventListener('input', () => {
+      try {
+        localStorage.setItem(DRAFT_KEY, codeEl.value);
+      } catch {
+        // sama seperti di atas — abaikan kalau localStorage tidak tersedia.
+      }
+    });
+    const clearDraft = () => {
+      try {
+        localStorage.removeItem(DRAFT_KEY);
+      } catch {
+        // abaikan
+      }
+    };
+
+    // Tombol "⏹ Stop": mematikan Worker Pyodide yang sedang menjalankan
+    // kode pembaca (lihat stopPython() di pyodide-runner.js) — dipakai
+    // untuk keluar dari perulangan tak berhenti (mis. lupa mengubah syarat
+    // while) tanpa membekukan tab & tanpa kehilangan kode yang sudah
+    // diketik. Hanya aktif selagi kode BENAR-BENAR sedang berjalan.
+    stopBtn?.addEventListener('click', () => {
+      stopPython();
+    });
 
     if (mode === 'interactive') {
       const consoleBody = document.getElementById(`${idPrefix}-console-body`);
@@ -488,6 +560,7 @@ const isInteractive = mode === 'interactive';
 
         runBtn.disabled = true;
         if (resetBtn) resetBtn.disabled = true;
+        if (stopBtn) stopBtn.disabled = false;
         hasOutput = false;
         resetConsole();
         clearPlaceholder();
@@ -532,6 +605,7 @@ const isInteractive = mode === 'interactive';
         } finally {
           runBtn.disabled = false;
           if (resetBtn) resetBtn.disabled = false;
+          if (stopBtn) stopBtn.disabled = true;
         }
       }
 
@@ -540,6 +614,7 @@ const isInteractive = mode === 'interactive';
       resetBtn?.addEventListener('click', () => {
         if (!codeEl) return;
         codeEl.value = STARTER_CODE;
+        clearDraft();
         resetConsole();
       });
     } else {
@@ -560,6 +635,7 @@ const isInteractive = mode === 'interactive';
         const code = codeEl.value;
 
         runBtn.disabled = true;
+        if (stopBtn) stopBtn.disabled = false;
         if (isFirstPyodideLoad()) {
           showResult(LOADING_MESSAGE, false);
         } else {
@@ -578,12 +654,14 @@ const isInteractive = mode === 'interactive';
           showResult(friendlyError(err), true);
         } finally {
           runBtn.disabled = false;
+          if (stopBtn) stopBtn.disabled = true;
         }
       });
 
       resetBtn?.addEventListener('click', () => {
         if (!codeEl) return;
         codeEl.value = STARTER_CODE;
+        clearDraft();
         showResult(placeholderText, false);
       });
     }

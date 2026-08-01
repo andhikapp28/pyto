@@ -102,7 +102,11 @@
 
   .nme-demo__extra-a {
     opacity: 0;
-    color: var(--pyto-green);
+    /* Nilai literal (bukan var(--pyto-green), yang sudah digelapkan untuk
+       kontras teks putih di tombol) — di sini teks berada di atas
+       --code-bg gelap, jadi butuh hijau yang lebih terang supaya kontras
+       tetap lolos AA (~5.9:1 vs ~3.1:1 jika pakai token yang digelapkan). */
+    color: #2fbf71;
   }
 
   .nme-demo.is-in .nme-demo__extra-a {

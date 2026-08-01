@@ -1,0 +1,604 @@
+---
+// Bab 20 — komponen editor BARU (bukan mode baru di PyodideEditor.astro),
+// lihat plan/design/bab-20-desain.md ("Komponen Editor Baru:
+// FinanceChartEditor.astro"). Gabungan console interaktif (identik perilaku
+// PyodideEditor mode="interactive", pola input() Bab 4/16/18/19) + kartu
+// hasil grafik yang MUNCUL SETELAH eksekusi selesai (pola kartu hasil
+// PhotoWorkbenchEditor.astro Bab 13, tapi dipicu otomatis begitu program
+// selesai jalan -- bukan dipicu upload file, karena tidak ada upload di bab
+// ini) + tombol unduh PNG. Tidak ada slot upload sama sekali.
+interface Props {
+  idPrefix?: string;
+  title: string;
+  runLabel?: string;
+  resetLabel?: string;
+  starterCode: string;
+  rows?: number;
+  minHeight?: number;
+  codeAriaLabel: string;
+  consoleLabel?: string;
+  notes?: string[];
+  downloadLabel?: string;
+  downloadFileName?: string;
+  noChartMessage?: string;
+}
+
+const {
+  idPrefix = 'fce',
+  title,
+  runLabel = '▶ Jalankan',
+  resetLabel = '↺ Reset',
+  starterCode,
+  rows = 20,
+  minHeight = 320,
+  codeAriaLabel,
+  consoleLabel = 'Console:',
+  notes = [],
+  downloadLabel = '⬇️ Unduh Grafik',
+  downloadFileName = 'grafik-pengeluaran.png',
+  noChartMessage = 'Programmu berhasil jalan, tapi belum ada grafik untuk ditampilkan — pastikan kamu memanggil plt.bar() atau plt.pie() di kodemu.',
+} = Astro.props;
+---
+
+<div
+  class="fce-wrap"
+  data-id-prefix={idPrefix}
+  data-download-file-name={downloadFileName}
+  data-no-chart-message={noChartMessage}
+>
+  <div class="fce card">
+    <div class="fce__header">
+      <span class="fce__title">{title}</span>
+      <div class="fce__buttons">
+        <button type="button" class="btn btn-secondary fce__reset" id={`${idPrefix}-reset`}>
+          {resetLabel}
+        </button>
+        <button type="button" class="btn btn-primary fce__run" id={`${idPrefix}-run`}>
+          {runLabel}
+        </button>
+      </div>
+    </div>
+
+    <textarea
+      id={`${idPrefix}-code`}
+      class="fce__code"
+      style={`min-height: ${minHeight}px;`}
+      spellcheck="false"
+      autocomplete="off"
+      autocapitalize="off"
+      rows={rows}
+      aria-label={codeAriaLabel}>{starterCode}</textarea
+    >
+
+    <div class="fce__console">
+      <div class="fce__console-label">{consoleLabel}</div>
+      <div class="fce__console-body" id={`${idPrefix}-console-body`} aria-live="polite">
+        <div class="fce__placeholder" id={`${idPrefix}-placeholder`}>
+          Klik {runLabel} untuk mulai mencatat transaksi.
+        </div>
+      </div>
+    </div>
+
+    <div class="fce__chart-area" id={`${idPrefix}-chart-area`} hidden>
+      <div class="fce__chart-card card" id={`${idPrefix}-chart-card`} hidden>
+        <span class="fce__chart-label">📊 Grafik hasil olahanmu</span>
+        <img class="fce__chart-img" id={`${idPrefix}-chart-img`} alt="Grafik pengeluaran hasil olahanmu" />
+        <a class="btn btn-download fce__download-btn" id={`${idPrefix}-download-btn`} download={downloadFileName}>
+          {downloadLabel}
+        </a>
+      </div>
+      <p class="fce__chart-note" id={`${idPrefix}-chart-note`} hidden></p>
+    </div>
+  </div>
+
+  <div class="fce__confetti" id={`${idPrefix}-confetti`} aria-hidden="true"></div>
+</div>
+
+{notes.map((note) => <p class="fce__note" set:html={note} />)}
+
+<style>
+  .fce-wrap {
+    position: relative;
+  }
+
+  .fce {
+    overflow: hidden;
+  }
+
+  .fce__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 16px 20px;
+    background: var(--cloud);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .fce__title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 16px;
+  }
+
+  .fce__buttons {
+    display: flex;
+    gap: 10px;
+  }
+
+  .fce__buttons .btn {
+    padding: 10px 18px;
+    font-size: 14px;
+    min-height: 40px;
+  }
+
+  .fce__run:disabled,
+  .fce__reset:disabled {
+    opacity: 0.6;
+    cursor: wait;
+    transform: none;
+  }
+
+  .fce__code {
+    display: block;
+    width: 100%;
+    resize: vertical;
+    border: none;
+    outline: none;
+    background: var(--code-bg);
+    color: var(--code-text);
+    font-family: var(--font-code);
+    font-size: 15px;
+    line-height: 1.7;
+    padding: 20px;
+    tab-size: 4;
+  }
+
+  .fce__code:focus-visible {
+    outline: 2px solid var(--sunny-yellow);
+    outline-offset: -2px;
+  }
+
+  .fce__console {
+    padding: 16px 20px 20px;
+    background: var(--console-bg);
+  }
+
+  .fce__console-label {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: var(--code-comment);
+    margin-bottom: 8px;
+  }
+
+  .fce__console-body {
+    font-family: var(--font-code);
+    font-size: 15px;
+    color: var(--code-text);
+    line-height: 1.9;
+    min-height: 90px;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+
+  .fce__placeholder {
+    color: var(--code-comment);
+  }
+
+  .fce__console-body :global(.fce__line) {
+    margin: 2px 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .fce__console-body :global(.fce__line--loading) {
+    color: var(--sunny-yellow);
+    font-weight: 700;
+  }
+
+  .fce__console-body :global(.fce__final) {
+    margin-top: 4px;
+    color: var(--code-green);
+    font-weight: 800;
+  }
+
+  .fce__console-body :global(.fce__error) {
+    margin: 4px 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--code-error-bg);
+    border: 1px solid var(--code-error-border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    color: var(--code-error-text);
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  .fce__console-body :global(.fce__answer) {
+    color: var(--code-green);
+    font-weight: 700;
+  }
+
+  .fce__console-body :global(.fce__input-row) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 4px 0;
+  }
+
+  .fce__console-body :global(.fce__input) {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 6px;
+    color: var(--code-green);
+    font-family: var(--font-code);
+    font-size: 15px;
+    padding: 5px 9px;
+    outline: none;
+    min-width: 120px;
+  }
+
+  .fce__console-body :global(.fce__input:focus) {
+    border-color: var(--pyto-green);
+  }
+
+  .fce__console-body :global(.fce__submit) {
+    padding: 6px 13px;
+    border-radius: 8px;
+    background: var(--pyto-green);
+    color: #fff;
+    font-weight: 800;
+    font-size: 12px;
+    border: none;
+    cursor: pointer;
+  }
+
+  .fce__console-body :global(.fce__submit:hover) {
+    background: var(--pyto-green-dark);
+  }
+
+  /* ---- kartu hasil grafik ---- */
+  .fce__chart-area {
+    padding: 0 20px 20px;
+    background: var(--white);
+  }
+
+  .fce__chart-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 20px;
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  .fce__chart-card.is-shown {
+    animation: fce-chart-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  @keyframes fce-chart-in {
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .fce__chart-label {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--slate);
+  }
+
+  .fce__chart-img {
+    max-width: 100%;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: #fff;
+  }
+
+  .fce__download-btn {
+    font-size: 14px;
+    padding: 10px 18px;
+    min-height: 40px;
+  }
+
+  .fce__chart-note {
+    margin: 16px 0 0;
+    padding: 14px 18px;
+    background: var(--box-tahu-lebih-bg);
+    border-radius: var(--radius-card);
+    color: var(--ink);
+    font-size: 15px;
+  }
+
+  .fce__confetti {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .fce__note {
+    margin-top: 16px;
+    color: var(--slate);
+  }
+
+  .fce__note :global(code) {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+
+  @media (max-width: 600px) {
+    .fce__header {
+      justify-content: center;
+      text-align: center;
+    }
+
+    .fce__code {
+      font-size: 14px;
+    }
+  }
+</style>
+
+<script>
+  import {
+    LOADING_MESSAGE,
+    MATPLOTLIB_LOADING_MESSAGE,
+    isFirstPyodideLoad,
+    isFirstMatplotlibLoad,
+    runPythonInteractiveWithChart,
+    base64ToBytes,
+    friendlyError,
+  } from '../scripts/pyodide-runner.js';
+  import { launchConfetti } from '../scripts/confetti.js';
+
+  document.querySelectorAll('.fce-wrap').forEach((wrap) => {
+    const idPrefix = wrap.dataset.idPrefix;
+    if (!idPrefix || wrap.dataset.fceWired) return;
+    wrap.dataset.fceWired = 'true';
+
+    const downloadFileName = wrap.dataset.downloadFileName || 'grafik-pengeluaran.png';
+    const noChartMessage = wrap.dataset.noChartMessage || 'Belum ada grafik untuk ditampilkan.';
+
+    const codeEl = document.getElementById(`${idPrefix}-code`);
+    const runBtn = document.getElementById(`${idPrefix}-run`);
+    const resetBtn = document.getElementById(`${idPrefix}-reset`);
+    const confettiEl = document.getElementById(`${idPrefix}-confetti`);
+    const consoleBody = document.getElementById(`${idPrefix}-console-body`);
+    const chartArea = document.getElementById(`${idPrefix}-chart-area`);
+    const chartCard = document.getElementById(`${idPrefix}-chart-card`);
+    const chartImg = document.getElementById(`${idPrefix}-chart-img`);
+    const chartNote = document.getElementById(`${idPrefix}-chart-note`);
+    const downloadBtn = document.getElementById(`${idPrefix}-download-btn`);
+
+    const PLACEHOLDER_TEXT = document.getElementById(`${idPrefix}-placeholder`)?.textContent ?? '';
+    const STARTER_CODE = codeEl ? codeEl.value : '';
+    let hasOutput = false;
+    let confettiFired = false;
+
+    const scrollToEnd = () => {
+      if (consoleBody) consoleBody.scrollTop = consoleBody.scrollHeight;
+    };
+
+    const clearPlaceholder = () => {
+      const placeholder = consoleBody?.querySelector(`#${idPrefix}-placeholder`);
+      if (placeholder) placeholder.remove();
+    };
+
+    const resetConsole = () => {
+      if (!consoleBody) return;
+      consoleBody.innerHTML = '';
+      const placeholder = document.createElement('div');
+      placeholder.className = 'fce__placeholder';
+      placeholder.id = `${idPrefix}-placeholder`;
+      placeholder.textContent = PLACEHOLDER_TEXT;
+      consoleBody.appendChild(placeholder);
+    };
+
+    const resetChart = () => {
+      if (chartArea) chartArea.hidden = true;
+      if (chartCard) {
+        chartCard.hidden = true;
+        chartCard.classList.remove('is-shown');
+      }
+      if (chartNote) chartNote.hidden = true;
+      if (chartImg) chartImg.removeAttribute('src');
+    };
+
+    const appendOutputLine = (text) => {
+      if (!consoleBody) return;
+      clearPlaceholder();
+      const line = document.createElement('div');
+      line.className = 'fce__line';
+      line.textContent = text;
+      consoleBody.appendChild(line);
+      scrollToEnd();
+      hasOutput = true;
+    };
+
+    const appendErrorLine = (message) => {
+      if (!consoleBody) return;
+      clearPlaceholder();
+      const line = document.createElement('div');
+      line.className = 'fce__error';
+      line.textContent = `💥 ${message}`;
+      consoleBody.appendChild(line);
+      scrollToEnd();
+    };
+
+    const appendFinalLine = () => {
+      if (!consoleBody) return;
+      clearPlaceholder();
+      const line = document.createElement('div');
+      line.className = 'fce__final';
+      line.textContent = '✅ Program selesai dijalankan.';
+      consoleBody.appendChild(line);
+      scrollToEnd();
+    };
+
+    const requestInput = (promptText) =>
+      new Promise((resolve) => {
+        if (!consoleBody) {
+          resolve('');
+          return;
+        }
+        clearPlaceholder();
+
+        const row = document.createElement('div');
+        row.className = 'fce__input-row';
+
+        const promptSpan = document.createElement('span');
+        promptSpan.textContent = promptText;
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'fce__input';
+        input.setAttribute('aria-label', promptText || 'Jawaban');
+
+        const submitBtn = document.createElement('button');
+        submitBtn.type = 'button';
+        submitBtn.className = 'fce__submit';
+        submitBtn.textContent = 'Kirim ⏎';
+
+        row.append(promptSpan, input, submitBtn);
+        consoleBody.appendChild(row);
+        scrollToEnd();
+        input.focus();
+
+        let done = false;
+        const submit = () => {
+          if (done) return;
+          done = true;
+          const value = input.value;
+
+          const doneLine = document.createElement('div');
+          doneLine.className = 'fce__line';
+          doneLine.append(document.createTextNode(promptText));
+          const answerSpan = document.createElement('span');
+          answerSpan.className = 'fce__answer';
+          answerSpan.textContent = value;
+          doneLine.append(answerSpan);
+
+          row.replaceWith(doneLine);
+          scrollToEnd();
+          resolve(value);
+        };
+
+        submitBtn.addEventListener('click', submit);
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            submit();
+          }
+        });
+      });
+
+    async function run() {
+      if (!codeEl || !runBtn) return;
+      const code = codeEl.value;
+
+      runBtn.disabled = true;
+      if (resetBtn) resetBtn.disabled = true;
+      hasOutput = false;
+      resetConsole();
+      resetChart();
+      clearPlaceholder();
+
+      let loadingLine = null;
+      const showLoading = (text) => {
+        if (loadingLine) loadingLine.remove();
+        loadingLine = document.createElement('div');
+        loadingLine.className = 'fce__line fce__line--loading';
+        loadingLine.textContent = text;
+        consoleBody?.appendChild(loadingLine);
+      };
+      const clearLoading = () => {
+        if (loadingLine) {
+          loadingLine.remove();
+          loadingLine = null;
+        }
+      };
+
+      if (isFirstPyodideLoad()) {
+        showLoading(LOADING_MESSAGE);
+      } else if (isFirstMatplotlibLoad()) {
+        showLoading(MATPLOTLIB_LOADING_MESSAGE);
+      }
+
+      try {
+        const { chartBase64 } = await runPythonInteractiveWithChart(code, {
+          onOutput: (text) => {
+            clearLoading();
+            appendOutputLine(text);
+          },
+          onInputRequest: (promptText) => {
+            clearLoading();
+            clearPlaceholder();
+            if (isFirstMatplotlibLoad()) showLoading(MATPLOTLIB_LOADING_MESSAGE);
+            return requestInput(promptText);
+          },
+        });
+        clearLoading();
+        appendFinalLine();
+
+        if (chartArea) chartArea.hidden = false;
+
+        if (chartBase64) {
+          const bytes = base64ToBytes(chartBase64);
+          const blob = new Blob([bytes], { type: 'image/png' });
+          const url = URL.createObjectURL(blob);
+
+          if (chartImg) chartImg.src = url;
+          if (downloadBtn) {
+            downloadBtn.href = url;
+            downloadBtn.setAttribute('download', downloadFileName);
+          }
+          if (chartCard) {
+            chartCard.hidden = false;
+            // paksa reflow supaya animasi masuk selalu jalan ulang
+            void chartCard.offsetWidth;
+            chartCard.classList.add('is-shown');
+          }
+          if (chartNote) chartNote.hidden = true;
+
+          if (!confettiFired) {
+            confettiFired = true;
+            launchConfetti(confettiEl);
+          }
+        } else if (chartNote) {
+          chartNote.textContent = noChartMessage;
+          chartNote.hidden = false;
+        }
+
+        if (!hasOutput) {
+          // program selesai tanpa print() apa pun -- tetap tandai selesai,
+          // tidak perlu penanganan khusus tambahan.
+        }
+      } catch (err) {
+        clearLoading();
+        appendErrorLine(friendlyError(err));
+      } finally {
+        runBtn.disabled = false;
+        if (resetBtn) resetBtn.disabled = false;
+      }
+    }
+
+    runBtn?.addEventListener('click', run);
+
+    resetBtn?.addEventListener('click', () => {
+      if (!codeEl) return;
+      codeEl.value = STARTER_CODE;
+      resetConsole();
+      resetChart();
+    });
+  });
+</script>

@@ -12,7 +12,7 @@ const { title = 'Tahu Lebih', icon = '🔎' } = Astro.props;
 <div class="kotak-tahu-lebih" data-reveal>
   <span class="kotak-tahu-lebih__icon" aria-hidden="true">{icon}</span>
   <div class="kotak-tahu-lebih__body">
-    <span class="kotak-tahu-lebih__title">{title}</span>
+    <h3 class="kotak-tahu-lebih__title">{title}</h3>
     <div class="kotak-tahu-lebih__content">
       <slot />
     </div>
@@ -43,9 +43,11 @@ const { title = 'Tahu Lebih', icon = '🔎' } = Astro.props;
   }
 
   .kotak-tahu-lebih__title {
+    margin: 0;
     font-family: var(--font-heading);
     font-weight: 700;
     font-size: 18px;
+    line-height: inherit;
     color: var(--ink);
   }
 

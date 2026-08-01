@@ -23,7 +23,7 @@ const { title = 'Awas', icon = '⚠️' } = Astro.props;
 <div class="kotak-awas" data-anim="kotak-awas" data-reveal>
   <span class="kotak-awas__icon" aria-hidden="true">{icon}</span>
   <div class="kotak-awas__body">
-    <span class="kotak-awas__title">{title}</span>
+    <h3 class="kotak-awas__title">{title}</h3>
     <div class="kotak-awas__content">
       <slot />
     </div>
@@ -82,9 +82,11 @@ const { title = 'Awas', icon = '⚠️' } = Astro.props;
   }
 
   .kotak-awas__title {
+    margin: 0;
     font-family: var(--font-heading);
     font-weight: 700;
     font-size: 18px;
+    line-height: inherit;
     color: #c0392b;
   }
 

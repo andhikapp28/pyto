@@ -44,7 +44,7 @@ const {
 <div class="dwe-wrap" data-id-prefix={idPrefix} data-download-file-name={downloadFileName}>
   <div class="dwe card">
     <div class="dwe__stage">
-      <div class="dwe__canvas-card">
+      <div class="dwe__canvas-card card">
         <canvas
           id={`${idPrefix}-canvas`}
           class="dwe__canvas"
@@ -122,10 +122,6 @@ const {
   }
 
   .dwe__canvas-card {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-soft);
     padding: 10px;
     max-width: 320px;
     width: 100%;
@@ -203,6 +199,11 @@ const {
     line-height: 1.7;
     padding: 20px;
     tab-size: 4;
+  }
+
+  .dwe__code:focus-visible {
+    outline: 2px solid var(--sunny-yellow);
+    outline-offset: -2px;
   }
 
   .dwe__status {

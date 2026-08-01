@@ -109,7 +109,7 @@ const {
     </div>
 
     <div class="qwe__previews" id={`${idPrefix}-previews`} hidden>
-      <div class="qwe__preview-card" id={`${idPrefix}-result-card`} hidden>
+      <div class="qwe__preview-card card" id={`${idPrefix}-result-card`} hidden>
         <span class="qwe__preview-label">Kode QR hasil</span>
         <img class="qwe__preview-img" id={`${idPrefix}-result-img`} alt="Pratinjau kode QR hasil" />
         <a class="btn btn-download qwe__download-btn" id={`${idPrefix}-download-btn`} download={downloadFileName}>
@@ -302,10 +302,6 @@ const {
     flex-direction: column;
     align-items: center;
     gap: 8px;
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-soft);
     padding: 16px;
     margin-inline: auto;
   }
@@ -387,6 +383,11 @@ const {
     line-height: 1.7;
     padding: 20px;
     tab-size: 4;
+  }
+
+  .qwe__code:focus-visible {
+    outline: 2px solid var(--sunny-yellow);
+    outline-offset: -2px;
   }
 
   .qwe__status {

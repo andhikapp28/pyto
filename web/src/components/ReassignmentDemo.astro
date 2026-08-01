@@ -14,7 +14,7 @@ interface Props {
 const { varName = 'umur', oldValue = '10', newValue = '11' } = Astro.props;
 ---
 
-<div class="reassign" data-anim="reassign" tabindex="0" role="button" aria-label="Ulangi animasi penggantian isi kotak">
+<div class="reassign card" data-anim="reassign" tabindex="0" role="button" aria-label="Ulangi animasi penggantian isi kotak">
   <div class="reassign__code card">
     <pre class="reassign__pre"><code
       ><span class="reassign__line"><span class="tok-var">{varName}</span> <span class="tok-eq">=</span> <span class="tok-val">{oldValue}</span></span
@@ -44,10 +44,6 @@ const { varName = 'umur', oldValue = '10', newValue = '11' } = Astro.props;
     gap: 24px;
     align-items: center;
     flex-wrap: wrap;
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-soft);
     padding: 22px 24px;
     cursor: pointer;
   }

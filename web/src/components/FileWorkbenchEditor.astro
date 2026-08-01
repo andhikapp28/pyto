@@ -101,7 +101,7 @@ const showDownloadFlow = outputKind !== 'none';
     </div>
 
     <div class="fwe__previews" id={`${idPrefix}-previews`} hidden>
-      <div class="fwe__preview-card">
+      <div class="fwe__preview-card card">
         <span class="fwe__preview-label">File asli</span>
         <span class="fwe__file-icon" aria-hidden="true">{uploadIcon}</span>
         <span class="fwe__file-name" id={`${idPrefix}-original-name`}>&nbsp;</span>
@@ -114,7 +114,7 @@ const showDownloadFlow = outputKind !== 'none';
       {
         showDownloadFlow && (
           <div
-            class="fwe__preview-card fwe__preview-card--result"
+            class="fwe__preview-card fwe__preview-card--result card"
             id={`${idPrefix}-result-card`}
             hidden
           >
@@ -254,10 +254,6 @@ const showDownloadFlow = outputKind !== 'none';
     flex-direction: column;
     align-items: center;
     gap: 6px;
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-card);
-    box-shadow: var(--shadow-soft);
     padding: 16px;
     text-align: center;
   }
@@ -357,6 +353,11 @@ const showDownloadFlow = outputKind !== 'none';
     line-height: 1.7;
     padding: 20px;
     tab-size: 4;
+  }
+
+  .fwe__code:focus-visible {
+    outline: 2px solid var(--sunny-yellow);
+    outline-offset: -2px;
   }
 
   .fwe__console {
