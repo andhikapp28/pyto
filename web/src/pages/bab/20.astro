@@ -1,0 +1,549 @@
+---
+// Bab 20 — Kalkulator Keuangan Mini (Capstone, penutup SELURUH Fase 2).
+// Sumber naskah: plan/naskah/bab-20-kalkulator-keuangan-mini.md.
+// Sumber animasi: plan/bab-20-animasi.md.
+// Sumber desain: plan/design/bab-20-desain.md — bab HIBRIDA: bagian
+// pencatatan (Kotak Inti #1) murni sintesis (dictionary Bab 11, input()/int()
+// Bab 4-5, for/range() Bab 7, if/else Bab 6, .lower() Bab 19), bagian grafik
+// (Kotak Inti #2) adalah pengenalan konsep BENAR-BENAR baru: matplotlib
+// (pertama kali di seluruh buku). Kode kontrak (kategori_pengeluaran, saldo,
+// jumlah_transaksi, jenis, jumlah, kategori, .get(kategori, 0),
+// nama_kategori, total_kategori, plt) DISALIN VERBATIM dari desain — jangan
+// diubah. Navigasi footer TIDAK menunjuk ke bab berikutnya (Fase 3 belum
+// ada) -- Fase2CompleteBadge menggantikan tombol "Bab Selanjutnya", persis
+// pola CurriculumCompleteBadge di Bab 10.
+import ChapterLayout from '../../layouts/ChapterLayout.astro';
+import ChapterHero from '../../components/ChapterHero.astro';
+import PytoWalletHero from '../../components/PytoWalletHero.astro';
+import EmptyWalletGrowDemo from '../../components/EmptyWalletGrowDemo.astro';
+import TransactionLoopDemo from '../../components/TransactionLoopDemo.astro';
+import WalletEnvelopesMascotDemo from '../../components/WalletEnvelopesMascotDemo.astro';
+import KeyErrorEnvelopeAwas from '../../components/KeyErrorEnvelopeAwas.astro';
+import FullRecordingLoopDemo from '../../components/FullRecordingLoopDemo.astro';
+import ChartGrowFromWalletDemo from '../../components/ChartGrowFromWalletDemo.astro';
+import BarToPieMorphDemo from '../../components/BarToPieMorphDemo.astro';
+import KotakAwas from '../../components/KotakAwas.astro';
+import KotakMainYuk from '../../components/KotakMainYuk.astro';
+import KotakTahuLebih from '../../components/KotakTahuLebih.astro';
+import CodeBlock from '../../components/CodeBlock.astro';
+import FinanceChartEditor from '../../components/FinanceChartEditor.astro';
+import RangkumanList from '../../components/RangkumanList.astro';
+import Glossary from '../../components/Glossary.astro';
+import Fase2CompleteBadge from '../../components/Fase2CompleteBadge.astro';
+import ChapterFooterNav from '../../components/ChapterFooterNav.astro';
+
+const base = import.meta.env.BASE_URL;
+
+const napakTilas = [
+  { emoji: '🗂️', text: '<strong>Bab 11:</strong> Kenalan dengan <code>dictionary</code> — lemari berlabel, dipakai lagi hampir di setiap bab sesudahnya.' },
+  { emoji: '🌐', text: '<strong>Bab 12:</strong> Minta data sungguhan dari internet (API &amp; JSON), sambil diam-diam kenalan dengan <code>def</code>.' },
+  { emoji: '🖼️', text: '<strong>Bab 13:</strong> Mengolah foto asli sendiri — resize, watermark, hitam-putih.' },
+  { emoji: '📱', text: '<strong>Bab 14:</strong> Bikin kode QR yang bisa langsung dipindai kamera HP sungguhan.' },
+  { emoji: '📊', text: '<strong>Bab 15:</strong> Merapikan file Excel &amp; mengekstrak isi PDF, langsung dipakai kerja kantoran.' },
+  { emoji: '🕵️', text: '<strong>Bab 16:</strong> Bikin &amp; pecahkan sandi rahasia, sekaligus belajar keamanan kata sandi.' },
+  { emoji: '🎨', text: '<strong>Bab 17:</strong> Menggambar mandala, bintang, dan kembang api pakai kode.' },
+  { emoji: '🔍', text: '<strong>Bab 18:</strong> Jadi detektif teks, menemukan pola tersembunyi lewat regex.' },
+  { emoji: '🎮', text: '<strong>Bab 19:</strong> Menggabungkan semuanya jadi dua game teks sungguhan.' },
+  { emoji: '💰', text: '<strong>Bab 20:</strong> Menutup semuanya dengan kalkulator keuangan lengkap grafik — bab yang baru saja kamu selesaikan.' },
+];
+
+const rangkuman = [
+  'Bab ini bab <strong>capstone/penutup Fase 2</strong> — menggabungkan dictionary (Bab 11), <code>input()</code>/<code>int()</code> (Bab 4-5), <code>for</code>/<code>range()</code> (Bab 7), dan <code>if</code>/<code>else</code> (Bab 6) jadi satu pencatat keuangan utuh, ditutup dengan satu konsep baru: <code>matplotlib</code>.',
+  '<code>kategori_pengeluaran = {}</code> boleh dimulai benar-benar kosong — dictionary tumbuh sendiri seiring transaksi baru dicatat.',
+  'PENTING: <code>kategori_pengeluaran[kategori] += jumlah</code> bisa memicu <code>KeyError</code> (sama seperti Bab 11) kalau <code>kategori</code> belum pernah ada di dictionary, karena <code>+=</code> tetap harus MEMBACA isi lama dulu. Solusinya: <code>kategori_pengeluaran[kategori] = kategori_pengeluaran.get(kategori, 0) + jumlah</code> — <code>.get(label, 0)</code> memberi <code>0</code> sebagai cadangan kalau labelnya baru.',
+  '<code>f"Rp{saldo:,}".replace(",", ".")</code> cara cepat menampilkan angka besar dengan pemisah ribuan gaya Indonesia (titik, bukan koma).',
+  '<code>import matplotlib.pyplot as plt</code> pertama kalinya dipakai di seluruh buku ini — <code>plt.bar(daftar_label, daftar_tinggi)</code> menggambar grafik batang, <code>plt.pie(daftar_nilai, labels=daftar_label, autopct="%1.0f%%")</code> menggambar grafik lingkaran, dari data yang sama persis.',
+  '<code>list(kamus.keys())</code> dan <code>list(kamus.values())</code> mengubah dictionary jadi dua list sejajar untuk sumbu grafik — urutannya selalu cocok satu sama lain selama dictionary-nya tidak diubah di antaranya.',
+  'Tidak perlu <code>plt.show()</code> di web ini — begitu kode selesai jalan, grafiknya otomatis muncul plus tombol unduh.',
+  'Fase 2 (Bab 11-20) resmi selesai — sepuluh bab lanjutan, digabung sepuluh bab dasar Fase 1, jadi dua puluh bab penuh keterampilan Python sungguhan.',
+];
+
+const glossaryTerms = [
+  {
+    term: '.get(label, cadangan)',
+    def: 'Cara aman mengambil ATAU menambah isi dictionary — kalau labelnya belum ada, dipakai nilai cadangan dulu, tanpa KeyError.',
+  },
+  { term: 'matplotlib', def: 'Perpustakaan Python paling terkenal untuk menggambar grafik dari data.' },
+  {
+    term: 'pyplot (plt)',
+    def: 'Bagian dari matplotlib yang paling sering dipakai untuk menggambar grafik — kebiasaan menyingkatnya jadi plt.',
+  },
+  { term: 'plt.bar()', def: 'Menggambar grafik batang dari dua list: label dan tingginya.' },
+  { term: 'plt.pie()', def: 'Menggambar grafik lingkaran (pie chart) dari satu list nilai, dengan label per potongan.' },
+  {
+    term: 'Grafik batang / grafik lingkaran',
+    def: 'Dua cara umum menggambarkan perbandingan angka — batang cocok untuk membandingkan jumlah, lingkaran cocok untuk membandingkan persentase.',
+  },
+  {
+    term: '{jumlah:,}',
+    def: 'Format angka bawaan Python yang menyisipkan koma tiap tiga digit, biasa dipasangkan dengan .replace(",", ".") untuk gaya penulisan uang Indonesia.',
+  },
+];
+---
+
+<ChapterLayout
+  currentChapter={20}
+  description="Bab 20: Kalkulator Keuangan Mini — capstone penutup Fase 2. Catat transaksi lewat dictionary, tampilkan ringkasan keuangan, dan gambar grafik pengeluaran sungguhan pakai matplotlib, ditemani Pyto si robot ular."
+>
+  <ChapterHero
+    number={20}
+    title="Kalkulator Keuangan Mini 💰"
+    tagline={'Catat uang jajanmu lewat <code>dictionary</code>, lalu gambar grafik pengeluarannya pakai <code>matplotlib</code> — penutup <strong>seluruh Fase 2</strong>.'}
+  >
+    <PytoWalletHero slot="mascot" />
+  </ChapterHero>
+
+  <section data-reveal>
+    <h2>Selamat Datang di Penutup Fase 2 💰</h2>
+    <p>
+      Bab ini adalah bab terakhir Fase 2 — dan seperti Bab 19, ini bukan tentang belajar konsep
+      yang sama sekali baru dari nol, tapi tentang menggabungkan alat-alat lama jadi sesuatu yang
+      benar-benar dipakai orang sungguhan setiap hari: <strong>pencatat keuangan pribadi</strong>.
+      Kamu akan mencatat uang masuk dan uang keluar lewat <code>dictionary</code> (Bab 11),
+      membaca dan menghitungnya lewat <code>input()</code>/<code>int()</code> (Bab 4-5), mengulang
+      pencatatan lewat <code>for</code> (Bab 7), dan memilah jenis transaksi lewat
+      <code>if</code>/<code>else</code> (Bab 6).
+    </p>
+    <p>
+      Tapi ada satu hal yang benar-benar baru di bab ini — dan ini yang bikin bab ini istimewa
+      sebagai penutup: kamu akan memakai <code>matplotlib</code>, perpustakaan Python paling
+      terkenal di dunia nyata untuk menggambar grafik. Ini kali PERTAMA di seluruh buku ini (Fase 1
+      maupun Fase 2) kamu menggambar grafik dari data sungguhan, bukan cuma mencetak angka ke
+      layar. Anggap ini hadiah penutup Fase 2: kamu akan pulang membawa kalkulator keuangan
+      sungguhan, lengkap dengan grafik pengeluaran yang bisa kamu unduh, tunjukkan ke orang tua,
+      atau bahkan cetak sebagai laporan keuangan mini beneran.
+    </p>
+  </section>
+
+  <section data-reveal>
+    <h2>Kotak Inti #1 — Mencatat Transaksi: Dictionary yang Terus Bertambah</h2>
+
+    <h3>Langkah 1 — Siapkan Dompet Kosong</h3>
+    <p>
+      Bab 11 selalu memulai dictionary yang sudah terisi sejak baris pertama. Kali ini kita mulai
+      dari yang benar-benar <strong>kosong</strong> — masuk akal, karena dompet keuanganmu memang
+      belum punya catatan apa pun saat baru dibuka:
+    </p>
+    <CodeBlock
+      code={`kategori_pengeluaran = {}
+saldo = 0
+
+kategori_pengeluaran["jajan"] = 5000
+print(kategori_pengeluaran)
+# {'jajan': 5000}
+
+kategori_pengeluaran["jajan"] = kategori_pengeluaran["jajan"] + 3000
+print(kategori_pengeluaran)
+# {'jajan': 8000}`}
+    />
+    <div class="chapter-media">
+      <EmptyWalletGrowDemo />
+    </div>
+    <p>
+      Baris <code>kategori_pengeluaran = {'{}'}</code> bikin dictionary kosong tanpa satu laci pun
+      — tetap sah, cuma belum ada isinya. Baris berikutnya menambah laci baru <code>"jajan"</code>
+      (karena belum ada, Python otomatis membuatkannya, persis seperti yang kamu pelajari di Bab
+      11). Baris keempat memakai pola <strong>"kotak yang bisa ditambah"</strong> dari Bab 3
+      (<code>variabel = variabel + tambahan</code>) — bedanya sekarang polanya dipakai pada ISI
+      dictionary, bukan variabel biasa: ambil isi laci <code>"jajan"</code> yang sudah ada, tambah
+      <code>3000</code>, lalu simpan lagi ke laci yang sama.
+    </p>
+
+    <h3>Langkah 2 — Loop Mencatat Beberapa Transaksi</h3>
+    <p>
+      Mencatat satu transaksi manual seperti di atas gampang. Tapi dompet sungguhan mencatat
+      BANYAK transaksi — pas sekali dipakai <code>for</code> + <code>range()</code> dari Bab 7,
+      digabung <code>input()</code>/<code>int()</code> dari Bab 4-5 supaya pembaca mengetik sendiri
+      jenis dan jumlah tiap transaksi:
+    </p>
+    <CodeBlock
+      code={`saldo = 0
+jumlah_transaksi = int(input("Mau catat berapa transaksi? "))
+
+for i in range(jumlah_transaksi):
+    print(f"--- Transaksi ke-{i + 1} ---")
+    jenis = input("Jenis (masuk/keluar): ").lower()
+    jumlah = int(input("Jumlah uangnya (Rp): "))
+
+    if jenis == "masuk":
+        saldo += jumlah
+    else:
+        saldo -= jumlah
+
+print(f"Saldo akhir: Rp{saldo}")`}
+    />
+    <div class="chapter-media">
+      <TransactionLoopDemo />
+    </div>
+    <p>
+      Perhatikan tiga alat lama yang dipakai bareng di sini: <code>for i in range(jumlah_transaksi):</code>
+      mengulang tanya-jawab sebanyak transaksi yang diminta (Bab 7), <code>.lower()</code>
+      menyamakan <code>"Masuk"</code>/<code>"MASUK"</code>/<code>"masuk"</code> jadi satu bentuk
+      (Bab 19), dan <code>if</code>/<code>else</code> memilih apakah <code>saldo</code> bertambah
+      atau berkurang (Bab 6). Belum ada <code>kategori_pengeluaran</code> di sini — itu menyusul
+      sebentar lagi.
+    </p>
+  </section>
+
+  <section class="pyto-quote-box" data-reveal>
+    <span class="pyto-quote-box__mascot" role="img" aria-label="Pyto">🐍</span>
+    <p class="pyto-quote-box__text">
+      "Bayangkan <code>kategori_pengeluaran</code> itu seperti dompet kecilku, dan tiap kategori
+      punya amplop sendiri di dalamnya — amplop 'jajan', amplop 'transportasi', amplop 'tabungan'.
+      Tapi bedanya sama lemari Bab 11: kadang aku mendadak butuh amplop yang belum pernah kubuat
+      sebelumnya. Nah, ini yang jadi jebakan kecil kalau tidak hati-hati — ayo aku tunjukkan…"
+    </p>
+  </section>
+
+  <div class="chapter-media">
+    <WalletEnvelopesMascotDemo />
+  </div>
+
+  <KotakAwas title="Awas — KeyError Muncul Lagi: Kategori Baru yang Belum Ada di Kamus">
+    <p>
+      Ingat <code>KeyError</code> dari Bab 11 — error saat memanggil label yang belum ada di
+      dictionary? Ternyata dia bisa muncul lagi di sini, dengan cara yang sedikit berbeda dan lebih
+      mudah tidak sadar terjadi:
+    </p>
+    <CodeBlock
+      code={`# ✗ Jangan begini — nambah isi laci yang BELUM ADA tanpa .get()
+kategori_pengeluaran = {}
+kategori = "jajan"
+jumlah = 5000
+
+kategori_pengeluaran[kategori] += jumlah
+# 💥 KeyError: 'jajan'`}
+    />
+    <KeyErrorEnvelopeAwas />
+    <p>
+      Kenapa error, padahal kelihatannya cuma "menambah angka ke laci"? Karena
+      <code>kategori_pengeluaran[kategori] += jumlah</code> sebenarnya sama saja dengan
+      <code>kategori_pengeluaran[kategori] = kategori_pengeluaran[kategori] + jumlah</code> — dan
+      bagian <strong>kanan</strong> tanda <code>=</code> itu tetap harus MEMBACA isi laci
+      <code>"jajan"</code> dulu sebelum bisa ditambah. Masalahnya, laci <code>"jajan"</code> belum
+      pernah dibuat, jadi Python tidak punya apa-apa untuk dibaca — persis <code>KeyError</code>
+      yang sama seperti Bab 11, cuma kali ini terjadi diam-diam di dalam operator <code>+=</code>.
+    </p>
+    <p>
+      Untungnya, Bab 11 juga sudah mengajarkan solusinya lewat <code>.get()</code> — kali ini bukan
+      cuma bonus "Tahu Lebih", tapi jadi alat yang benar-benar kita butuhkan:
+    </p>
+    <CodeBlock
+      code={`# ✓ Begini benar — pakai .get() supaya kategori baru mulai dari 0 dulu
+kategori_pengeluaran = {}
+kategori = "jajan"
+jumlah = 5000
+
+kategori_pengeluaran[kategori] = kategori_pengeluaran.get(kategori, 0) + jumlah
+print(kategori_pengeluaran)
+# {'jajan': 5000}`}
+    />
+    <p>
+      <code>kategori_pengeluaran.get(kategori, 0)</code> artinya: "coba ambil isi laci ini — kalau
+      belum ada, anggap saja isinya <code>0</code> dulu." Karena laci <code>"jajan"</code> memang
+      belum ada, <code>.get()</code> memberi <code>0</code> sebagai cadangan, lalu
+      <code>0 + 5000</code> menghasilkan <code>5000</code>, dan baris itu langsung membuat laci
+      baru <code>"jajan"</code> berisi <code>5000</code> — tidak ada error sama sekali, dan
+      kategori apa pun yang diketik pembaca (bahkan yang belum pernah ada) otomatis bisa
+      ditampung.
+    </p>
+  </KotakAwas>
+
+  <section data-reveal>
+    <h2>Kotak Inti #1 (lanjutan) — Loop Lengkap: Saldo + Kategori Pengeluaran</h2>
+    <p>
+      Sekarang gabungkan semuanya jadi satu pencatat keuangan utuh — loop dari Langkah 2, ditambah
+      pencatatan kategori (dengan <code>.get()</code> yang baru saja diperbaiki) khusus untuk
+      transaksi yang keluar:
+    </p>
+    <CodeBlock
+      code={`kategori_pengeluaran = {}
+saldo = 0
+
+jumlah_transaksi = int(input("Mau catat berapa transaksi? "))
+
+for i in range(jumlah_transaksi):
+    print(f"--- Transaksi ke-{i + 1} ---")
+    jenis = input("Jenis (masuk/keluar): ").lower()
+    jumlah = int(input("Jumlah uangnya (Rp): "))
+
+    if jenis == "masuk":
+        saldo += jumlah
+    else:
+        kategori = input("Kategori pengeluaran: ").lower()
+        saldo -= jumlah
+        kategori_pengeluaran[kategori] = kategori_pengeluaran.get(kategori, 0) + jumlah
+
+print()
+print("=== RINGKASAN KEUANGAN ===")
+print(f"Saldo akhir: Rp{saldo:,}".replace(",", "."))
+
+for kategori, total in kategori_pengeluaran.items():
+    print(f"- {kategori}: Rp{total:,}".replace(",", "."))`}
+    />
+    <div class="chapter-media">
+      <FullRecordingLoopDemo />
+    </div>
+    <p>
+      Satu trik kecil di baris <code>print(f"Saldo akhir: Rp{'{saldo:,}'}".replace(",", "."))</code>:
+      tanda <code>:,</code> di dalam kurung kurawal itu format bawaan Python yang menyisipkan koma
+      tiap tiga digit (<code>15000</code> jadi <code>15,000</code>), lalu
+      <code>.replace(",", ".")</code> menukarnya jadi titik supaya sesuai gaya penulisan uang
+      Indonesia (<code>15.000</code>). Baris terakhir memakai
+      <code>for kategori, total in kategori_pengeluaran.items():</code> — pola "jalan-jalan ke
+      semua laci" dari Bab 11 — untuk mencetak rincian tiap kategori satu per satu.
+    </p>
+  </section>
+
+  <section data-reveal>
+    <h2>Kotak Inti #2 — Menggambar Grafik Pengeluaran dengan <code>matplotlib</code></h2>
+    <p>
+      Sekarang bagian yang benar-benar baru. Data yang sudah rapi di
+      <code>kategori_pengeluaran</code> sayang kalau cuma jadi baris teks — mari ubah jadi grafik
+      batang sungguhan, pakai <code>matplotlib</code>, perpustakaan menggambar grafik paling
+      dipakai di dunia Python nyata (dipakai peneliti, jurnalis data, sampai perusahaan besar):
+    </p>
+    <CodeBlock
+      code={`import matplotlib.pyplot as plt
+
+kategori_pengeluaran = {"jajan": 25000, "transportasi": 10000, "tabungan": 15000}
+
+nama_kategori = list(kategori_pengeluaran.keys())
+total_kategori = list(kategori_pengeluaran.values())
+
+plt.bar(nama_kategori, total_kategori, color="#2FBF71")
+plt.title("Grafik Pengeluaran")
+plt.xlabel("Kategori")
+plt.ylabel("Jumlah (Rp)")`}
+    />
+    <div class="chapter-media">
+      <ChartGrowFromWalletDemo />
+    </div>
+    <p>Bedah bagian pentingnya:</p>
+    <ul>
+      <li>
+        <code>import matplotlib.pyplot as plt</code> — sama seperti <code>import random</code> di
+        Bab 10, ini "memanggil" kotak alat tambahan. <code>matplotlib</code> sendiri artinya
+        "matematika plot library" (perpustakaan gambar-plot matematika), dan <code>pyplot</code>
+        adalah bagian di dalamnya yang paling sering dipakai — kebiasaan programmer di seluruh
+        dunia menyingkatnya jadi <code>plt</code>.
+      </li>
+      <li>
+        <code>nama_kategori = list(kategori_pengeluaran.keys())</code> dan
+        <code>total_kategori = list(kategori_pengeluaran.values())</code> — mengubah dictionary
+        jadi DUA list sejajar: satu berisi semua nama kategori, satu lagi berisi semua totalnya.
+        Karena keduanya diambil dari dictionary yang sama tanpa diubah di antaranya, urutannya
+        dijamin selalu cocok — <code>nama_kategori[0]</code> pasti pasangan
+        <code>total_kategori[0]</code>.
+      </li>
+      <li>
+        <code>plt.bar(nama_kategori, total_kategori, color="#2FBF71")</code> — inilah baris yang
+        benar-benar menggambar: batang pertama setinggi <code>total_kategori[0]</code> berlabel
+        <code>nama_kategori[0]</code>, dan seterusnya. <code>color="#2FBF71"</code> mengecat semua
+        batang dengan warna hijau khas Pyto.
+      </li>
+      <li>
+        <code>plt.title()</code>, <code>plt.xlabel()</code>, <code>plt.ylabel()</code> menambahkan
+        judul grafik dan label kedua sumbunya — murni supaya grafiknya gampang dibaca orang lain.
+      </li>
+    </ul>
+    <p>
+      Kamu mungkin sudah pernah lihat tutorial matplotlib lain yang menutup kodenya dengan
+      <code>plt.show()</code> — di web ini kamu <strong>tidak perlu</strong> menulis itu. Begitu
+      programmu selesai jalan, Pyto otomatis menangkap gambar grafik yang baru saja kamu buat dan
+      menampilkannya langsung di bawah kolom kode, lengkap dengan tombol untuk mengunduhnya
+      sebagai gambar asli.
+    </p>
+  </section>
+
+  <KotakMainYuk title="Main Yuk! — Gambar Grafik Warna Favorit" icon="🎮" wiggleIcon>
+    <p>
+      Lengkapi bagian kosong supaya Pyto menggambar grafik batang dari data warna favorit
+      teman-temanmu:
+    </p>
+    <CodeBlock
+      code={`import matplotlib.pyplot as plt
+
+warna_favorit = {"Hijau": 5, "Biru": 3, "Merah": 2}
+
+plt.____(list(warna_favorit.keys()), list(warna_favorit.values()))
+plt.title("Warna Favorit Teman-teman")`}
+    />
+    <details class="jawaban">
+      <summary>🔎 Lihat jawaban</summary>
+      <p>
+        Isi dengan <code>bar</code>, jadi barisnya <code>plt.bar(...)</code>. Fungsi ini selalu
+        menerima DUA list: yang pertama jadi label tiap batang (sumbu mendatar), yang kedua jadi
+        tinggi tiap batang (sumbu tegak) — persis pola yang baru saja kamu pakai untuk grafik
+        pengeluaran.
+      </p>
+    </details>
+  </KotakMainYuk>
+
+  <KotakTahuLebih title="Tahu Lebih — Ganti Jadi Grafik Lingkaran (Pie Chart)">
+    <p>
+      <code>matplotlib</code> tidak cuma bisa menggambar batang. Ganti <code>plt.bar()</code> jadi
+      <code>plt.pie()</code>, dan data yang SAMA persis bisa berubah jadi grafik lingkaran (pie
+      chart) — cocok kalau kamu ingin melihat perbandingan PERSENTASE tiap kategori, bukan cuma
+      angkanya:
+    </p>
+    <CodeBlock
+      code={`warna_pyto = ["#2FBF71", "#4DA6FF", "#FFC94D", "#FF7A6B", "#8B6FE0"]
+
+plt.pie(
+    total_kategori,
+    labels=nama_kategori,
+    autopct="%1.0f%%",
+    colors=warna_pyto,
+)
+plt.title("Grafik Pengeluaran (Pie)")`}
+    />
+    <div class="chapter-media">
+      <BarToPieMorphDemo />
+    </div>
+    <p>
+      <code>labels=nama_kategori</code> menempelkan nama kategori di tiap potongan,
+      <code>autopct="%1.0f%%"</code> otomatis menghitung dan menuliskan persentase tiap potongan
+      (mis. <code>42%</code>), dan <code>colors=warna_pyto</code> mengecat tiap potongan dengan
+      warna-warna khas Pyto secara berurutan. Coba jalankan keduanya bergantian di kolom "Coba
+      Sendiri" — kamu akan lihat betapa sedikit yang perlu diubah untuk pindah dari satu jenis
+      grafik ke jenis lainnya.
+    </p>
+  </KotakTahuLebih>
+
+  <section data-reveal>
+    <h2>Coba Sendiri, Yuk!</h2>
+    <p>
+      Coba langsung di kolom editor — catat beberapa transaksi (jawab pertanyaan yang muncul di
+      console), lalu lihat ringkasannya dan grafik pengeluaranmu muncul di bawah:
+    </p>
+    <FinanceChartEditor
+      idPrefix="bab20"
+      title="🐍 kalkulator_keuangan.py"
+      runLabel="▶ Jalankan"
+      codeAriaLabel="Kotak kode kalkulator keuangan mini"
+      rows={33}
+      minHeight={480}
+      consoleLabel="Console:"
+      starterCode={`import matplotlib.pyplot as plt
+
+kategori_pengeluaran = {}
+saldo = 0
+
+jumlah_transaksi = int(input("Mau catat berapa transaksi? "))
+
+for i in range(jumlah_transaksi):
+    print(f"--- Transaksi ke-{i + 1} ---")
+    jenis = input("Jenis (masuk/keluar): ").lower()
+    jumlah = int(input("Jumlah uangnya (Rp): "))
+
+    if jenis == "masuk":
+        saldo += jumlah
+    else:
+        kategori = input("Kategori pengeluaran: ").lower()
+        saldo -= jumlah
+        kategori_pengeluaran[kategori] = kategori_pengeluaran.get(kategori, 0) + jumlah
+
+print()
+print("=== RINGKASAN KEUANGAN ===")
+print(f"Saldo akhir: Rp{saldo:,}".replace(",", "."))
+
+for kategori, total in kategori_pengeluaran.items():
+    print(f"- {kategori}: Rp{total:,}".replace(",", "."))
+
+nama_kategori = list(kategori_pengeluaran.keys())
+total_kategori = list(kategori_pengeluaran.values())
+
+plt.bar(nama_kategori, total_kategori, color="#2FBF71")
+plt.title("Grafik Pengeluaran")
+plt.xlabel("Kategori")
+plt.ylabel("Jumlah (Rp)")
+`}
+      notes={[
+        '✏️ Coba jalankan dengan angka transaksi kecil dulu (misalnya <code>3</code>) supaya cepat selesai, lalu ulangi dengan lebih banyak transaksi dan kategori yang berbeda-beda.',
+        '🚀 Sudah lancar? Coba tantangan lanjutan: ganti <code>plt.bar(...)</code> jadi <code>plt.pie(...)</code> seperti di bagian "Tahu Lebih", atau tambah kategori baru yang belum pernah kamu coba sebelumnya (ingat, tidak akan error berkat <code>.get()</code>!).',
+        '📌 Ketik jumlah uangnya polos tanpa titik/koma pemisah ribuan — misalnya <code>5000</code>, bukan <code>5.000</code> — karena <code>int()</code> tidak bisa membaca teks yang ada titiknya sama sekali.',
+        '🎉 Kalau layar menampilkan ringkasan keuanganmu DAN grafik pengeluaran di bawahnya — kamu baru saja membuat kalkulator keuangan sungguhan, lengkap dengan grafik yang bisa kamu unduh dan pamerkan!',
+      ]}
+    />
+  </section>
+
+  <section data-reveal>
+    <h2>🎊 Fase 2 Selesai — Napak Tilas Bab 11-20</h2>
+    <p>
+      Coba tarik napas sebentar dan lihat ke belakang. Sepuluh bab lalu, di <strong>Bab 11</strong>,
+      kamu baru pertama kali kenalan dengan lemari berlabel bernama dictionary. Sejak itu, satu per
+      satu, kamu sudah:
+    </p>
+    <ul class="napak-tilas">
+      {
+        napakTilas.map((item, i) => (
+          <li class="napak-tilas__item" data-reveal style={`transition-delay:${i * 90}ms`}>
+            <span class="napak-tilas__emoji" aria-hidden="true">
+              {item.emoji}
+            </span>
+            <span set:html={item.text} />
+          </li>
+        ))
+      }
+    </ul>
+    <p>
+      Ini bukan cuma "satu bab lagi selesai" — ini penutup <strong>SELURUH Fase 2</strong>, Python
+      Lanjutan. Digabung dengan sepuluh bab dasar di Fase 1, kamu sekarang sudah mengumpulkan dua
+      puluh alat yang benar-benar dipakai programmer sungguhan di dunia nyata: dari
+      <code>print()</code> pertamamu, sampai dictionary, API, olah gambar, otomasi kantor,
+      keamanan, menggambar dengan kode, dan sekarang grafik data. Selamat — Pyto benar-benar,
+      benar-benar bangga sama kamu. 🎉🐍
+    </p>
+  </section>
+
+  <section data-reveal>
+    <h2>Rangkuman Bab 20</h2>
+    <RangkumanList items={rangkuman} />
+  </section>
+
+  <section data-reveal>
+    <h2>📖 Kamus Kata</h2>
+    <Glossary terms={glossaryTerms} />
+  </section>
+
+  <section data-reveal>
+    <Fase2CompleteBadge
+      homeHref={`${base}/`}
+      firstFase2ChapterHref={`${base}/bab/11/`}
+    />
+  </section>
+
+  <ChapterFooterNav prevHref={`${base}/bab/19/`} prevLabel="← Bab 19: Proyek Level Up" />
+</ChapterLayout>
+
+<style>
+  .napak-tilas {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .napak-tilas__item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: var(--cloud);
+    border-radius: 12px;
+    padding: 12px 16px;
+  }
+
+  .napak-tilas__emoji {
+    flex-shrink: 0;
+    font-size: 20px;
+    margin-top: 1px;
+  }
+
+  .napak-tilas :global(code) {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+  }
+</style>

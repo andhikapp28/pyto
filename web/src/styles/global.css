@@ -5,13 +5,18 @@
 
 :root {
   /* Brand */
-  --pyto-green: #2fbf71;
-  --pyto-green-dark: #1e9e58;
+  /* Catatan aksesibilitas: --pyto-green, --pyto-green-dark, dan --sky-blue
+     digelapkan dari nilai desain awal (#2fbf71 / #1e9e58 / #4da6ff) supaya
+     teks putih di atasnya (tombol, badge) dan teks --pyto-green-dark di atas
+     --pyto-green-soft/putih lolos kontras WCAG AA 4.5:1. Jangan dikembalikan
+     ke nilai lama tanpa mengecek ulang kontrasnya. */
+  --pyto-green: #218650;
+  --pyto-green-dark: #187e46;
   --pyto-green-soft: #e4f7ed;
 
   /* Aksen */
   --sunny-yellow: #ffc94d;
-  --sky-blue: #4da6ff;
+  --sky-blue: #0073e7;
   --coral: #ff7a6b;
   --grape: #8b6fe0;
 

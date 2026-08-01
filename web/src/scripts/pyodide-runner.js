@@ -1,129 +1,242 @@
 // Logika bersama untuk memuat & menjalankan Pyodide (Python asli di
 // browser). Diekstrak dari EditorSection.astro supaya bisa dipakai ulang
 // oleh editor latihan di halaman bab (PyodideEditor.astro) tanpa duplikasi.
-const PYODIDE_VERSION = '0.26.4';
-const PYODIDE_CDN = `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`;
+//
+// ---------------------------------------------------------------------
+// PENTING (perbaikan "tab freeze"): Pyodide TIDAK LAGI dijalankan di main
+// thread. Seluruh eksekusi Python sungguhan sekarang tinggal di
+// `pyodide-worker.js` (Web Worker terpisah) — lihat komentar panjang di
+// file itu untuk alasan lengkapnya (ringkasnya: GitHub Pages, tempat situs
+// ini di-deploy, tidak mengizinkan header COOP/COEP kustom, jadi
+// SharedArrayBuffer + pyodide.setInterruptBuffer() — cara "resmi" Pyodide
+// untuk interrupt halus — TIDAK viable di produksi; sebagai gantinya kita
+// pakai Worker.terminate() sebagai tombol darurat, yang tidak butuh
+// SharedArrayBuffer sama sekali).
+//
+// File ini SEKARANG cuma klien RPC tipis ke Worker itu lewat postMessage.
+// SEMUA fungsi yang diekspor di bawah (runPython, runPythonInteractive,
+// runPythonInteractiveWithChart, runPhotoWorkbench, runQrWorkbench,
+// runFileWorkbench, runDrawingWorkbench, ensurePillow,
+// ensurePackageViaMicropip, ensureMatplotlib, isFirstPyodideLoad, dst.)
+// SENGAJA mempertahankan signature & perilaku eksternal yang PERSIS SAMA
+// seperti sebelumnya, supaya PyodideEditor.astro, EditorSection.astro,
+// FinanceChartEditor.astro (Bab 20), dan keempat komponen "bengkel"
+// (Drawing/Photo/Qr/File-WorkbenchEditor.astro) tidak perlu (dan sebagian
+// besar memang tidak) diubah sama sekali.
+//
+// Tombol baru: stopPython() — mematikan (terminate) Worker yang sedang
+// berjalan, membatalkan eksekusi Python yang nyangkut (mis. loop tak
+// berhenti) TANPA membekukan tab, lalu menyiapkan Worker+runtime Pyodide
+// baru dari nol untuk percobaan berikutnya. Kode yang sedang diketik
+// pembaca aman (cuma teks di <textarea> milik halaman, tidak pernah ikut
+// dimatikan). Dipakai oleh tombol "⏹ Stop" di PyodideEditor.astro.
+// ---------------------------------------------------------------------
 
 export const LOADING_MESSAGE = '🐍 Pyto sedang bangun... sebentar ya';
 
-let pyodideReadyPromise = null;
+// ---------------------------------------------------------------------
+// Inti RPC ke Worker
+// ---------------------------------------------------------------------
 
-function loadScript(src) {
+let worker = null;
+let nextRequestId = 1;
+const pendingRequests = new Map(); // id -> { resolve, reject, onOutput, onInputRequest }
+
+// Penanda internal dipakai stopPython()/friendlyError() supaya pesan "kamu
+// sendiri yang menghentikan program" tidak ditampilkan seperti error Python
+// biasa (lihat STOPPED_MESSAGE di bagian friendlyError()).
+const STOPPED_MARKER = '__PYTO_STOPPED__';
+
+function createWorker() {
+  const w = new Worker(new URL('./pyodide-worker.js', import.meta.url));
+  w.addEventListener('message', handleWorkerMessage);
+  w.addEventListener('error', handleWorkerCrash);
+  return w;
+}
+
+function getWorker() {
+  if (!worker) worker = createWorker();
+  return worker;
+}
+
+function handleWorkerMessage(event) {
+  const msg = event.data;
+  if (!msg || typeof msg !== 'object') return;
+  const entry = pendingRequests.get(msg.id);
+  if (!entry) return;
+
+  if (msg.type === 'output') {
+    entry.onOutput?.(msg.text);
+    return;
+  }
+
+  if (msg.type === 'input-request') {
+    Promise.resolve(entry.onInputRequest ? entry.onInputRequest(msg.prompt) : '').then((value) => {
+      // Worker bisa saja sudah di-terminate (lewat stopPython()) selagi
+      // menunggu jawaban pembaca — kalau begitu, tidak ada lagi yang perlu
+      // dikirim balik.
+      if (pendingRequests.has(msg.id)) {
+        worker?.postMessage({ id: msg.id, type: 'input-response', value });
+      }
+    });
+    return;
+  }
+
+  if (msg.type === 'result') {
+    pendingRequests.delete(msg.id);
+    entry.resolve(msg.payload);
+    return;
+  }
+
+  if (msg.type === 'error') {
+    pendingRequests.delete(msg.id);
+    entry.reject(new Error(msg.message));
+  }
+}
+
+// Kalau Worker sendiri crash (bukan error Python biasa — mis. gagal memuat
+// pyodide.js karena benar-benar offline saat startup), gagalkan semua
+// permintaan yang masih menunggu supaya UI tidak menunggu selamanya, lalu
+// buang Worker itu supaya percobaan berikutnya membuat yang baru.
+function handleWorkerCrash() {
+  for (const entry of pendingRequests.values()) {
+    entry.reject(new Error('Gagal menjalankan Pyto — coba klik Jalankan sekali lagi, ya.'));
+  }
+  pendingRequests.clear();
+  worker = null;
+  pyodideReadyPromise = null;
+  pillowReadyPromise = null;
+  matplotlibReadyPromise = null;
+  for (const key of Object.keys(micropipPackagePromises)) delete micropipPackagePromises[key];
+}
+
+// rpc(): kirim satu pesan ke Worker dan kembalikan Promise yang selesai
+// begitu Worker membalas 'result' (resolve) atau 'error' (reject).
+// `onOutput`/`onInputRequest` opsional dipakai runPythonInteractive() untuk
+// menangani event yang bisa muncul BERKALI-KALI selama satu pemanggilan.
+// `transfer` opsional dipakai kalau payload berisi Transferable (tidak
+// dipakai saat ini dari sisi klien, tapi disediakan untuk simetri).
+function rpc(type, payload, { onOutput, onInputRequest, transfer } = {}) {
   return new Promise((resolve, reject) => {
-    const script = document.createElement('script');
-    script.src = src;
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error('Gagal memuat Pyodide. Cek koneksi internetmu, ya.'));
-    document.head.appendChild(script);
+    const id = nextRequestId++;
+    pendingRequests.set(id, { resolve, reject, onOutput, onInputRequest });
+    try {
+      getWorker().postMessage({ id, type, payload }, transfer || []);
+    } catch (err) {
+      pendingRequests.delete(id);
+      reject(err);
+    }
   });
 }
 
-// True kalau ini panggilan pertama (dipakai untuk menampilkan pesan loading).
+// Menghentikan PAKSA eksekusi Python yang sedang berjalan (dipakai tombol
+// "⏹ Stop"). Efeknya global untuk seluruh halaman — karena cuma ada SATU
+// runtime Pyodide dibagi semua editor di halaman ini (persis seperti
+// sebelum perbaikan ini), menghentikan lewat satu editor akan membatalkan
+// APA PUN yang sedang berjalan di Worker itu, dari editor manapun asalnya.
+// Setiap editor menangani pembatalannya sendiri lewat blok catch masing-
+// masing (lihat friendlyError() -> STOPPED_MESSAGE).
+//
+// Mengembalikan `true` kalau memang ada Worker yang dimatikan, `false`
+// kalau tidak ada apa-apa yang perlu dihentikan (aman dipanggil kapan saja).
+export function stopPython() {
+  if (!worker) return false;
+  worker.terminate();
+  worker = null;
+
+  for (const entry of pendingRequests.values()) {
+    entry.reject(new Error(STOPPED_MARKER));
+  }
+  pendingRequests.clear();
+
+  // Reset semua cache "sudah dimuat" — Worker barunya nanti mulai dari
+  // Pyodide/Pillow/matplotlib/paket micropip kosong lagi, jadi pesan
+  // loading pertama kali (LOADING_MESSAGE dkk.) akan muncul lagi secara
+  // wajar.
+  pyodideReadyPromise = null;
+  pillowReadyPromise = null;
+  matplotlibReadyPromise = null;
+  for (const key of Object.keys(micropipPackagePromises)) delete micropipPackagePromises[key];
+
+  return true;
+}
+
+// ---------------------------------------------------------------------
+// Cache "sudah pernah dimuat" di sisi klien — meniru persis pola singleton
+// lama (`pyodideReadyPromise` dkk. langsung di module scope), supaya
+// isFirstPyodideLoad()/isFirstPillowLoad()/isFirstPackageLoad()/
+// isFirstMatplotlibLoad() tetap bisa dicek SINKRON oleh komponen (sebelum
+// `await` apa pun) seperti sebelumnya — bedanya sekarang promise itu
+// membungkus satu panggilan RPC ke Worker, bukan langsung memanggil
+// pyodide.loadPackage() dkk. di tempat.
+// ---------------------------------------------------------------------
+
+let pyodideReadyPromise = null;
+
 export function isFirstPyodideLoad() {
   return !pyodideReadyPromise;
 }
 
-export function getPyodide() {
+function ensurePyodideRpc() {
   if (!pyodideReadyPromise) {
-    pyodideReadyPromise = (async () => {
-      if (typeof window.loadPyodide !== 'function') {
-        await loadScript(`${PYODIDE_CDN}pyodide.js`);
-      }
-      return window.loadPyodide({ indexURL: PYODIDE_CDN });
-    })();
+    pyodideReadyPromise = rpc('ensurePyodide', {});
   }
   return pyodideReadyPromise;
 }
 
+// Dipertahankan untuk kompatibilitas API (tidak dipakai komponen manapun
+// secara langsung, lihat pyodide-runner.js versi lama) — sekarang cuma
+// memastikan Worker+Pyodide siap, tidak lagi mengembalikan objek pyodide
+// sungguhan (yang memang tidak bisa "dikirim" keluar dari Worker).
+export function getPyodide() {
+  return ensurePyodideRpc();
+}
+
 // Menjalankan kode Python dan mengembalikan gabungan stdout+stderr sebagai teks.
 export async function runPython(code) {
-  const pyodide = await getPyodide();
-  let output = '';
-  pyodide.setStdout({
-    batched: (s) => {
-      output += s + '\n';
-    },
-  });
-  pyodide.setStderr({
-    batched: (s) => {
-      output += s + '\n';
-    },
-  });
-
-  await pyodide.runPythonAsync(code);
-  return output.replace(/\n$/, '');
+  await ensurePyodideRpc();
+  const { output } = await rpc('runPython', { code });
+  return output;
 }
 
 // Bab 4: menjalankan kode Python yang boleh memanggil input() SUNGGUHAN dan
-// benar-benar berhenti menunggu jawaban pembaca (bukan simulasi).
+// benar-benar berhenti menunggu jawaban pembaca (bukan simulasi). Transformasi
+// teks `input(` -> `(await input(...))` dan setup `async def input()` sekarang
+// terjadi di dalam Worker (pyodide-worker.js, fungsi addAwaitBeforeInput())
+// — lihat komentar panjang di sana untuk kenapa hasilnya dibungkus kurung,
+// bukan sekadar ditempeli "await " di depan.
 //
-// Caranya: kita definisikan ulang `input` di namespace Python sebagai fungsi
-// `async def` yang meng-`await` sebuah Promise dari JS (lewat
-// `onInputRequest`), lalu kita ubah kode pengguna secara tekstual supaya
-// setiap pemanggilan `input(` diberi awalan `await `. Pyodide mendukung
-// top-level `await` di `runPythonAsync` DAN bisa meng-`await` Promise JS
-// langsung dari Python (JsProxy dari sebuah Promise otomatis punya
-// `__await__`) — jadi eksekusi Python di WASM benar-benar tertahan sampai
-// Promise itu selesai, tanpa perlu Web Worker atau SharedArrayBuffer.
-//
-// Keterbatasan yang disengaja (lihat catatan di laporan akhir): transformasi
-// ini memakai pencarian teks `input(`, jadi kalau kata "input(" muncul di
-// dalam string/komentar kode pengguna, itu juga akan ikut diberi awalan
-// `await` (mengubah bikin SyntaxError kalau memang ada `await` di luar
-// fungsi async). Untuk kode-kode pemula seperti di buku ini (tanpa `def`),
-// ini praktis tidak pernah kejadian.
-function addAwaitBeforeInput(code) {
-  return code.replace(/(?<!await\s)\binput(?=\s*\()/g, 'await input');
-}
-
-const INTERACTIVE_INPUT_SETUP = `
-async def input(prompt=""):
-    return await __pyto_request_input(prompt)
-`;
-
-// Menjalankan kode Python secara interaktif. `onOutput(text)` dipanggil tiap
-// kali ada output baru dari stdout/stderr (bisa dipanggil berkali-kali,
-// selagi kode masih berjalan). `onInputRequest(prompt)` dipanggil setiap kali
-// kode menyentuh input(...); harus mengembalikan sebuah Promise<string> yang
-// baru selesai saat pembaca mengirim jawabannya — persis di titik itulah
-// eksekusi Python sungguhan tertahan.
+// `onOutput(text)` dipanggil tiap kali ada output baru dari stdout/stderr.
+// `onInputRequest(prompt)` dipanggil setiap kali kode menyentuh input(...);
+// harus mengembalikan Promise<string> yang baru selesai saat pembaca
+// mengirim jawabannya — titik itulah eksekusi Python di dalam Worker
+// sungguhan tertahan (lewat Promise yang di-`await` dari sisi Python).
 export async function runPythonInteractive(code, { onOutput, onInputRequest } = {}) {
-  const pyodide = await getPyodide();
-
-  pyodide.setStdout({
-    batched: (s) => {
-      if (onOutput) onOutput(s);
-    },
-  });
-  pyodide.setStderr({
-    batched: (s) => {
-      if (onOutput) onOutput(s);
-    },
-  });
-
-  pyodide.globals.set('__pyto_request_input', (prompt) => {
-    const promptText = prompt == null ? '' : String(prompt);
-    if (!onInputRequest) return Promise.resolve('');
-    return Promise.resolve(onInputRequest(promptText));
-  });
-
-  const transformed = addAwaitBeforeInput(code);
-  await pyodide.runPythonAsync(`${INTERACTIVE_INPUT_SETUP}\n${transformed}`);
+  await ensurePyodideRpc();
+  await rpc('runPythonInteractive', { code }, { onOutput, onInputRequest });
 }
 
 // Bab 12: pesan gagal jaringan (offline, atau situs belum mengizinkan CORS)
 // muncul dari Pyodide sebagai "JsException: TypeError: Failed to fetch",
 // yang kurang ramah dibaca apa adanya (lihat plan/design/bab-12-desain.md).
-// Petakan ke bahasa yang lebih jelas sebelum jatuh ke logika baris-terakhir
-// biasa di bawah.
+// Petakan ke bahasa yang lebih jelas sebelum jatuh ke logika terjemahan
+// error biasa di bawah.
 const NETWORK_FAILURE_MESSAGE =
   'Gagal mengambil data — cek koneksi internetmu, atau situs ini mungkin belum mengizinkan diakses dari sini.';
+
+// Ditampilkan saat pembaca sendiri menekan tombol "⏹ Stop" (atau eksekusi
+// dibatalkan otomatis lewat stopPython()) — beda nada dari error Python
+// biasa, karena ini BUKAN kesalahan si pembaca, cuma penghentian paksa.
+const STOPPED_MESSAGE =
+  '⏹ Program dihentikan. Kalau kode di atas ada perulangan (while/for) yang syaratnya tidak pernah berubah, coba cek lagi bagian itu sebelum menjalankan ulang.';
 
 // ---------------------------------------------------------------------
 // Bab 13 — jembatan Upload/Jalankan/Unduh foto (PhotoWorkbenchEditor.astro).
 // Dibangun generik (nama fungsi tidak menyebut "foto" di intinya) supaya bisa
 // dipakai ulang oleh Bab 14 (QR Code) dan Bab 15 (Excel/PDF) — lihat
-// plan/design/bab-13-desain.md.
+// plan/design/bab-13-desain.md. Logika sungguhan (baca file, jalankan kode,
+// baca balik hasil) sekarang ada di pyodide-worker.js; fungsi-fungsi di
+// bawah ini cuma proksi RPC yang mempertahankan signature/perilaku lama.
 // ---------------------------------------------------------------------
 
 // Pesan loading terpisah dari LOADING_MESSAGE (Pyodide inti) — memuat paket
@@ -139,19 +252,23 @@ export function isFirstPillowLoad() {
   return !pillowReadyPromise;
 }
 
-// Memastikan paket Pillow sudah termuat di namespace Pyodide. Aman dipanggil
-// berkali-kali — pemuatan sungguhan cuma terjadi sekali per sesi.
-export async function ensurePillow() {
-  const pyodide = await getPyodide();
+function ensurePillowRpc() {
   if (!pillowReadyPromise) {
-    pillowReadyPromise = pyodide.loadPackage('Pillow');
+    pillowReadyPromise = ensurePyodideRpc().then(() => rpc('ensurePillow', {}));
   }
-  await pillowReadyPromise;
-  return pyodide;
+  return pillowReadyPromise;
+}
+
+// Memastikan paket Pillow sudah termuat di namespace Pyodide (di dalam
+// Worker). Aman dipanggil berkali-kali — pemuatan sungguhan cuma terjadi
+// sekali per sesi.
+export async function ensurePillow() {
+  await ensurePillowRpc();
 }
 
 // Uint8Array -> base64 (dipotong per-chunk supaya tidak kena batas argumen
-// String.fromCharCode.apply untuk file besar).
+// String.fromCharCode.apply untuk file besar). Murni JS, tidak menyentuh
+// Pyodide/Worker sama sekali — tetap di main thread seperti semula.
 export function bytesToBase64(bytes) {
   let binary = '';
   const chunkSize = 0x8000;
@@ -171,102 +288,30 @@ export function base64ToBytes(base64) {
   return bytes;
 }
 
-// Membaca balik variabel bernama `outputVarName` dari namespace Python
-// sesudah kode pembaca selesai dijalankan, dan mendeteksi OTOMATIS jenis
-// hasilnya:
-// - objek bergaya PIL.Image (punya `.save()`, bukan bytes) -> di-encode PNG
-//   (dipakai Bab 13 `hasil = ...` gambar, dan Bab 14 `hasil = qrcode.make(...)`)
-// - `bytes`/`bytearray` mentah -> langsung di-base64-kan apa adanya (dipakai
-//   Bab 15, `hasil = buf.getvalue()` untuk file Excel/PDF)
-// Lihat plan/design/bab-15-desain.md bagian "Generalisasi WAJIB" untuk
-// kontrak lengkapnya. Dipakai ulang oleh runPhotoWorkbench, runQrWorkbench,
-// dan runFileWorkbench supaya logikanya cuma ditulis sekali.
-async function readWorkbenchResult(pyodide, outputVarName) {
-  const readResultCode = `
-import base64 as _pyto_base64
-import io as _pyto_io
-try:
-    _pyto_hasil = ${outputVarName}
-except NameError:
-    _pyto_hasil = None
-
-if _pyto_hasil is not None and hasattr(_pyto_hasil, "save") and not isinstance(_pyto_hasil, (bytes, bytearray)):
-    _pyto_buf = _pyto_io.BytesIO()
-    _pyto_hasil.save(_pyto_buf, format="PNG")
-    _pyto_result_b64 = _pyto_base64.b64encode(_pyto_buf.getvalue()).decode("ascii")
-    _pyto_result_kind = "image"
-elif isinstance(_pyto_hasil, (bytes, bytearray)):
-    _pyto_result_b64 = _pyto_base64.b64encode(bytes(_pyto_hasil)).decode("ascii")
-    _pyto_result_kind = "bytes"
-else:
-    _pyto_result_b64 = None
-    _pyto_result_kind = None
-`;
-  await pyodide.runPythonAsync(readResultCode);
-  const resultBase64 = pyodide.globals.get('_pyto_result_b64') ?? null;
-  const resultKind = pyodide.globals.get('_pyto_result_kind') ?? null;
-  return { resultBase64, resultKind };
-}
-
 // Menjalankan kode Python bab "bengkel" (olah gambar dst.) yang butuh sebuah
 // file yang diupload pembaca disuntikkan sebagai variabel Python bernama
 // `inputVarName` (default "foto", sudah berupa objek PIL.Image), lalu
 // membaca balik variabel bernama `outputVarName` (default "hasil") sesudah
 // kode reader selesai dijalankan, dikonversi jadi bytes PNG.
 //
-// Mengembalikan { output, resultBase64 }. `resultBase64` bernilai null kalau
-// `hasil` tidak ada atau bukan gambar — pemanggil (PhotoWorkbenchEditor)
-// yang menampilkan pesan ramah untuk kasus itu, lihat
-// plan/design/bab-13-desain.md langkah 4. Error dari kode pembaca (baik saat
-// setup maupun saat menjalankan kode reader) dilempar apa adanya supaya
-// ditangkap lewat friendlyError() seperti runPython() biasa.
-//
-// PENTING: perilaku fungsi ini TIDAK berubah sama sekali dari versi Bab 13
-// sebelumnya (dipakai PhotoWorkbenchEditor.astro) — di baliknya sekarang
-// cuma memanggil readWorkbenchResult()/runFileWorkbench() generik, lihat
-// plan/design/bab-15-desain.md ("Bab 13 TIDAK BOLEH berubah perilaku").
+// Mengembalikan { output, resultBase64 }. Error dari kode pembaca dilempar
+// apa adanya (sekarang lewat rpc()'s reject) supaya ditangkap lewat
+// friendlyError() seperti runPython() biasa — PERILAKU TIDAK BERUBAH dari
+// versi sebelum Worker.
 export async function runPhotoWorkbench(
   code,
   fileBase64,
   { inputVarName = 'foto', outputVarName = 'hasil' } = {}
 ) {
-  const pyodide = await ensurePillow();
-
-  let output = '';
-  pyodide.setStdout({
-    batched: (s) => {
-      output += s + '\n';
-    },
-  });
-  pyodide.setStderr({
-    batched: (s) => {
-      output += s + '\n';
-    },
-  });
-
-  pyodide.globals.set('_pyto_uploaded_b64', fileBase64);
-
-  const setupCode = `
-import base64 as _pyto_base64
-import io as _pyto_io
-from PIL import Image as _PytoImage
-${inputVarName} = _PytoImage.open(_pyto_io.BytesIO(_pyto_base64.b64decode(_pyto_uploaded_b64)))
-`;
-  await pyodide.runPythonAsync(setupCode);
-  await pyodide.runPythonAsync(code);
-
-  const { resultBase64 } = await readWorkbenchResult(pyodide, outputVarName);
-
-  return { output: output.replace(/\n$/, ''), resultBase64 };
+  await ensurePillowRpc();
+  return rpc('runPhotoWorkbench', { code, fileBase64, inputVarName, outputVarName });
 }
 
 // ---------------------------------------------------------------------
-// Infrastruktur micropip GENERIK (baru, dipakai pertama kali oleh Bab 14
-// untuk paket `qrcode`, lalu dipakai ulang oleh Bab 15 untuk `openpyxl` dan
-// `pypdf`) — lihat plan/design/bab-14-desain.md dan plan/design/bab-15-desain.md.
-// Paket-paket ini pure-Python, TIDAK tersedia lewat pyodide.loadPackage()
-// bawaan (beda dari Pillow, yang dibundel resmi sebagai paket WASM), jadi
-// harus dipasang lewat micropip.install() sesudah micropip sendiri dimuat.
+// Infrastruktur micropip GENERIK (dipakai Bab 14 untuk paket `qrcode`, lalu
+// Bab 15 untuk `openpyxl` dan `pypdf`) — lihat plan/design/bab-14-desain.md
+// dan plan/design/bab-15-desain.md. Pemasangan sungguhan lewat micropip
+// sekarang terjadi di dalam Worker; di sini cuma cache+proksi RPC.
 // ---------------------------------------------------------------------
 
 export const QRCODE_LOADING_MESSAGE =
@@ -274,18 +319,6 @@ export const QRCODE_LOADING_MESSAGE =
 export const OPENPYXL_LOADING_MESSAGE =
   '📊 Menyiapkan openpyxl (kotak alat baca-tulis Excel)... sebentar ya';
 export const PYPDF_LOADING_MESSAGE = '📄 Menyiapkan pypdf (kotak alat baca PDF)... sebentar ya';
-
-let micropipInstallerPromise = null;
-
-async function getMicropip(pyodide) {
-  if (!micropipInstallerPromise) {
-    micropipInstallerPromise = (async () => {
-      await pyodide.loadPackage('micropip');
-      return pyodide.pyimport('micropip');
-    })();
-  }
-  return micropipInstallerPromise;
-}
 
 const micropipPackagePromises = {};
 
@@ -296,27 +329,28 @@ export function isFirstPackageLoad(packageName) {
   return !micropipPackagePromises[packageName];
 }
 
-// Memastikan sebuah paket pure-Python sudah terpasang di namespace Pyodide
-// lewat micropip. Aman dipanggil berkali-kali — pemasangan sungguhan cuma
-// terjadi sekali per paket per sesi.
-export async function ensurePackageViaMicropip(pyodide, packageName) {
+function ensurePackageRpc(packageName) {
   if (!micropipPackagePromises[packageName]) {
-    micropipPackagePromises[packageName] = (async () => {
-      const micropip = await getMicropip(pyodide);
-      await micropip.install(packageName);
-    })();
+    micropipPackagePromises[packageName] = ensurePyodideRpc().then(() =>
+      rpc('ensurePackage', { packageName })
+    );
   }
-  await micropipPackagePromises[packageName];
-  return pyodide;
+  return micropipPackagePromises[packageName];
+}
+
+// Memastikan sebuah paket pure-Python sudah terpasang di namespace Pyodide
+// (di dalam Worker) lewat micropip. Aman dipanggil berkali-kali — pemasangan
+// sungguhan cuma terjadi sekali per paket per sesi. Parameter pertama
+// (`_pyodideUnused`) dipertahankan demi kompatibilitas signature lama;
+// tidak dipakai lagi karena tidak ada lagi objek pyodide di main thread.
+export async function ensurePackageViaMicropip(_pyodideUnused, packageName) {
+  await ensurePackageRpc(packageName);
 }
 
 // ---------------------------------------------------------------------
 // Bab 14 — jembatan Teks/Jalankan/Unduh (+ logo opsional) kode QR
 // (QrCodeWorkbenchEditor.astro). Beda dari runPhotoWorkbench: input utamanya
-// STRING biasa (teks/URL yang diketik pembaca), bukan file upload — jadi
-// disuntik langsung lewat pyodide.globals.set(), tanpa base64/decode gambar.
-// Variabel `logo` opsional (kalau pembaca mengaktifkan checkbox "Tambahkan
-// logo") memakai proses decode identik dengan `foto` di Bab 13.
+// STRING biasa (teks/URL yang diketik pembaca), bukan file upload.
 // ---------------------------------------------------------------------
 export async function runQrWorkbench(
   code,
@@ -328,50 +362,24 @@ export async function runQrWorkbench(
     outputVarName = 'hasil',
   } = {}
 ) {
-  const pyodide = await ensurePillow();
-  await ensurePackageViaMicropip(pyodide, 'qrcode');
-
-  let output = '';
-  pyodide.setStdout({
-    batched: (s) => {
-      output += s + '\n';
-    },
+  await ensurePillowRpc();
+  await ensurePackageRpc('qrcode');
+  return rpc('runQrWorkbench', {
+    code,
+    teksValue,
+    teksVarName,
+    logoFileBase64,
+    logoVarName,
+    outputVarName,
   });
-  pyodide.setStderr({
-    batched: (s) => {
-      output += s + '\n';
-    },
-  });
-
-  pyodide.globals.set(teksVarName, teksValue);
-
-  if (logoFileBase64) {
-    pyodide.globals.set('_pyto_logo_b64', logoFileBase64);
-    const logoSetupCode = `
-import base64 as _pyto_base64
-import io as _pyto_io
-from PIL import Image as _PytoImage
-${logoVarName} = _PytoImage.open(_pyto_io.BytesIO(_pyto_base64.b64decode(_pyto_logo_b64)))
-`;
-    await pyodide.runPythonAsync(logoSetupCode);
-  }
-
-  await pyodide.runPythonAsync(code);
-
-  const { resultBase64 } = await readWorkbenchResult(pyodide, outputVarName);
-
-  return { output: output.replace(/\n$/, ''), resultBase64 };
 }
 
 // ---------------------------------------------------------------------
 // Bab 15 — jembatan Upload/Jalankan/Unduh FILE GENERIK (FileWorkbenchEditor.astro).
 // Beda dari runPhotoWorkbench: file yang diupload BUKAN gambar (`.xlsx`/`.pdf`),
 // jadi dibungkus `io.BytesIO` polos (inputMode 'bytesio'), bukan di-decode
-// paksa lewat Image.open(). Hasilnya (`hasil`) juga bisa berupa `bytes`
-// mentah (bukan cuma PIL.Image) — deteksi otomatis lewat readWorkbenchResult().
-// `runPhotoWorkbench` di atas TIDAK memakai fungsi ini (sengaja dibiarkan
-// berdiri sendiri) supaya perilaku Bab 13 yang sudah live 100% tidak
-// tersentuh, sesuai instruksi di plan/design/bab-15-desain.md.
+// paksa lewat Image.open(). `runPhotoWorkbench` TIDAK memakai fungsi ini
+// (tetap berdiri sendiri, perilaku Bab 13 tidak tersentuh).
 // ---------------------------------------------------------------------
 export async function runFileWorkbench(
   code,
@@ -380,211 +388,224 @@ export async function runFileWorkbench(
     inputVarName = 'berkas_excel',
     inputMode = 'bytesio', // 'image' | 'bytesio'
     outputVarName = 'hasil',
-    outputKind = 'bytes', // 'image' | 'bytes' | 'none' (hint dari komponen; 'none' melewati pembacaan hasil sama sekali)
+    outputKind = 'bytes', // 'image' | 'bytes' | 'none'
     packages = [], // nama paket micropip yang wajib terpasang dulu, mis. ['openpyxl']
   } = {}
 ) {
   const needsPillow = inputMode === 'image' || outputKind === 'image';
-  const pyodide = needsPillow ? await ensurePillow() : await getPyodide();
-
+  if (needsPillow) {
+    await ensurePillowRpc();
+  } else {
+    await ensurePyodideRpc();
+  }
   for (const packageName of packages) {
-    await ensurePackageViaMicropip(pyodide, packageName);
+    await ensurePackageRpc(packageName);
   }
 
-  let output = '';
-  pyodide.setStdout({
-    batched: (s) => {
-      output += s + '\n';
-    },
+  return rpc('runFileWorkbench', {
+    code,
+    fileBase64,
+    inputVarName,
+    inputMode,
+    outputVarName,
+    outputKind,
+    packages,
   });
-  pyodide.setStderr({
-    batched: (s) => {
-      output += s + '\n';
-    },
-  });
-
-  if (fileBase64 != null) {
-    pyodide.globals.set('_pyto_uploaded_b64', fileBase64);
-    const setupCode =
-      inputMode === 'image'
-        ? `
-import base64 as _pyto_base64
-import io as _pyto_io
-from PIL import Image as _PytoImage
-${inputVarName} = _PytoImage.open(_pyto_io.BytesIO(_pyto_base64.b64decode(_pyto_uploaded_b64)))
-`
-        : `
-import base64 as _pyto_base64
-import io as _pyto_io
-${inputVarName} = _pyto_io.BytesIO(_pyto_base64.b64decode(_pyto_uploaded_b64))
-`;
-    await pyodide.runPythonAsync(setupCode);
-  }
-
-  await pyodide.runPythonAsync(code);
-
-  if (outputKind === 'none') {
-    return { output: output.replace(/\n$/, ''), resultBase64: null, resultKind: null };
-  }
-
-  const { resultBase64, resultKind } = await readWorkbenchResult(pyodide, outputVarName);
-
-  return { output: output.replace(/\n$/, ''), resultBase64, resultKind };
 }
 
 // ---------------------------------------------------------------------
 // Bab 17 — jembatan kanvas gambar SINKRON (DrawingWorkbenchEditor.astro).
-// Pola bridge KETIGA (beda dari runPhotoWorkbench dkk. yang membaca balik
-// SATU variabel hasil di akhir, dan beda dari runPythonInteractive yang
-// menunggu manusia lewat input() async): di sini kode Python memanggil
-// balik JS BERKALI-KALI SELAMA eksekusi, tiap kali maju()/mundur()
-// menggambar satu garis, lewat dua fungsi yang didaftarkan ke
-// pyodide.globals — _pyto_kanvas_garis dan _pyto_kanvas_bersihkan.
-// Panggilannya SINKRON (bukan menunggu manusia seperti input() Bab 4/16),
-// jadi preamble di bawah murni `def` biasa, tanpa `async`/`await` sama
-// sekali. Lihat kontrak lengkap di plan/design/bab-17-desain.md.
+// Kode Python jalan di dalam Worker menggambar ke sebuah OffscreenCanvas
+// yang berdiri sendiri di sana (lihat komentar panjang di
+// pyodide-worker.js soal kenapa BUKAN transferControlToOffscreen()), lalu
+// hasilnya dikirim balik sebagai satu ImageBitmap yang kita gambar SEKALI
+// ke <canvas> DOM asli di sini. `canvasElement` yang diterima fungsi ini
+// TETAP kanvas biasa yang sepenuhnya dikendalikan main thread seperti
+// sebelumnya — toDataURL() (tombol unduh) & pengecatan putih awal di
+// DrawingWorkbenchEditor.astro TIDAK PERLU berubah sama sekali.
 // ---------------------------------------------------------------------
 
-export const DRAWING_CANVAS_SIZE = 400; // lebar & tinggi logis kanvas, dalam px
+export const DRAWING_CANVAS_SIZE = 400; // HARUS sama dengan DRAWING_CANVAS_SIZE di pyodide-worker.js
 
-// Preamble Python "Kanvas Ajaib Pyto" — disuntikkan sebelum kode pembaca,
-// TIDAK PERNAH ditampilkan ke pembaca di halaman manapun (beda dari Bab 16,
-// tempat sandikan()/cek_kekuatan_sandi() ditulis penuh oleh pembaca sendiri
-// — di sini maju() dkk. adalah "sihir" kanvas yang sudah disiapkan). Aman
-// dijalankan berkali-kali (mendefinisikan ulang fungsi/dict tidak
-// menimbulkan efek samping).
-const KANVAS_AJAIB_PREAMBLE = `
-import math as _pyto_math
-
-_pyto_warna_palet = {
-    "hitam": "#1E2A32",
-    "putih": "#FFFFFF",
-    "merah": "#FF7A6B",
-    "kuning": "#FFC94D",
-    "hijau": "#2FBF71",
-    "biru": "#4DA6FF",
-    "ungu": "#8B6FE0",
-}
-
-_pyto_state = {"x": 0.0, "y": 0.0, "arah": 0.0, "pena_turun": True, "warna": "hitam", "tebal": 2}
-
-def bersihkan():
-    _pyto_state.update({"x": 0.0, "y": 0.0, "arah": 0.0, "pena_turun": True, "warna": "hitam", "tebal": 2})
-    _pyto_kanvas_bersihkan()
-
-def maju(langkah):
-    _rad = _pyto_math.radians(_pyto_state["arah"])
-    _x_baru = _pyto_state["x"] + langkah * _pyto_math.cos(_rad)
-    _y_baru = _pyto_state["y"] + langkah * _pyto_math.sin(_rad)
-    if _pyto_state["pena_turun"]:
-        _warna_hex = _pyto_warna_palet.get(_pyto_state["warna"], "#1E2A32")
-        _pyto_kanvas_garis(_pyto_state["x"], _pyto_state["y"], _x_baru, _y_baru, _warna_hex, _pyto_state["tebal"])
-    _pyto_state["x"] = _x_baru
-    _pyto_state["y"] = _y_baru
-
-def mundur(langkah):
-    maju(-langkah)
-
-def belok_kanan(derajat):
-    _pyto_state["arah"] = (_pyto_state["arah"] - derajat) % 360
-
-def belok_kiri(derajat):
-    _pyto_state["arah"] = (_pyto_state["arah"] + derajat) % 360
-
-def arah_ke(derajat):
-    _pyto_state["arah"] = derajat % 360
-
-def mulai_dari(x, y):
-    _pyto_state["x"] = float(x)
-    _pyto_state["y"] = float(y)
-
-def angkat_pena():
-    _pyto_state["pena_turun"] = False
-
-def turun_pena():
-    _pyto_state["pena_turun"] = True
-
-def warna_pena(nama_warna):
-    if nama_warna in _pyto_warna_palet:
-        _pyto_state["warna"] = nama_warna
-    else:
-        print(f"Pyto belum kenal warna '{nama_warna}', dipakai warna sebelumnya saja ya.")
-
-def tebal_pena(angka):
-    _pyto_state["tebal"] = max(1, min(12, angka))
-
-def posisi_sekarang():
-    return (_pyto_state["x"], _pyto_state["y"])
-
-def arah_sekarang():
-    return _pyto_state["arah"]
-`;
-
-// Menjalankan kode Python bab "Seniman Digital" (menggambar) yang memanggil
-// maju()/mundur()/belok_kanan()/dst. — semuanya sudah didefinisikan lewat
-// KANVAS_AJAIB_PREAMBLE di atas, tanpa perlu `import` apa pun dari kode
-// pembaca. `canvasElement` adalah elemen <canvas width="400" height="400">
-// sungguhan; origin (0,0) ada di TENGAH kanvas dan sumbu-Y dibalik (atas =
-// y positif) — lihat "Ringkasan Kontrak API" di plan/design/bab-17-desain.md.
-//
-// Kanvas + state Pyto WAJIB direset (bersihkan()) SETIAP kali fungsi ini
-// dipanggil, SEBELUM kode pembaca dijalankan — supaya tiap klik ▶ Jalankan
-// idempoten (kode yang sama selalu menghasilkan gambar yang sama persis,
-// tidak menumpuk sisa gambar dari percobaan sebelumnya). Gambarnya muncul
-// SEKALIGUS begitu runPythonAsync(code) selesai — TIDAK dianimasikan
-// langkah demi langkah (lihat "Keputusan Desain Kunci" poin 4 di
-// plan/design/bab-17-desain.md), itu pilihan sengaja, bukan keterbatasan.
 export async function runDrawingWorkbench(code, canvasElement) {
-  const pyodide = await getPyodide();
+  await ensurePyodideRpc();
+  const { output, bitmap } = await rpc('runDrawingWorkbench', { code });
+
   const ctx = canvasElement.getContext('2d');
-  const half = DRAWING_CANVAS_SIZE / 2;
+  ctx.clearRect(0, 0, DRAWING_CANVAS_SIZE, DRAWING_CANVAS_SIZE);
+  ctx.drawImage(bitmap, 0, 0);
+  bitmap.close();
 
-  function toScreen(x, y) {
-    return [half + x, half - y];
-  }
-
-  pyodide.globals.set('_pyto_kanvas_garis', (x0, y0, x1, y1, warnaHex, tebal) => {
-    const [sx0, sy0] = toScreen(x0, y0);
-    const [sx1, sy1] = toScreen(x1, y1);
-    ctx.strokeStyle = warnaHex;
-    ctx.lineWidth = tebal;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(sx0, sy0);
-    ctx.lineTo(sx1, sy1);
-    ctx.stroke();
-  });
-
-  pyodide.globals.set('_pyto_kanvas_bersihkan', () => {
-    ctx.fillStyle = '#FFFFFF'; // kanvas = "kertas gambar" putih, beda dari latar --cloud di sekitarnya
-    ctx.fillRect(0, 0, DRAWING_CANVAS_SIZE, DRAWING_CANVAS_SIZE);
-  });
-
-  let output = '';
-  pyodide.setStdout({
-    batched: (s) => {
-      output += s + '\n';
-    },
-  });
-  pyodide.setStderr({
-    batched: (s) => {
-      output += s + '\n';
-    },
-  });
-
-  await pyodide.runPythonAsync(KANVAS_AJAIB_PREAMBLE);
-  await pyodide.runPythonAsync('bersihkan()');
-  await pyodide.runPythonAsync(code);
-
-  return { output: output.replace(/\n$/, '') };
+  return { output };
 }
+
+// ---------------------------------------------------------------------
+// Bab 20 — jembatan GABUNGAN: input() interaktif (pola Bab 4/16/18/19, pakai
+// ulang addAwaitBeforeInput()/INTERACTIVE_INPUT_SETUP di dalam Worker) +
+// pembacaan-balik OTOMATIS figure matplotlib aktif di akhir eksekusi. BEDA
+// dari readWorkbenchResult() (Bab 13-15): di sana bridge membaca SATU
+// VARIABEL bernama `hasil` yang HARUS ditulis reader secara eksplisit. Di
+// sini reader TIDAK PERNAH menulis nama variabel hasil sama sekali -- kode
+// plotting matplotlib yang wajar (plt.bar()/plt.pie()) tidak pernah
+// menugaskan hasilnya ke variabel apa pun, jadi figure yang AKTIF
+// (plt.gcf(), dicek lewat plt.get_fignums()) diambil otomatis. Lihat
+// plan/design/bab-20-desain.md bagian "Bridge Baru" untuk kontrak lengkapnya.
+//
+// Logika sungguhan (matplotlib.use("Agg"), jalankan kode, tangkap figure
+// jadi PNG base64) sekarang ada di pyodide-worker.js — fungsi-fungsi di
+// bawah ini cuma cache+proksi RPC, pola yang sama persis dengan
+// ensurePillow()/ensurePackageViaMicropip() di atas. Ini juga berarti kode
+// Bab 20 yang nyangkut di loop tak berhenti bisa dihentikan lewat tombol
+// "⏹ Stop" yang sama seperti bab-bab lain.
+// ---------------------------------------------------------------------
+
+export const MATPLOTLIB_LOADING_MESSAGE =
+  '📊 Menyiapkan matplotlib (kotak alat gambar grafik)... sebentar ya';
+
+let matplotlibReadyPromise = null;
+
+// True kalau matplotlib belum pernah selesai dimuat di sesi ini (dipakai
+// komponen untuk menampilkan pesan loading, sama pola dengan
+// isFirstPillowLoad()).
+export function isFirstMatplotlibLoad() {
+  return !matplotlibReadyPromise;
+}
+
+function ensureMatplotlibRpc() {
+  if (!matplotlibReadyPromise) {
+    matplotlibReadyPromise = ensurePyodideRpc().then(() => rpc('ensureMatplotlib', {}));
+  }
+  return matplotlibReadyPromise;
+}
+
+// Memastikan paket matplotlib sudah termuat DAN backend-nya sudah dipaksa
+// ke "Agg" (render-ke-memori, non-GUI) di dalam Worker. Aman dipanggil
+// berkali-kali — pemuatan sungguhan cuma terjadi sekali per sesi.
+export async function ensureMatplotlib() {
+  await ensureMatplotlibRpc();
+}
+
+// Menjalankan kode Python Bab 20 yang memanggil input() berkali-kali
+// (persis semantik runPythonInteractive() -- lihat dokumentasi fungsi itu
+// di atas), LALU setelah kode selesai (semua input() sudah terjawab),
+// menangkap figure matplotlib yang AKTIF (kalau ada) jadi PNG base64.
+// Mengembalikan { chartBase64 } -- null kalau kode pembaca tidak pernah
+// memanggil plt.bar()/plt.pie()/dst (tidak ada figure aktif), BUKAN error.
+export async function runPythonInteractiveWithChart(code, { onOutput, onInputRequest } = {}) {
+  await ensureMatplotlibRpc();
+  return rpc('runPythonInteractiveWithChart', { code }, { onOutput, onInputRequest });
+}
+
+// ---------------------------------------------------------------------
+// Bab 9 — "Salah itu Wajar": terjemahkan pesan error Python paling umum
+// bagi pemula ke Bahasa Indonesia yang ramah, senada dengan penjelasan di
+// halaman Bab 9 sendiri (lihat NameErrorDemo.astro, TypeErrorDemo.astro,
+// ValueErrorDemo.astro, SyntaxErrorDemo.astro, MoreErrorsDemo.astro —
+// istilah & nada di bawah sengaja disamakan dengan komponen-komponen itu).
+//
+// Sebelum perbaikan ini, friendlyError() cuma mengambil baris terakhir
+// traceback mentah (mis. "NameError: name 'nma' is not defined") apa
+// adanya — jadi janji Bab 9 ("baca jenisnya, baca pesannya, terjemahkan")
+// tidak pernah benar-benar dipenuhi DI DALAM editor sungguhan. Sekarang
+// jenis error paling umum diterjemahkan; jenis yang belum dipetakan tetap
+// jatuh ke perilaku lama (baris terakhir traceback apa adanya) — TIDAK ada
+// informasi yang disembunyikan begitu saja untuk error yang belum dikenal.
+// ---------------------------------------------------------------------
+
+const ERROR_TRANSLATORS = {
+  NameError(detail) {
+    const m = detail.match(/name '(.+?)' is not defined/);
+    const varName = m ? m[1] : null;
+    return varName
+      ? `Python tidak menemukan sesuatu bernama '${varName}' — coba cek lagi, mungkin salah ketik, atau variabelnya belum pernah dibuat (diisi dengan =) sebelum dipakai.`
+      : `Python tidak menemukan nama yang kamu pakai — coba cek lagi, mungkin salah ketik atau belum dibuat sebelum dipakai.`;
+  },
+
+  TypeError(detail) {
+    if (/can only concatenate str/.test(detail)) {
+      return `Python bilang kamu coba menggabungkan teks (str) dengan angka pakai +, padahal dua tipe itu tidak bisa langsung disatukan — coba bungkus angkanya dengan str(), atau ubah teksnya jadi angka dulu dengan int()/float().`;
+    }
+    if (/unsupported operand type\(s\)/.test(detail)) {
+      return `Python bilang ada dua tipe data yang tidak cocok dipakai bersama di operator itu — cek lagi, mungkin ada teks (str) dan angka (int/float) yang tercampur.`;
+    }
+    if (/missing \d+ required positional argument|takes \d+.*positional argument.*but \d+.*given/.test(detail)) {
+      return `Python bilang jumlah nilai yang kamu kirim ke fungsi itu tidak sesuai — coba hitung lagi berapa banyak argumen yang seharusnya diisi.`;
+    }
+    if (/not callable/.test(detail)) {
+      return `Python bilang kamu mencoba "memanggil" sesuatu yang bukan fungsi (pakai tanda kurung ()) — cek lagi, mungkin nama variabelnya sama dengan nama fungsi bawaan, jadi tertimpa.`;
+    }
+    if (/object is not subscriptable/.test(detail)) {
+      return `Python bilang kamu mencoba mengambil isi sesuatu pakai [ ], padahal itu bukan list/dict/teks yang bisa diambil isinya seperti itu.`;
+    }
+    return `Python bilang ada dua tipe data yang tidak cocok digabung atau dipakai bersama di baris itu — cek lagi tipe data variabelmu (teks/angka/dll).`;
+  },
+
+  ValueError(detail) {
+    const mInt = detail.match(/invalid literal for int\(\) with base \d+: '(.*)'/);
+    if (mInt) {
+      return `Tulisan '${mInt[1]}' isinya bukan angka bulat, jadi tidak bisa diubah pakai int() — coba cek lagi isi teksnya.`;
+    }
+    const mFloat = detail.match(/could not convert string to float: '(.*)'/);
+    if (mFloat) {
+      return `Tulisan '${mFloat[1]}' isinya bukan angka desimal, jadi tidak bisa diubah pakai float() — coba cek lagi isi teksnya.`;
+    }
+    return `Python bilang nilai yang kamu berikan tidak bisa diproses di situ — isinya mungkin tidak sesuai dengan yang diharapkan.`;
+  },
+
+  SyntaxError(detail) {
+    if (/expected ':'/.test(detail)) {
+      return `Python bilang kalimatnya belum lengkap — sepertinya ada tanda titik dua : yang kelupaan di akhir baris (misalnya setelah if/elif/else/for/while/def).`;
+    }
+    if (/unterminated string literal|EOL while scanning/.test(detail)) {
+      return `Python bilang ada tanda kutip yang belum ditutup — cek lagi, mungkin ada tanda " atau ' yang lupa dipasangkan di teksmu.`;
+    }
+    if (/unexpected indent|expected an indented block|IndentationError/.test(detail)) {
+      return `Python bilang ada bagian kode yang menjorok (indentasi/spasi di depan baris) tidak sesuai — cek lagi spasinya, terutama sesudah baris yang diakhiri titik dua.`;
+    }
+    if (/unmatched '\)'|unmatched '\]'|unmatched '\}'|was never closed/.test(detail)) {
+      return `Python bilang ada tanda kurung yang tidak pas jumlahnya — cek lagi pasangan ( ), [ ], atau { } di kodemu.`;
+    }
+    return `Python belum sempat menjalankan kodenya sama sekali, karena bentuk kalimatnya belum sesuai aturan Python — coba cek tanda kurung, titik dua, atau tanda kutip yang mungkin belum lengkap.`;
+  },
+
+  IndexError() {
+    return `Kamu mencoba mengambil item di posisi (index) yang tidak ada di list/teks itu — index-nya kebesaran (atau list-nya lebih pendek dari yang kamu kira). Ingat, index dimulai dari 0!`;
+  },
+
+  KeyError(detail) {
+    return `Python tidak menemukan kunci ${detail} di dictionary itu — coba cek lagi ejaannya, atau pastikan kunci itu memang sudah pernah ditambahkan sebelumnya.`;
+  },
+
+  ZeroDivisionError() {
+    return `Python tidak bisa membagi sebuah angka dengan nol — coba cek lagi angka pembaginya (yang ada di belakang tanda / atau %).`;
+  },
+};
 
 export function friendlyError(err) {
   const message = err instanceof Error ? err.message : String(err);
+
+  if (message === STOPPED_MARKER) {
+    return STOPPED_MESSAGE;
+  }
   if (message.includes('Failed to fetch')) {
     return NETWORK_FAILURE_MESSAGE;
   }
+
   // Ambil baris terakhir yang biasanya berisi jenis error Python (mis. "NameError: ...")
   const lines = message.trim().split('\n');
-  return lines[lines.length - 1] || message;
+  const lastLine = lines[lines.length - 1] || message;
+
+  const match = lastLine.match(/^(\w+(?:Error|Warning|Exception)):\s*([\s\S]*)$/);
+  if (match) {
+    const [, errorType, detail] = match;
+    const translate = ERROR_TRANSLATORS[errorType];
+    if (translate) {
+      return translate(detail, lastLine);
+    }
+  }
+
+  // Jenis error yang belum dipetakan: tetap tampilkan baris mentahnya apa
+  // adanya (perilaku lama) — supaya tidak ada informasi yang hilang begitu
+  // saja untuk error yang belum diterjemahkan.
+  return lastLine;
 }
