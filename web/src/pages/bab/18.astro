@@ -151,7 +151,7 @@ else:
   </section>
 
   <section data-reveal>
-    <h2>Kotak Inti #1 — Cek Format Nomor HP dengan <code>re.fullmatch()</code></h2>
+    <h2>Cek Format Nomor HP dengan <code>re.fullmatch()</code></h2>
     <p>
       Sekarang ke kasus nyata: memeriksa apakah sebuah teks <strong>benar-benar</strong> berformat
       nomor HP Indonesia, misalnya <code>08xx-xxxx-xxxx</code>. Untuk validasi seperti ini, kita
@@ -251,7 +251,7 @@ else:
       yang sebenarnya salah. <code>re.fullmatch()</code> tidak punya masalah ini sama sekali — dia
       <strong>selalu</strong> mewajibkan kecocokan penuh dari awal sampai akhir, apa pun isi
       polanya, jadi jauh lebih aman dipakai untuk validasi format. Itu sebabnya
-      <code>pola_hp_valid</code> yang dipakai di Kotak Inti #1 sengaja sudah diberi <code>^</code>...<code>$</code>
+      <code>pola_hp_valid</code> yang dipakai untuk cek format nomor HP tadi sengaja sudah diberi <code>^</code>...<code>$</code>
       <strong>dan</strong> dipasangkan dengan <code>re.fullmatch()</code> — dua lapis pengaman
       sekaligus. Aturan sederhana buat bab ini: <strong>kalau tujuanmu memvalidasi format (harus
       PAS seluruhnya), selalu pakai <code>re.fullmatch()</code></strong>, bukan <code>re.match()</code>.
@@ -259,7 +259,7 @@ else:
   </KotakAwas>
 
   <section data-reveal>
-    <h2>Kotak Inti #2 — Menemukan Semua Pola dengan <code>re.findall()</code></h2>
+    <h2>Menemukan Semua Pola dengan <code>re.findall()</code></h2>
     <p>
       Validasi satu-satu nomor itu berguna, tapi bagaimana kalau kamu punya satu paragraf panjang
       dan ingin <strong>menemukan semua</strong> alamat email yang tersembunyi di dalamnya, tanpa
@@ -355,7 +355,7 @@ print(pesan_tersensor)
     <RedactionSubDemo />
     <p>
       Perhatikan <code>pola_hp_cari</code> di sini <strong>tidak</strong> memakai <code>^</code>/<code>$</code>
-      seperti <code>pola_hp_valid</code> di Kotak Inti #1 — itu sengaja! Di Kotak Inti #1 kita mau
+      seperti <code>pola_hp_valid</code> di bagian cek format nomor HP tadi — itu sengaja! Di sana kita mau
       <strong>memvalidasi</strong> (nomor harus PAS sama semua, makanya dikunci <code>^...$</code>),
       sementara di sini kita mau <strong>menemukan</strong> nomor di tengah kalimat yang lebih
       panjang, jadi anchor-nya dilepas supaya <code>re.sub()</code> bisa menemukannya di mana saja

@@ -15,7 +15,7 @@ import PytoSecretAgentHero from '../../components/PytoSecretAgentHero.astro';
 import OrdChrWheelDemo from '../../components/OrdChrWheelDemo.astro';
 import CaesarShiftDemo from '../../components/CaesarShiftDemo.astro';
 import CaesarShiftReverseDemo from '../../components/CaesarShiftReverseDemo.astro';
-import CaseSensitiveAwas from '../../components/CaseSensitiveAwas.astro';
+import CaesarCaseSensitiveAwas from '../../components/CaesarCaseSensitiveAwas.astro';
 import WeakPasswordGateDemo from '../../components/WeakPasswordGateDemo.astro';
 import PasswordStrengthMeterDemo from '../../components/PasswordStrengthMeterDemo.astro';
 import BruteForceDemo from '../../components/BruteForceDemo.astro';
@@ -175,7 +175,7 @@ def sandikan(pesan, geseran):
 print(sandikan("Ab", 1))
 # Bb   huruf besar "A" digeser jadi "B", huruf kecil "b" dibiarkan apa adanya`}
     />
-    <CaseSensitiveAwas />
+    <CaesarCaseSensitiveAwas />
     <p>
       Kenapa begini? Karena <code>ord("a")</code> (97) letaknya jauh dari <code>ord("A")</code>
       (65) — kalau dipaksa dikurangi <code>ord("A")</code> juga tanpa dicek dulu, hasilnya jadi

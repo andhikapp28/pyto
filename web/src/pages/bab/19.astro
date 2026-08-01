@@ -19,7 +19,7 @@ import PytoLevelUpHero from '../../components/PytoLevelUpHero.astro';
 import WordBankShelfDemo from '../../components/WordBankShelfDemo.astro';
 import GuessBoardRevealDemo from '../../components/GuessBoardRevealDemo.astro';
 import ShelfAssistantMascotDemo from '../../components/ShelfAssistantMascotDemo.astro';
-import CaseSensitivityAwas from '../../components/CaseSensitivityAwas.astro';
+import WordGuessCaseSensitivityAwas from '../../components/WordGuessCaseSensitivityAwas.astro';
 import MainGameLoopDemo from '../../components/MainGameLoopDemo.astro';
 import RockPaperScissorsDuelDemo from '../../components/RockPaperScissorsDuelDemo.astro';
 import DifficultyScaleDemo from '../../components/DifficultyScaleDemo.astro';
@@ -30,6 +30,7 @@ import PyodideEditor from '../../components/PyodideEditor.astro';
 import CodeBlock from '../../components/CodeBlock.astro';
 import RangkumanList from '../../components/RangkumanList.astro';
 import Glossary from '../../components/Glossary.astro';
+import GameProjectCompleteBadge from '../../components/GameProjectCompleteBadge.astro';
 import ChapterFooterNav from '../../components/ChapterFooterNav.astro';
 
 const base = import.meta.env.BASE_URL;
@@ -102,7 +103,8 @@ const glossaryTerms = [
   </section>
 
   <section data-reveal>
-    <h2>Kotak Inti #1 — Tebak Kata: Dictionary + <code>random.choice()</code> + Fungsi + Loop</h2>
+    <span class="badge">🎮 Proyek 1 dari 2: Tebak Kata</span>
+    <h2>Tebak Kata: Dictionary + <code>random.choice()</code> + Fungsi + Loop</h2>
     <p>
       Proyek pertama: <strong>Tebak Kata</strong>, versi ringan dari Hangman. Pyto menyimpan satu
       kata rahasia dari kategori acak, dan tugasmu menebaknya huruf demi huruf sebelum nyawamu
@@ -236,7 +238,7 @@ else:
     print("Salah!")
 # Benar!   -- "A".lower() jadi "a", baru cocok dengan huruf di kata_rahasia`}
     />
-    <CaseSensitivityAwas />
+    <WordGuessCaseSensitivityAwas />
     <p>
       Kenapa begini? Karena <code>"A" in "gajah"</code> benar-benar mengecek apakah karakter
       <code>A</code> (huruf besar) muncul di <code>"gajah"</code> — dan memang tidak ada, sebab
@@ -252,7 +254,7 @@ else:
   </KotakAwas>
 
   <section data-reveal>
-    <h3>Kotak Inti #1 (lanjutan) — Loop Utama: Main Sampai Menang atau Nyawa Habis</h3>
+    <h3>Loop Utama: Main Sampai Menang atau Nyawa Habis</h3>
     <p>
       Sekarang gabungkan semuanya jadi satu game utuh. Kita pakai <code>while</code> (Bab 7)
       supaya permainan terus berlanjut sampai salah satu dari dua hal terjadi: kata berhasil
@@ -319,7 +321,8 @@ else:
   </section>
 
   <section data-reveal>
-    <h2>Kotak Inti #2 — Batu-Gunting-Kertas dengan Skor</h2>
+    <span class="badge">✂️ Proyek 2 dari 2: Batu-Gunting-Kertas</span>
+    <h2>Batu-Gunting-Kertas dengan Skor</h2>
     <p>
       Proyek kedua lebih singkat, tapi tetap menggabungkan beberapa alat:
       <code>if</code>/<code>elif</code>/<code>else</code> (Bab 6) untuk menentukan pemenang tiap
@@ -419,7 +422,7 @@ print(f"Kata kali ini dapat jatah {sisa_nyawa} nyawa.")`}
     </div>
     <p>
       Tinggal panggil <code>hitung_nyawa_awal(kata_rahasia)</code> sebagai ganti angka
-      <code>5</code> tetap di Kotak Inti #1 tadi, dan permainan otomatis menyesuaikan tingkat
+      <code>5</code> tetap di loop utama Tebak Kata tadi, dan permainan otomatis menyesuaikan tingkat
       kesulitan sesuai panjang kata yang keluar. Coba juga tambahkan aturan ketiga (misalnya kata
       di atas 8 huruf dapat 8 nyawa) — ini latihan bagus untuk berlatih <code>if</code>/<code
         >elif</code
@@ -548,10 +551,14 @@ else:
     <Glossary terms={glossaryTerms} />
   </section>
 
+  <section data-reveal>
+    <GameProjectCompleteBadge />
+  </section>
+
   <ChapterFooterNav
     prevHref={`${base}/bab/18/`}
     prevLabel="← Bab 18: Detektif Teks"
+    nextHref={`${base}/bab/20/`}
     nextLabel="Bab 20: Kalkulator Keuangan Mini"
-    nextDisabled
   />
 </ChapterLayout>

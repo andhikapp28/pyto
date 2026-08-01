@@ -1,11 +1,9 @@
 // Kurikulum Fase 2 ("Python Lanjutan") — Bab 11-20. Sumber: plan/Fase2/plan.md
 // (draf kurikulum, riset lengkap di plan/Fase2/riset-topik-fase2.md).
 //
-// Bab 11-19 sekarang sudah punya halaman sungguhan (`live: true`) — lihat
-// AVAILABLE_CHAPTERS di chapters.js dan src/pages/bab/11.astro s.d. 19.astro.
-// Bab 20 masih pengumuman "Segera Hadir" saja: belum ada halaman bab
-// sungguhan, jangan tambahkan ke AVAILABLE_CHAPTERS atau bikin route
-// /bab/20/ sebelum naskah + implementasinya benar-benar ada.
+// Bab 11-20 sekarang SEMUANYA sudah punya halaman sungguhan (`live: true`)
+// — lihat AVAILABLE_CHAPTERS di chapters.js dan src/pages/bab/11.astro s.d.
+// 20.astro. Fase 2 resmi selesai.
 // Ini tetap satu-satunya sumber judul/blurb untuk seluruh Bab 11-20 — dipakai
 // bareng oleh chapters.js, Fase2Teaser.astro, dan halaman /fase2/.
 
@@ -115,5 +113,6 @@ export const fase2Chapters = [
     blurb:
       'Uang jajanmu ke mana aja perginya bulan ini? Bikin pencatat kas sendiri, lengkap dengan grafiknya.',
     group: 'susulan',
+    live: true,
   },
 ];
