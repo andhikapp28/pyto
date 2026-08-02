@@ -1,47 +1,36 @@
 ---
-import { chapters, isChapterAvailable, AVAILABLE_CHAPTERS } from '../data/chapters.js';
-import { fase2Chapters } from '../data/fase2.js';
-
-// Deskripsi singkat tiap bab untuk kartu di beranda. Judul & ketersediaan
+// Ringkasan seluruh kurikulum di beranda, dikelompokkan PER FASE (bukan lagi
+// satu daftar bernomor 1-20 yang datar) supaya gampang dipahami sekilas
+// seiring kurikulum bertambah. Ketersediaan bab (link vs "Segera") tetap
 // datang dari data/chapters.js (sumber tunggal, dipakai juga oleh sidebar
-// ChapterLayout.astro) — di sini cuma nambah kalimat singkat per bab.
-const descriptions = {
-  1: 'Apa itu ngoding, dan kenapa Python seru untuk dipelajari.',
-  2: 'Perintah print() dan cara komputer "berbicara".',
-  3: 'Mengenal variabel, kotak ajaib penyimpan informasi.',
-  4: 'Perintah input() untuk membuat program interaktif.',
-  5: 'Menjadikan Python sebagai kalkulator super.',
-  6: 'if dan else, cara komputer mengambil keputusan.',
-  7: 'for dan while, menyuruh komputer mengulang tanpa capek.',
-  8: 'Daftar teman, daftar belanja — kumpulan data dalam satu kotak.',
-  9: 'Cara membaca pesan error tanpa panik, lalu memperbaikinya.',
-  10: '3 mini-project seru: Tebak Angka, Kuis, dan Kalkulator.',
-  11: 'Lemari dengan LABEL di tiap laci — kenalan sama dictionary.',
-  12: 'Ambil data cuaca sungguhan dari internet, sekalian kenalan sama def.',
-  13: 'Upload foto sendiri, lalu resize, watermark, atau ubah hitam-putih pakai kode.',
-  14: 'Ketik teks atau alamat website, jadi kode QR yang bisa dipindai kamera HP sungguhan.',
-  15: 'Upload file Excel sungguhan, olah datanya, lalu unduh hasilnya yang rapi.',
-  16: 'Bikin & pecahkan sandi Caesar ala agen rahasia, sekalian belajar kenapa password "123456" itu ide buruk.',
-  17: 'Pakai loop for _ in range(n) buat menggambar kotak, bintang, mandala, sampai kembang api di kanvas ajaib Pyto.',
-  18: 'Pakai modul re bawaan Python buat cek format nomor HP dengan fullmatch() dan temukan semua email dalam satu paragraf dengan findall().',
-};
+// ChapterLayout.astro).
+//
+// Data-driven per fase: tambah entri baru di array `fases` (mis. fase3.js)
+// kalau Fase 3 nanti benar-benar dibuka — tidak perlu ubah markup/struktur
+// di bawah ini sama sekali.
+//
+// id="bab" pada <section> ini adalah target anchor dari Nav.astro,
+// FooterCta.astro, Hero.astro, dan fase2/index.astro (semua menautkan ke
+// `${base}/#bab`) — JANGAN diubah/dihapus. id="bab-{number}" per kartu juga
+// dipertahankan karena Hero.astro & FooterCta.astro menaut langsung ke
+// "#bab-1" (bukan cuma ke section).
+import { AVAILABLE_CHAPTERS, isChapterAvailable } from '../data/chapters.js';
+import { fase1Meta, fase1Chapters } from '../data/fase1.js';
+import { fase2Meta, fase2Chapters } from '../data/fase2.js';
 
-// Bab 19-20 belum ditulis deskripsi khususnya di sini — daripada render
-// "undefined", jatuhkan ke blurb yang sudah ada di data/fase2.js (satu
-// sumber blurb untuk seluruh Fase 2) supaya kartunya tetap ada teksnya.
-const fase2BlurbByNumber = Object.fromEntries(fase2Chapters.map((c) => [c.number, c.blurb]));
-
-function descriptionFor(number) {
-  return descriptions[number] ?? fase2BlurbByNumber[number] ?? '';
-}
-
-const totalChapters = chapters.length;
+const base = import.meta.env.BASE_URL;
+const totalChapters = fase1Chapters.length + fase2Chapters.length;
 const availableCount = AVAILABLE_CHAPTERS.length;
+
+const fases = [
+  { meta: fase1Meta, chapters: fase1Chapters },
+  { meta: fase2Meta, chapters: fase2Chapters },
+];
 ---
 
 <section class="chapters" id="bab">
   <div class="container">
-    <div class="section-head">
+    <div class="section-head" data-reveal>
       <h2>Mulai Petualanganmu</h2>
       <p>
         {totalChapters} bab dari nol sampai bisa, {availableCount} bab pertama sudah bisa dicoba
@@ -49,33 +38,55 @@ const availableCount = AVAILABLE_CHAPTERS.length;
       </p>
     </div>
 
-    <ol class="chapters__list">
-      {
-        chapters.map((chapter) => {
-          const available = isChapterAvailable(chapter.number);
-          const Tag = available ? 'a' : 'div';
-          return (
-            <li>
-              <Tag
-                id={available ? `bab-${chapter.number}` : undefined}
-                href={available ? `${import.meta.env.BASE_URL}/bab/${chapter.number}/` : undefined}
-                class={`card chapter-card ${available ? 'chapter-card--active' : ''}`}
-                data-reveal
-              >
-                <span class="chapter-card__number">{chapter.number}</span>
-                <span class="chapter-card__body">
-                  <span class="chapter-card__title">{chapter.title}</span>
-                  <span class="chapter-card__desc">{descriptionFor(chapter.number)}</span>
-                </span>
-                <span class="chapter-card__tag">
-                  {available ? 'Mulai di sini →' : 'Segera'}
-                </span>
-              </Tag>
-            </li>
-          );
-        })
-      }
-    </ol>
+    {
+      fases.map((fase) => (
+        <section class="fase-group">
+          <div class="fase-group__head" data-reveal>
+            <span class="badge fase-group__badge">
+              {fase.meta.label} · {fase.meta.name}
+            </span>
+            <p class="fase-group__tagline">
+              {fase.meta.tagline} — {fase.meta.count} bab
+              {fase.meta.detailHref && (
+                <a href={`${base}${fase.meta.detailHref}`} class="fase-group__detail-link">
+                  Lihat rincian lengkap {fase.meta.label} →
+                </a>
+              )}
+            </p>
+          </div>
+
+          <ol class="fase-grid">
+            {fase.chapters.map((chapter, i) => {
+              const available = isChapterAvailable(chapter.number);
+              const Tag = available ? 'a' : 'div';
+              return (
+                <li>
+                  <Tag
+                    id={available ? `bab-${chapter.number}` : undefined}
+                    href={available ? `${base}/bab/${chapter.number}/` : undefined}
+                    class={`card fase-card ${available ? 'fase-card--active' : ''}`}
+                    data-reveal
+                    style={`transition-delay: ${Math.min(i * 50, 350)}ms`}
+                  >
+                    <span class="fase-card__emoji" aria-hidden="true">
+                      {chapter.emoji}
+                    </span>
+                    <span class="fase-card__body">
+                      <span class="fase-card__eyebrow">
+                        Bab {chapter.number} · {chapter.short}
+                      </span>
+                      <span class="fase-card__title">{chapter.title}</span>
+                      <span class="fase-card__desc">{chapter.blurb}</span>
+                    </span>
+                    <span class="fase-card__tag">{available ? 'Mulai di sini →' : 'Segera'}</span>
+                  </Tag>
+                </li>
+              );
+            })}
+          </ol>
+        </section>
+      ))
+    }
   </div>
 </section>
 
@@ -85,102 +96,143 @@ const availableCount = AVAILABLE_CHAPTERS.length;
     padding-block: var(--section-spacing);
   }
 
-  .chapters__list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    max-width: 780px;
+  .fase-group {
+    max-width: 1000px;
     margin-inline: auto;
   }
 
-  .chapter-card {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    padding: 22px 24px;
-    text-decoration: none;
-    color: inherit;
-    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+  .fase-group + .fase-group {
+    margin-top: 56px;
   }
 
-  a.chapter-card:hover {
+  .fase-group__head {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .fase-group__badge {
+    font-family: var(--font-heading);
+  }
+
+  .fase-group__tagline {
+    margin-top: 12px;
+    color: var(--slate);
+    font-size: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px 14px;
+  }
+
+  .fase-group__detail-link {
+    font-weight: 700;
+    color: var(--pyto-green-dark);
+    text-decoration: none;
+  }
+
+  .fase-group__detail-link:hover {
+    text-decoration: underline;
+  }
+
+  .fase-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+  }
+
+  .fase-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 22px;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease,
+      opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    /* Stagger halus: transition-delay per kartu datang lewat inline style
+       (lihat map di atas: `${Math.min(i * 50, 350)}ms`), bukan lewat
+       stylesheet — inline style dijamin menang di atas rule global
+       `.js-reveal [data-reveal]` (yang me-reset transition & delay lewat
+       shorthand), jadi kartu berikutnya menunggu sedikit lebih lama sebelum
+       muncul, dibatasi 350ms supaya bab-bab akhir (mis. Bab 10) tidak
+       menunggu lama saat beberapa kartu sekaligus masuk viewport di layar
+       lebar. prefers-reduced-motion tetap menang: global.css memberi kartu
+       `transition: none` saat reduced-motion, yang meniadakan transition-property
+       sama sekali sehingga delay dari inline style tidak berpengaruh. */
+  }
+
+  a.fase-card:hover {
     transform: translateY(-3px);
     box-shadow: 0 10px 24px rgba(30, 42, 50, 0.1);
   }
 
-  .chapter-card--active {
+  .fase-card--active {
     background: var(--pyto-green-soft);
     border-color: var(--pyto-green);
   }
 
-  .chapter-card__number {
-    flex-shrink: 0;
-    width: 44px;
-    height: 44px;
+  .fase-card__emoji {
+    font-size: 32px;
+    width: 52px;
+    height: 52px;
     border-radius: 999px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: var(--font-heading);
-    font-weight: 700;
-    font-size: 18px;
-    background: var(--cloud);
-    color: var(--slate);
+    background: var(--white);
+    flex-shrink: 0;
   }
 
-  .chapter-card--active .chapter-card__number {
-    background: var(--pyto-green);
-    color: var(--white);
-  }
-
-  .chapter-card__body {
+  .fase-card__body {
     display: flex;
     flex-direction: column;
     gap: 4px;
-    flex: 1;
-    min-width: 0;
   }
 
-  .chapter-card__title {
+  .fase-card__eyebrow {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    color: var(--pyto-green-dark);
+    text-transform: uppercase;
+  }
+
+  .fase-card__title {
     font-family: var(--font-heading);
     font-weight: 700;
     font-size: 18px;
   }
 
-  .chapter-card__desc {
+  .fase-card__desc {
     color: var(--slate);
     font-size: 15px;
   }
 
-  .chapter-card__tag {
-    flex-shrink: 0;
-    font-size: 14px;
+  .fase-card__tag {
+    align-self: flex-start;
+    margin-top: auto;
+    font-size: 13px;
     font-weight: 700;
-    padding: 8px 14px;
+    padding: 6px 14px;
     border-radius: 999px;
-    background: var(--cloud);
+    background: var(--white);
     color: var(--slate);
-    white-space: nowrap;
   }
 
-  .chapter-card--active .chapter-card__tag {
+  .fase-card--active .fase-card__tag {
     background: var(--pyto-green);
     color: var(--white);
   }
 
   @media (max-width: 600px) {
-    .chapter-card {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 10px;
+    .fase-card {
       padding: 18px;
-    }
-
-    .chapter-card__desc {
-      max-width: none;
     }
   }
 </style>

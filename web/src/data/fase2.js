@@ -12,6 +12,12 @@ export const fase2Meta = {
   name: 'Python Lanjutan',
   tagline: 'Bikin Sesuatu yang Beneran Dipakai',
   count: 10,
+  // Fase 2 punya halaman rincian sendiri (/fase2/) — Fase 1 tidak, jadi cuma
+  // Fase 2 yang menampilkan tautan "rincian lengkap" di beranda (lihat
+  // ChapterList.astro). Beri detailHref di sini (bukan di-hardcode di
+  // komponen) supaya kalau Fase 3 nanti juga dapat halaman sendiri, tinggal
+  // tambahkan field yang sama di fase3.js.
+  detailHref: '/fase2/',
 };
 
 export const fase2Chapters = [
