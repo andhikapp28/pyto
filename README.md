@@ -59,7 +59,7 @@ Web dibangun pakai [Astro](https://astro.build) dan menjalankan Python langsung 
 9. Salah itu Wajar (Error & memperbaiki)
 10. Proyek Seru (Tebak Angka, Kuis, Kalkulator)
 
-**Fase 2 — Python Lanjutan (Bab 11-20)** 🚧 Bab 11-18 sudah live, Bab 19-20 masih rencana
+**Fase 2 — Python Lanjutan (Bab 11-20)** ✅ Selesai
 
 11. Kamus / Kotak Berlabel (Dictionary) ✅
 12. Data dari Internet (API & JSON) ✅
@@ -69,8 +69,8 @@ Web dibangun pakai [Astro](https://astro.build) dan menjalankan Python langsung 
 16. Agen Rahasia Pyto (Kode Rahasia & Keamanan Kata Sandi) ✅
 17. Seniman Digital (Menggambar dengan Kode) ✅
 18. Detektif Teks (Pengenalan Pola / Regex) ✅
-19. Proyek Level Up (Game Teks) — segera
-20. Kalkulator Keuangan Mini (Capstone) — segera
+19. Proyek Level Up (Game Teks) ✅
+20. Kalkulator Keuangan Mini (Capstone) ✅
 
 ---
 
