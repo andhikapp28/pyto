@@ -429,8 +429,8 @@ _pyto_warna_palet = {
     "putih": "#FFFFFF",
     "merah": "#FF7A6B",
     "kuning": "#FFC94D",
-    "hijau": "#2FBF71",
-    "biru": "#4DA6FF",
+    "hijau": "#218650",
+    "biru": "#0073E7",
     "ungu": "#8B6FE0",
 }
 
