@@ -218,7 +218,7 @@ export async function runPythonInteractive(code, { onOutput, onInputRequest } = 
 
 // Bab 12: pesan gagal jaringan (offline, atau situs belum mengizinkan CORS)
 // muncul dari Pyodide sebagai "JsException: TypeError: Failed to fetch",
-// yang kurang ramah dibaca apa adanya (lihat plan/design/bab-12-desain.md).
+// yang kurang ramah dibaca apa adanya (lihat plan/Fase2/design/bab-12-desain.md).
 // Petakan ke bahasa yang lebih jelas sebelum jatuh ke logika terjemahan
 // error biasa di bawah.
 const NETWORK_FAILURE_MESSAGE =
@@ -234,7 +234,7 @@ const STOPPED_MESSAGE =
 // Bab 13 — jembatan Upload/Jalankan/Unduh foto (PhotoWorkbenchEditor.astro).
 // Dibangun generik (nama fungsi tidak menyebut "foto" di intinya) supaya bisa
 // dipakai ulang oleh Bab 14 (QR Code) dan Bab 15 (Excel/PDF) — lihat
-// plan/design/bab-13-desain.md. Logika sungguhan (baca file, jalankan kode,
+// plan/Fase2/design/bab-13-desain.md. Logika sungguhan (baca file, jalankan kode,
 // baca balik hasil) sekarang ada di pyodide-worker.js; fungsi-fungsi di
 // bawah ini cuma proksi RPC yang mempertahankan signature/perilaku lama.
 // ---------------------------------------------------------------------
@@ -309,8 +309,8 @@ export async function runPhotoWorkbench(
 
 // ---------------------------------------------------------------------
 // Infrastruktur micropip GENERIK (dipakai Bab 14 untuk paket `qrcode`, lalu
-// Bab 15 untuk `openpyxl` dan `pypdf`) — lihat plan/design/bab-14-desain.md
-// dan plan/design/bab-15-desain.md. Pemasangan sungguhan lewat micropip
+// Bab 15 untuk `openpyxl` dan `pypdf`) — lihat plan/Fase2/design/bab-14-desain.md
+// dan plan/Fase2/design/bab-15-desain.md. Pemasangan sungguhan lewat micropip
 // sekarang terjadi di dalam Worker; di sini cuma cache+proksi RPC.
 // ---------------------------------------------------------------------
 
@@ -449,7 +449,7 @@ export async function runDrawingWorkbench(code, canvasElement) {
 // plotting matplotlib yang wajar (plt.bar()/plt.pie()) tidak pernah
 // menugaskan hasilnya ke variabel apa pun, jadi figure yang AKTIF
 // (plt.gcf(), dicek lewat plt.get_fignums()) diambil otomatis. Lihat
-// plan/design/bab-20-desain.md bagian "Bridge Baru" untuk kontrak lengkapnya.
+// plan/Fase2/design/bab-20-desain.md bagian "Bridge Baru" untuk kontrak lengkapnya.
 //
 // Logika sungguhan (matplotlib.use("Agg"), jalankan kode, tangkap figure
 // jadi PNG base64) sekarang ada di pyodide-worker.js — fungsi-fungsi di

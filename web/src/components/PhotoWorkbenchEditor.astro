@@ -1,6 +1,6 @@
 ---
 // Jembatan Upload/Jalankan/Unduh — lihat spesifikasi lengkap di
-// plan/design/bab-13-desain.md ("Spesifikasi Jembatan Upload/Jalankan/Unduh").
+// plan/Fase2/design/bab-13-desain.md ("Spesifikasi Jembatan Upload/Jalankan/Unduh").
 // Komponen infrastruktur paling baru/penting di Bab 13, dibangun generik
 // (nama variabel Python dan label bisa diganti lewat prop) supaya bisa
 // dipakai ulang di Bab 14 (QR Code) dan Bab 15 (Excel/PDF) tanpa fork.
@@ -391,7 +391,7 @@ const {
 
   // Bab 13: perkecil foto secara otomatis di sisi browser sebelum diserahkan
   // ke Python, supaya tetap ringan di HP low-end (lihat catatan
-  // plan/bab-13-animasi.md, "Ringan untuk HP"). Kalau createImageBitmap tidak
+  // plan/Fase2/bab-13-animasi.md, "Ringan untuk HP"). Kalau createImageBitmap tidak
   // tersedia, foto asli dipakai apa adanya (fallback aman, bukan blocker).
   async function downscaleImage(file, maxSide = 1400) {
     try {

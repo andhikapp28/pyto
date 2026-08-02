@@ -1,4 +1,4 @@
-// Konfeti ringan tanpa dependensi luar (lihat plan/bab-01-animasi.md #8).
+// Konfeti ringan tanpa dependensi luar (lihat plan/Fase1/bab-01-animasi.md #8).
 // Menaruh beberapa div warna-warni yang jatuh & berputar, lalu membersihkan
 // dirinya sendiri. Dipicu sekali saat latihan pertama berhasil dijalankan.
 const COLORS = ['var(--pyto-green)', 'var(--sunny-yellow)', 'var(--sky-blue)', 'var(--coral)'];

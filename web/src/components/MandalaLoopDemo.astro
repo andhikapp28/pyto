@@ -1,5 +1,5 @@
 ---
-// Animasi #6 (plan/bab-17-animasi.md) — mandala dari loop bersarang: loop
+// Animasi #6 (plan/Fase2/bab-17-animasi.md) — mandala dari loop bersarang: loop
 // dalam menggambar satu kotak penuh dari titik tengah, loop luar mengulang
 // 12 kali sambil mengganti warna (i % len(warna)) dan memutar arah 30°
 // setiap putaran (12 × 30° = 360°). Semua kotak menempel di satu titik
@@ -13,7 +13,7 @@ const boxes = Array.from({ length: TOTAL }, (_, i) => {
   const angle = i * 30;
   const color = PALETTE[i % PALETTE.length];
   // Dua kotak pertama penuh (~0.5s masing-masing), sisanya dipercepat
-  // supaya total durasi tetap ~2,4 detik (lihat plan/bab-17-animasi.md #6).
+  // supaya total durasi tetap ~2,4 detik (lihat plan/Fase2/bab-17-animasi.md #6).
   const delay = i < 2 ? i * 0.5 : 1.0 + (i - 2) * 0.14;
   return { angle, color, delay };
 });

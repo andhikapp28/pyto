@@ -1,4 +1,4 @@
-// Kurikulum 10 bab (lihat plan/plan.md). Dipakai sebagai sumber tunggal untuk
+// Kurikulum 10 bab (lihat plan/Fase1/plan.md). Dipakai sebagai sumber tunggal untuk
 // sidebar/topbar di ChapterLayout, supaya Bab 2-10 nanti tinggal menambah
 // halaman tanpa perlu menulis ulang daftar bab.
 //

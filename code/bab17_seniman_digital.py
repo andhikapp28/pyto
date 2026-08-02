@@ -61,7 +61,7 @@ pyto.speed(8)          # cukup cepat supaya tidak menunggu lama, tapi masih keli
 pyto.pensize(2)
 pyto.shape("turtle")
 
-# Palet warna WAJIB persis sama dengan tabel di plan/design/bab-17-desain.md
+# Palet warna WAJIB persis sama dengan tabel di plan/Fase2/design/bab-17-desain.md
 # (7 warna, semuanya dipetakan ke token desain yang sudah ada di buku)
 _PALET_WARNA = {
     "hitam": "#1E2A32",

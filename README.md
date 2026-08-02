@@ -36,9 +36,9 @@ Siapa pun yang belum pernah ngoding — dari anak SD sampai orang dewasa yang pe
 └── assets/      # Gambar bersama: maskot Pyto, ilustrasi, ikon
 ```
 
-> Catatan: folder **`plan/`** (dokumen kerja: rencana, design system, naskah, catatan animasi) sengaja **tidak diupload** ke GitHub — hanya ada di komputer pengembang.
+> Catatan: folder **`plan/`** (dokumen kerja: rencana per fase, design system, naskah, catatan animasi) sengaja **tidak diupload** ke GitHub — hanya ada di komputer pengembang. Struktur di dalamnya (per fase: `Fase1/`, `Fase2/`, `Fase3/`, masing-masing dengan `naskah/`/`design/` sendiri) dijelaskan di `plan/README.md`.
 
-Alur kerja: tulis naskah di **`plan/naskah/`** → implementasikan jadi halaman di **`web/`** (dengan skrip referensi di **`code/`**) → nanti diturunkan juga ke **`buku/`** dan **`konten/`**. Semua mengikuti warna & gaya di `plan/design-system.md`.
+Alur kerja: tulis naskah di **`plan/FaseN/naskah/`** → implementasikan jadi halaman di **`web/`** (dengan skrip referensi di **`code/`**) → nanti diturunkan juga ke **`buku/`** dan **`konten/`**. Semua mengikuti warna & gaya di `plan/design-system.md`.
 
 Web dibangun pakai [Astro](https://astro.build) dan menjalankan Python langsung di browser lewat [Pyodide](https://pyodide.org) — jadi pembaca bisa coba-coba kode tanpa install apa pun.
 

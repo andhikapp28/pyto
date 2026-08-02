@@ -420,7 +420,7 @@ ${inputVarName} = _pyto_io.BytesIO(_pyto_base64.b64decode(_pyto_uploaded_b64))
 // awal (dicat putih di DrawingWorkbenchEditor.astro) tetap 100% seperti
 // semula — dan kalau Worker di-terminate lalu dibuat ulang, worker baru
 // tinggal bikin OffscreenCanvas baru lagi, tidak ada apa pun yang rusak
-// permanen. Lihat plan/design/bab-17-desain.md untuk kontrak API lengkap.
+// permanen. Lihat plan/Fase2/design/bab-17-desain.md untuk kontrak API lengkap.
 const KANVAS_AJAIB_PREAMBLE = `
 import math as _pyto_math
 
@@ -552,7 +552,7 @@ async function handleRunDrawingWorkbench(payload) {
 // plotting matplotlib yang wajar (plt.bar()/plt.pie()) tidak pernah
 // menugaskan hasilnya ke variabel apa pun, jadi figure yang AKTIF
 // (plt.gcf(), dicek lewat plt.get_fignums()) diambil otomatis. Lihat
-// plan/design/bab-20-desain.md bagian "Bridge Baru" untuk kontrak lengkapnya
+// plan/Fase2/design/bab-20-desain.md bagian "Bridge Baru" untuk kontrak lengkapnya
 // -- dipindah ke Worker supaya konsisten dengan seluruh bridge lain (dan
 // supaya loop tak berhenti di kode Bab 20 juga bisa dihentikan lewat tombol
 // Stop, persis seperti bridge Bab 4/16/18/19).
