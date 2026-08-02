@@ -399,7 +399,7 @@ const showDownloadFlow = outputKind !== 'none';
 
   .fwe__status.is-error {
     background: var(--box-awas-bg);
-    color: #b3392f;
+    color: var(--error-red);
     font-weight: 700;
   }
 
@@ -449,6 +449,7 @@ const showDownloadFlow = outputKind !== 'none';
     isFirstPackageLoad,
     runFileWorkbench,
     base64ToBytes,
+    bytesToBase64,
     friendlyError,
   } from '../scripts/pyodide-runner.js';
   import { launchConfetti } from '../scripts/confetti.js';
@@ -494,6 +495,7 @@ const showDownloadFlow = outputKind !== 'none';
     const STARTER_CODE = codeEl ? codeEl.value : '';
     let pendingBase64 = null;
     let confettiFired = false;
+    let resultObjectUrl = null;
 
     const setStatus = (text, kind) => {
       if (!statusEl) return;
@@ -521,13 +523,7 @@ const showDownloadFlow = outputKind !== 'none';
       setStatus('📥 Menyiapkan filemu...', 'loading');
 
       const buffer = await file.arrayBuffer();
-      const bytes = new Uint8Array(buffer);
-      let binary = '';
-      const chunkSize = 0x8000;
-      for (let i = 0; i < bytes.length; i += chunkSize) {
-        binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
-      }
-      pendingBase64 = btoa(binary);
+      pendingBase64 = bytesToBase64(new Uint8Array(buffer));
 
       if (originalNameEl) originalNameEl.textContent = file.name;
       if (originalSizeEl) originalSizeEl.textContent = formatBytes(file.size);
@@ -574,13 +570,14 @@ const showDownloadFlow = outputKind !== 'none';
         } else {
           const bytes = base64ToBytes(resultBase64);
           const blob = new Blob([bytes], { type: outputMimeType });
-          const url = URL.createObjectURL(blob);
+          if (resultObjectUrl) URL.revokeObjectURL(resultObjectUrl);
+          resultObjectUrl = URL.createObjectURL(blob);
 
           if (resultNameEl) resultNameEl.textContent = outputFileName;
           if (resultSizeEl) resultSizeEl.textContent = formatBytes(bytes.length);
           if (resultCard) resultCard.hidden = false;
           if (downloadBtn) {
-            downloadBtn.href = url;
+            downloadBtn.href = resultObjectUrl;
             downloadBtn.setAttribute('download', outputFileName);
           }
           setStatus('✅ File berhasil diolah!', null);

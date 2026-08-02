@@ -384,6 +384,7 @@ const {
     const STARTER_CODE = codeEl ? codeEl.value : '';
     let hasOutput = false;
     let confettiFired = false;
+    let chartObjectUrl = null;
 
     const scrollToEnd = () => {
       if (consoleBody) consoleBody.scrollTop = consoleBody.scrollHeight;
@@ -555,11 +556,12 @@ const {
         if (chartBase64) {
           const bytes = base64ToBytes(chartBase64);
           const blob = new Blob([bytes], { type: 'image/png' });
-          const url = URL.createObjectURL(blob);
+          if (chartObjectUrl) URL.revokeObjectURL(chartObjectUrl);
+          chartObjectUrl = URL.createObjectURL(blob);
 
-          if (chartImg) chartImg.src = url;
+          if (chartImg) chartImg.src = chartObjectUrl;
           if (downloadBtn) {
-            downloadBtn.href = url;
+            downloadBtn.href = chartObjectUrl;
             downloadBtn.setAttribute('download', downloadFileName);
           }
           if (chartCard) {

@@ -404,7 +404,7 @@ const {
 
   .qwe__status.is-error {
     background: var(--box-awas-bg);
-    color: #b3392f;
+    color: var(--error-red);
     font-weight: 700;
   }
 
@@ -491,6 +491,8 @@ const {
     const STARTER_CODE = codeEl ? codeEl.value : '';
     let pendingLogoBase64 = null;
     let confettiFired = false;
+    let logoPreviewObjectUrl = null;
+    let resultObjectUrl = null;
 
     const setStatus = (text, kind) => {
       if (!statusEl) return;
@@ -520,7 +522,9 @@ const {
       const buffer = await file.arrayBuffer();
       pendingLogoBase64 = bytesToBase64(new Uint8Array(buffer));
 
-      if (logoPreviewImg) logoPreviewImg.src = URL.createObjectURL(file);
+      if (logoPreviewObjectUrl) URL.revokeObjectURL(logoPreviewObjectUrl);
+      logoPreviewObjectUrl = URL.createObjectURL(file);
+      if (logoPreviewImg) logoPreviewImg.src = logoPreviewObjectUrl;
       if (logoPreviewName) logoPreviewName.textContent = file.name;
       if (logoPreview) logoPreview.hidden = false;
     });
@@ -568,13 +572,14 @@ const {
         } else {
           const bytes = base64ToBytes(resultBase64);
           const blob = new Blob([bytes], { type: 'image/png' });
-          const url = URL.createObjectURL(blob);
+          if (resultObjectUrl) URL.revokeObjectURL(resultObjectUrl);
+          resultObjectUrl = URL.createObjectURL(blob);
 
-          if (resultImg) resultImg.src = url;
+          if (resultImg) resultImg.src = resultObjectUrl;
           if (previews) previews.hidden = false;
           if (resultCard) resultCard.hidden = false;
           if (downloadBtn) {
-            downloadBtn.href = url;
+            downloadBtn.href = resultObjectUrl;
             downloadBtn.setAttribute('download', downloadFileName);
           }
           setStatus('✅ Kode QR berhasil dibuat!', null);

@@ -333,7 +333,7 @@ const {
 
   .pwe__status.is-error {
     background: var(--box-awas-bg);
-    color: #b3392f;
+    color: var(--error-red);
     font-weight: 700;
   }
 
@@ -447,6 +447,8 @@ const {
     const STARTER_CODE = codeEl ? codeEl.value : '';
     let pendingBase64 = null;
     let confettiFired = false;
+    let originalObjectUrl = null;
+    let resultObjectUrl = null;
 
     const setStatus = (text, kind) => {
       if (!statusEl) return;
@@ -477,14 +479,15 @@ const {
       const buffer = await workingFile.arrayBuffer();
       pendingBase64 = bytesToBase64(new Uint8Array(buffer));
 
-      const objectUrl = URL.createObjectURL(workingFile);
+      if (originalObjectUrl) URL.revokeObjectURL(originalObjectUrl);
+      originalObjectUrl = URL.createObjectURL(workingFile);
       if (originalImg) {
         originalImg.onload = () => {
           if (originalDims) {
             originalDims.textContent = `${originalImg.naturalWidth} × ${originalImg.naturalHeight}`;
           }
         };
-        originalImg.src = objectUrl;
+        originalImg.src = originalObjectUrl;
       }
 
       if (previews) previews.hidden = false;
@@ -521,12 +524,13 @@ const {
         } else {
           const bytes = base64ToBytes(resultBase64);
           const blob = new Blob([bytes], { type: 'image/png' });
-          const url = URL.createObjectURL(blob);
+          if (resultObjectUrl) URL.revokeObjectURL(resultObjectUrl);
+          resultObjectUrl = URL.createObjectURL(blob);
 
-          if (resultImg) resultImg.src = url;
+          if (resultImg) resultImg.src = resultObjectUrl;
           if (resultCard) resultCard.hidden = false;
           if (downloadBtn) {
-            downloadBtn.href = url;
+            downloadBtn.href = resultObjectUrl;
             downloadBtn.setAttribute('download', downloadFileName);
           }
           setStatus('✅ Foto berhasil diolah!', null);
