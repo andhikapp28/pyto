@@ -17,6 +17,7 @@
 import { AVAILABLE_CHAPTERS, isChapterAvailable } from '../data/chapters.js';
 import { fase1Meta, fase1Chapters } from '../data/fase1.js';
 import { fase2Meta, fase2Chapters } from '../data/fase2.js';
+import { fase3Meta, fase3PlaceholderCount } from '../data/fase3.js';
 
 const base = import.meta.env.BASE_URL;
 const totalChapters = fase1Chapters.length + fase2Chapters.length;
@@ -26,6 +27,8 @@ const fases = [
   { meta: fase1Meta, chapters: fase1Chapters },
   { meta: fase2Meta, chapters: fase2Chapters },
 ];
+
+const fase3Placeholders = Array.from({ length: fase3PlaceholderCount });
 ---
 
 <section class="chapters" id="bab">
@@ -87,6 +90,41 @@ const fases = [
         </section>
       ))
     }
+
+    {
+      fase3Meta.comingSoon && (
+        <section class="fase-group fase-group--placeholder">
+          <div class="fase-group__head" data-reveal>
+            <span class="badge fase-group__badge fase-group__badge--muted">
+              {fase3Meta.label} · {fase3Meta.name}
+            </span>
+            <p class="fase-group__tagline">{fase3Meta.tagline}</p>
+          </div>
+
+          <ol class="fase-grid">
+            {fase3Placeholders.map((_, i) => (
+              <li>
+                <div
+                  class="card fase-card fase-card--placeholder"
+                  data-reveal
+                  style={`transition-delay: ${Math.min(i * 50, 350)}ms`}
+                >
+                  <span class="fase-card__emoji fase-card__emoji--placeholder" aria-hidden="true">
+                    🔒
+                  </span>
+                  <span class="fase-card__body">
+                    <span class="fase-card__eyebrow">Fase 3</span>
+                    <span class="fase-card__title">Segera Diumumkan</span>
+                    <span class="fase-card__desc">Topik bab ini masih dalam riset.</span>
+                  </span>
+                  <span class="fase-card__tag fase-card__tag--placeholder">TBA</span>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )
+    }
   </div>
 </section>
 
@@ -135,6 +173,12 @@ const fases = [
     text-decoration: underline;
   }
 
+  .fase-group__badge--muted {
+    background: var(--cloud);
+    color: var(--slate);
+    border: 1px solid var(--border);
+  }
+
   .fase-grid {
     list-style: none;
     margin: 0;
@@ -175,6 +219,34 @@ const fases = [
   .fase-card--active {
     background: var(--pyto-green-soft);
     border-color: var(--pyto-green);
+  }
+
+  /* Placeholder Fase 3: abu-abu & non-interaktif (div, bukan <a>) karena topiknya
+     belum diputuskan — beda dari bab "Segera" biasa (yang judulnya sudah pasti,
+     cuma halamannya belum dibuat) supaya pengunjung tidak salah kira ini janji
+     kurikulum final. */
+  .fase-card--placeholder {
+    background: var(--cloud);
+    border-style: dashed;
+    cursor: default;
+  }
+
+  .fase-card__emoji--placeholder {
+    background: var(--white);
+    filter: grayscale(1);
+    opacity: 0.6;
+  }
+
+  .fase-card--placeholder .fase-card__title,
+  .fase-card--placeholder .fase-card__desc,
+  .fase-card--placeholder .fase-card__eyebrow {
+    color: var(--slate);
+  }
+
+  .fase-card__tag--placeholder {
+    background: var(--white);
+    color: var(--slate);
+    border: 1px solid var(--border);
   }
 
   .fase-card__emoji {
