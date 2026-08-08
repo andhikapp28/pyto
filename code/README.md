@@ -8,6 +8,8 @@ Kumpulan berkas kode Python yang dipakai di materi — contoh dan latihan tiap b
 code/
 ├── web/    # Kode yang di-embed / dijalankan di web interaktif
 └── buku/   # Kode yang ditampilkan di buku PDF
+└── code/   # Kode tambahan
+
 ```
 
 ## Aturan
