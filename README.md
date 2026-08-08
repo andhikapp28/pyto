@@ -7,6 +7,7 @@ Materi ini tersedia dalam tiga bentuk dari satu sumber naskah yang sama:
 - 📖 **Buku** — PDF per bab, bisa dibaca digital atau dicetak.
 - 🌐 **Web interaktif** — belajar sambil mencoba kode langsung di browser.
 - 📱 **Konten pendek** — kartu bite-sized untuk media sosial.
+- **Code** - Contoh kode 
 
 ---
 
