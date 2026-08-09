@@ -29,7 +29,7 @@ Siapa pun yang belum pernah ngoding — dari anak SD sampai orang dewasa yang pe
 │   └── src/
 │       ├── pages/bab/   # Halaman tiap bab (1.astro, 2.astro, ...)
 │       ├── components/  # Komponen ilustrasi & interaktif per bab
-│       └── data/        # chapters.js & fase2.js (sumber judul/status bab)
+│       └── data/        # chapters.js, fase1.js, fase2.js & fase3.js (sumber judul/status bab per fase)
 ├── docs/        # Dokumentasi PDF
 ├── buku/        # Output PDF per bab (belum digenerate)
 ├── konten/      # Kartu konten pendek untuk media sosial (belum digenerate)
@@ -71,6 +71,10 @@ Web dibangun pakai [Astro](https://astro.build) dan menjalankan Python langsung 
 18. Detektif Teks (Pengenalan Pola / Regex) ✅
 19. Proyek Level Up (Game Teks) ✅
 20. Kalkulator Keuangan Mini (Capstone) ✅
+
+**Fase 3** 🔬 Riset — belum ada keputusan final soal topik/jumlah bab
+
+Kandidat topik & catatan riset ada di `plan/Fase3/plan.md` dan `plan/Fase3/riset-topik-fase3.md` (tidak diupload ke GitHub, lihat catatan di atas). Di beranda web, Fase 3 baru muncul sebagai kartu placeholder abu-abu "TBA" — belum ada naskah, halaman, atau implementasi apa pun.
 
 ---
 
