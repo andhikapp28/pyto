@@ -2,12 +2,14 @@
 
 Kumpulan berkas kode Python yang dipakai di materi — contoh dan latihan tiap bab. Sumber tunggal untuk potongan kode yang muncul di **web interaktif** maupun **buku PDF**, supaya kodenya konsisten dan sudah teruji jalan.
 
-## Struktur
+## Struktur Project
 
 ```
 code/
 ├── web/    # Kode yang di-embed / dijalankan di web interaktif
 └── buku/   # Kode yang ditampilkan di buku PDF
+└── code/   # Kode tambahan
+
 ```
 
 ## Aturan

@@ -2,6 +2,7 @@
 Bab 2: Menyapa Dunia dengan print() 🐍
 =======================================
 Belajar membuat Python "berbicara" menggunakan perintah print().
+
 """
 
 # print() adalah perintah untuk menampilkan tulisan ke layar

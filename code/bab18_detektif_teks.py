@@ -19,15 +19,7 @@ import re
 import sys
 import time
 
-# Sebagian terminal Windows tidak memakai UTF-8 secara default, jadi
-# emoji di beberapa pesan di bawah (✅, ❌, dll.) bisa memicu error
-# pencetakan. Baris ini murni Python inti (bukan paket tambahan) dan
-# memastikan output emoji tetap aman dicetak di terminal mana pun.
 sys.stdout.reconfigure(encoding="utf-8")
-
-# Jeda kecil antar contoh biar sempat kebaca sebelum lanjut ke bagian
-# berikutnya - bukan "menunggu manusia", cuma jeda tetap yang pasti
-# selesai sendiri (mengikuti gaya bab16/bab17).
 JEDA_ANTAR_CONTOH = 1.2
 
 
