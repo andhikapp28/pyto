@@ -1,6 +1,6 @@
 # 🐍 Belajar Python Bareng Pyto
 
-Tutorial bahasa pemrograman **Python** yang dibuat menyenangkan dan mudah dipahami — cocok untuk **anak-anak, remaja, maupun dewasa non-IT**. Ditemani maskot **Pyto**, si robot ular yang ramah.
+Tutorial bahasa pemrograman **Python** yang dibuat menyenangkan dan mudah dipahami — cocok untuk **anak-anak, remaja, maupun dewasa non-IT**. Ditemani maskot **Pyto**, si ular yang ramah.
 
 Materi ini tersedia dalam tiga bentuk dari satu sumber naskah yang sama:
 
