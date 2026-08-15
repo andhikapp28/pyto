@@ -1,5 +1,5 @@
 """
-Bab 13: Bengkel Foto Mini (Olah Gambar) 🖼️
+Bab 13: Foto Mini (Olah Gambar) 🖼️
 =============================================
 Foto liburanmu kegedean buat dikirim? Atau mau kasih watermark nama?
 Sekarang kita bikin "bengkel foto" sendiri pakai kode - resize,
