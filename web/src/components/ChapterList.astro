@@ -22,6 +22,7 @@ import { fase3Meta, fase3PlaceholderCount } from '../data/fase3.js';
 const base = import.meta.env.BASE_URL;
 const totalChapters = fase1Chapters.length + fase2Chapters.length;
 const availableCount = AVAILABLE_CHAPTERS.length;
+const isAllAvailable = availableCount >= totalChapters;
 
 const fases = [
   { meta: fase1Meta, chapters: fase1Chapters },
@@ -36,8 +37,11 @@ const fase3Placeholders = Array.from({ length: fase3PlaceholderCount });
     <div class="section-head" data-reveal>
       <h2>Mulai Petualanganmu</h2>
       <p>
-        {totalChapters} bab dari nol sampai bisa, {availableCount} bab pertama sudah bisa dicoba
-        sekarang. Satu konsep tiap bab, pelan-pelan saja.
+        {
+          isAllAvailable
+            ? `Seluruh ${totalChapters} bab dari Fase 1 dan Fase 2 sudah lengkap dan siap dicoba langsung. Satu konsep tiap bab, pelan-pelan saja.`
+            : `${totalChapters} bab dari nol sampai bisa, ${availableCount} bab pertama sudah bisa dicoba sekarang. Satu konsep tiap bab, pelan-pelan saja.`
+        }
       </p>
     </div>
 
