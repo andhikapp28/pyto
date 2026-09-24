@@ -559,7 +559,7 @@ const ERROR_TRANSLATORS = {
     if (/unterminated string literal|EOL while scanning/.test(detail)) {
       return `Python bilang ada tanda kutip yang belum ditutup — cek lagi, mungkin ada tanda " atau ' yang lupa dipasangkan di teksmu.`;
     }
-    if (/unexpected indent|expected an indented block|IndentationError/.test(detail)) {
+    if (/unexpected indent|expected an indented block|IndentationError|tab/i.test(detail)) {
       return `Python bilang ada bagian kode yang menjorok (indentasi/spasi di depan baris) tidak sesuai — cek lagi spasinya, terutama sesudah baris yang diakhiri titik dua.`;
     }
     if (/unmatched '\)'|unmatched '\]'|unmatched '\}'|was never closed/.test(detail)) {
@@ -581,6 +581,10 @@ const ERROR_TRANSLATORS = {
   },
 };
 
+// Hubungkan IndentationError dan TabError ke translator SyntaxError
+ERROR_TRANSLATORS.IndentationError = ERROR_TRANSLATORS.SyntaxError;
+ERROR_TRANSLATORS.TabError = ERROR_TRANSLATORS.SyntaxError;
+
 export function friendlyError(err) {
   const message = err instanceof Error ? err.message : String(err);
 
@@ -591,6 +595,10 @@ export function friendlyError(err) {
     return NETWORK_FAILURE_MESSAGE;
   }
 
+  // Cari informasi nomor baris dari traceback jika tersedia (mis. File "<exec>", line 5 atau File "<string>", line 5)
+  const lineMatch = message.match(/File "(?:<exec>|<string>)", line (\d+)/) || message.match(/line (\d+)/);
+  const linePrefix = lineMatch ? `[Baris ${lineMatch[1]}] ` : '';
+
   // Ambil baris terakhir yang biasanya berisi jenis error Python (mis. "NameError: ...")
   const lines = message.trim().split('\n');
   const lastLine = lines[lines.length - 1] || message;
@@ -600,12 +608,12 @@ export function friendlyError(err) {
     const [, errorType, detail] = match;
     const translate = ERROR_TRANSLATORS[errorType];
     if (translate) {
-      return translate(detail, lastLine);
+      return `${linePrefix}${translate(detail, lastLine)}`;
     }
   }
 
   // Jenis error yang belum dipetakan: tetap tampilkan baris mentahnya apa
   // adanya (perilaku lama) — supaya tidak ada informasi yang hilang begitu
   // saja untuk error yang belum diterjemahkan.
-  return lastLine;
+  return `${linePrefix}${lastLine}`;
 }

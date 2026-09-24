@@ -125,6 +125,15 @@ const {
           <button type="button" class="btn btn-secondary qwe__reset" id={`${idPrefix}-reset`}>
             {resetLabel}
           </button>
+          <button
+            type="button"
+            class="btn btn-secondary qwe__stop"
+            id={`${idPrefix}-stop`}
+            disabled
+            title="Hentikan paksa kalau kodenya nyangkut (mis. perulangan tak berhenti)"
+          >
+            ⏹ Stop
+          </button>
           <button type="button" class="btn btn-primary qwe__run" id={`${idPrefix}-run`}>
             {runLabel}
           </button>
@@ -370,6 +379,18 @@ const {
     transform: none;
   }
 
+  .qwe__stop {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .qwe__stop:not(:disabled) {
+    opacity: 1;
+    cursor: pointer;
+    border-color: var(--coral);
+    color: var(--coral);
+  }
+
   .qwe__code {
     display: block;
     width: 100%;
@@ -452,6 +473,7 @@ const {
     isFirstPillowLoad,
     isFirstPackageLoad,
     runQrWorkbench,
+    stopPython,
     bytesToBase64,
     base64ToBytes,
     friendlyError,
@@ -485,6 +507,7 @@ const {
     const codeEl = document.getElementById(`${idPrefix}-code`);
     const runBtn = document.getElementById(`${idPrefix}-run`);
     const resetBtn = document.getElementById(`${idPrefix}-reset`);
+    const stopBtn = document.getElementById(`${idPrefix}-stop`);
     const statusEl = document.getElementById(`${idPrefix}-status`);
     const confettiEl = document.getElementById(`${idPrefix}-confetti`);
 
@@ -529,6 +552,11 @@ const {
       if (logoPreview) logoPreview.hidden = false;
     });
 
+    stopBtn?.addEventListener('click', () => {
+      stopPython();
+      setStatus('⏹ Program dihentikan.', 'note');
+    });
+
     runBtn?.addEventListener('click', async () => {
       if (!codeEl || !runBtn || !textInput) return;
 
@@ -546,6 +574,7 @@ const {
 
       runBtn.disabled = true;
       if (resetBtn) resetBtn.disabled = true;
+      if (stopBtn) stopBtn.disabled = false;
 
       if (isFirstPyodideLoad()) {
         setStatus(LOADING_MESSAGE, 'loading');
@@ -594,6 +623,7 @@ const {
       } finally {
         runBtn.disabled = false;
         if (resetBtn) resetBtn.disabled = false;
+        if (stopBtn) stopBtn.disabled = true;
       }
     });
 

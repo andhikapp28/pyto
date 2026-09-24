@@ -259,8 +259,9 @@ async function handleRunPythonInteractive(id, payload) {
     });
   });
 
+  await py.runPythonAsync(INTERACTIVE_INPUT_SETUP);
   const transformed = addAwaitBeforeInput(payload.code);
-  await py.runPythonAsync(`${INTERACTIVE_INPUT_SETUP}\n${transformed}`);
+  await py.runPythonAsync(transformed);
   return {};
 }
 
@@ -429,8 +430,8 @@ _pyto_warna_palet = {
     "putih": "#FFFFFF",
     "merah": "#FF7A6B",
     "kuning": "#FFC94D",
-    "hijau": "#218650",
-    "biru": "#0073E7",
+    "hijau": "#2FBF71",
+    "biru": "#4DA6FF",
     "ungu": "#8B6FE0",
 }
 
@@ -569,8 +570,9 @@ async function handleRunPythonInteractiveWithChart(id, payload) {
     });
   });
 
+  await py.runPythonAsync(INTERACTIVE_INPUT_SETUP);
   const transformed = addAwaitBeforeInput(payload.code);
-  await py.runPythonAsync(`${INTERACTIVE_INPUT_SETUP}\n${transformed}`);
+  await py.runPythonAsync(transformed);
 
   const captureChartCode = `
 import base64 as _pyto_base64

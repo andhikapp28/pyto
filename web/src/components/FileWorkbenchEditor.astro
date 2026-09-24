@@ -141,6 +141,15 @@ const showDownloadFlow = outputKind !== 'none';
           <button type="button" class="btn btn-secondary fwe__reset" id={`${idPrefix}-reset`}>
             {resetLabel}
           </button>
+          <button
+            type="button"
+            class="btn btn-secondary fwe__stop"
+            id={`${idPrefix}-stop`}
+            disabled
+            title="Hentikan paksa kalau kodenya nyangkut (mis. perulangan tak berhenti)"
+          >
+            ⏹ Stop
+          </button>
           <button type="button" class="btn btn-primary fwe__run" id={`${idPrefix}-run`} disabled>
             {runLabel}
           </button>
@@ -340,6 +349,18 @@ const showDownloadFlow = outputKind !== 'none';
     transform: none;
   }
 
+  .fwe__stop {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .fwe__stop:not(:disabled) {
+    opacity: 1;
+    cursor: pointer;
+    border-color: var(--coral);
+    color: var(--coral);
+  }
+
   .fwe__code {
     display: block;
     width: 100%;
@@ -448,6 +469,7 @@ const showDownloadFlow = outputKind !== 'none';
     isFirstPyodideLoad,
     isFirstPackageLoad,
     runFileWorkbench,
+    stopPython,
     base64ToBytes,
     bytesToBase64,
     friendlyError,
@@ -489,6 +511,7 @@ const showDownloadFlow = outputKind !== 'none';
     const codeEl = document.getElementById(`${idPrefix}-code`);
     const runBtn = document.getElementById(`${idPrefix}-run`);
     const resetBtn = document.getElementById(`${idPrefix}-reset`);
+    const stopBtn = document.getElementById(`${idPrefix}-stop`);
     const statusEl = document.getElementById(`${idPrefix}-status`);
     const confettiEl = document.getElementById(`${idPrefix}-confetti`);
 
@@ -536,12 +559,18 @@ const showDownloadFlow = outputKind !== 'none';
       setStatus(`File siap! Klik "${runBtn?.textContent?.trim() ?? '▶ Jalankan'}" untuk mengolahnya.`, null);
     });
 
+    stopBtn?.addEventListener('click', () => {
+      stopPython();
+      setStatus('⏹ Program dihentikan.', 'note');
+    });
+
     runBtn?.addEventListener('click', async () => {
       if (!codeEl || !runBtn || !pendingBase64) return;
       const code = codeEl.value;
 
       runBtn.disabled = true;
       if (resetBtn) resetBtn.disabled = true;
+      if (stopBtn) stopBtn.disabled = false;
 
       if (isFirstPyodideLoad()) {
         setStatus(LOADING_MESSAGE, 'loading');
@@ -592,6 +621,7 @@ const showDownloadFlow = outputKind !== 'none';
       } finally {
         runBtn.disabled = false;
         if (resetBtn) resetBtn.disabled = false;
+        if (stopBtn) stopBtn.disabled = true;
       }
     });
 
