@@ -1,12 +1,9 @@
 ---
 // Catatan: link-link di sini menunjuk ke section berlabel id pada BERANDA
 // (#editor, #fitur, #bab) — bukan cuma "#editor" polos. Nav.astro dipakai
-// di lebih dari satu halaman sekarang (index.astro DAN fase2/index.astro),
+// di lebih dari satu halaman sekarang (index.astro, fase2/index.astro, guru, cheatsheet),
 // dan section-section itu cuma ada di beranda. Href harus diawali
-// `${base}/` supaya tetap menuju beranda + scroll ke section yang benar
-// walau diklik dari halaman lain seperti /fase2/ (kalau cuma "#bab" polos,
-// klik dari /fase2/ tidak melakukan apa-apa karena halaman itu tidak
-// punya elemen id="bab").
+// `${base}/` supaya tetap menuju beranda + scroll ke section yang benar.
 const base = import.meta.env.BASE_URL;
 ---
 
@@ -29,27 +26,22 @@ const base = import.meta.env.BASE_URL;
     </nav>
 
     <div class="nav__actions">
+      <!-- Unified Petualang Pill: Streak + Tas (Satu tombol ringkas & rapi) -->
       <button
         type="button"
-        class="nav__streak-btn"
+        class="nav__petualang-btn"
         data-open-petualang-modal
         title="Buka Tas Petualang & Lencana"
       >
         <span class="nav__streak-flame" aria-hidden="true">🔥</span>
-        <span id="nav-streak-text">1 Hari</span>
-      </button>
-
-      <button
-        type="button"
-        class="nav__bag-btn"
-        data-open-petualang-modal
-        title="Buka Tas Petualang & Lencana"
-      >
-        <span aria-hidden="true">🎒</span>
-        <span class="nav__bag-label">Tas Petualang</span>
+        <span class="nav__streak-text" id="nav-streak-text">1 Hari</span>
+        <span class="nav__pill-divider" aria-hidden="true">•</span>
+        <span class="nav__bag-icon" aria-hidden="true">🎒</span>
+        <span class="nav__bag-text">Tas</span>
       </button>
 
       <a href={`${base}/#bab`} class="btn btn-primary nav__cta">Mulai Belajar</a>
+
       <button
         type="button"
         class="nav__toggle"
@@ -75,7 +67,7 @@ const base = import.meta.env.BASE_URL;
     <a href={`${base}/#bab`}>Daftar Bab</a>
     <a href={`${base}/cheatsheet/`}>Cheatsheet</a>
     <a href={`${base}/guru/`}>Untuk Guru</a>
-    <a href={`${base}/#bab`} class="btn btn-primary">Mulai Belajar</a>
+    <a href={`${base}/#bab`} class="btn btn-primary nav__mobile-cta">Mulai Belajar</a>
   </nav>
 </header>
 
@@ -84,7 +76,7 @@ const base = import.meta.env.BASE_URL;
     position: sticky;
     top: 0;
     z-index: 50;
-    background: rgba(245, 248, 247, 0.75);
+    background: rgba(245, 248, 247, 0.88);
     backdrop-filter: blur(16px) saturate(160%);
     -webkit-backdrop-filter: blur(16px) saturate(160%);
     border-bottom: 1px solid var(--border);
@@ -95,43 +87,45 @@ const base = import.meta.env.BASE_URL;
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    height: 76px;
+    height: 72px;
   }
 
   .nav__brand {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     text-decoration: none;
     color: var(--ink);
+    flex-shrink: 0;
+    white-space: nowrap;
   }
 
   .nav__logo {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 44px;
-    height: 44px;
+    width: 42px;
+    height: 42px;
     border-radius: 999px;
     background: var(--pyto-green);
-    font-size: 22px;
-    box-shadow: 0 4px 12px rgba(47, 191, 113, 0.35);
+    font-size: 20px;
+    box-shadow: 0 4px 12px rgba(33, 134, 80, 0.3);
   }
 
   .nav__wordmark {
     display: flex;
     flex-direction: column;
-    line-height: 1.2;
+    line-height: 1.15;
     font-family: var(--font-heading);
   }
 
   .nav__wordmark strong {
-    font-size: 16px;
+    font-size: 15.5px;
     font-weight: 700;
   }
 
   .nav__wordmark span {
-    font-size: 13px;
+    font-size: 12.5px;
     color: var(--pyto-green-dark);
     font-weight: 600;
   }
@@ -139,15 +133,18 @@ const base = import.meta.env.BASE_URL;
   .nav__links {
     display: flex;
     align-items: center;
-    gap: 32px;
+    gap: 20px;
     font-weight: 700;
-    font-size: 16px;
+    font-size: 15px;
+    white-space: nowrap;
   }
 
   .nav__links a {
     text-decoration: none;
     color: var(--ink);
-    transition: color 0.2s ease;
+    white-space: nowrap;
+    padding: 6px 2px;
+    transition: color 0.15s ease;
   }
 
   .nav__links a:hover {
@@ -157,34 +154,62 @@ const base = import.meta.env.BASE_URL;
   .nav__actions {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
+    flex-shrink: 0;
+    white-space: nowrap;
   }
 
-  .nav__streak-btn {
+  /* Single unified Petualang pill button */
+  .nav__petualang-btn {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 7px 12px;
-    background: #fff3f0;
-    border: 1px solid rgba(255, 122, 107, 0.35);
+    gap: 7px;
+    height: 38px;
+    padding: 0 13px;
+    background: var(--white);
+    border: 1.5px solid rgba(33, 134, 80, 0.3);
     border-radius: 999px;
     font-family: var(--font-heading);
     font-weight: 800;
-    font-size: 13px;
-    color: #c93b2b;
+    font-size: 13.5px;
+    color: var(--ink);
     cursor: pointer;
-    transition: transform 0.15s, background-color 0.15s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
-  .nav__streak-btn:hover {
-    background: #ffe6e2;
+  .nav__petualang-btn:hover {
+    border-color: var(--pyto-green);
     transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(33, 134, 80, 0.16);
   }
 
   .nav__streak-flame {
-    font-size: 14px;
+    font-size: 15px;
     display: inline-block;
     animation: flame-pulse 1.8s ease-in-out infinite;
+  }
+
+  .nav__streak-text {
+    color: #c93b2b;
+    font-weight: 800;
+  }
+
+  .nav__pill-divider {
+    color: #cbd5e1;
+    font-size: 12px;
+  }
+
+  .nav__bag-icon {
+    font-size: 15px;
+  }
+
+  .nav__bag-text {
+    color: var(--pyto-green-dark);
+    font-weight: 700;
+    font-size: 13px;
   }
 
   @keyframes flame-pulse {
@@ -192,56 +217,20 @@ const base = import.meta.env.BASE_URL;
     50% { transform: scale(1.18); }
   }
 
-  .nav__bag-btn {
+  .nav__cta {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 7px 14px;
-    background: var(--pyto-green-soft);
-    border: 1px solid rgba(47, 191, 113, 0.35);
-    border-radius: 999px;
-    font-family: var(--font-heading);
-    font-weight: 700;
-    font-size: 13px;
-    color: var(--pyto-green-dark);
-    cursor: pointer;
-    transition: transform 0.15s, background-color 0.15s;
-  }
-
-  .nav__bag-btn:hover {
-    background: #d6f2e3;
-    transform: translateY(-1px);
-  }
-
-  .nav__mobile-petualang {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    padding: 12px 14px;
-    background: var(--pyto-green-soft);
-    border: 1px solid rgba(47, 191, 113, 0.3);
-    border-radius: 10px;
-    font-family: var(--font-heading);
-    font-weight: 800;
+    justify-content: center;
+    height: 38px;
+    min-height: 38px;
+    padding: 0 18px;
     font-size: 14px;
-    color: var(--pyto-green-dark);
-    cursor: pointer;
-    margin: 6px 0 10px;
-  }
-
-  .nav__mobile-streak-pill {
-    padding: 2px 8px;
+    font-weight: 700;
     border-radius: 999px;
-    background: var(--white);
-    font-size: 12px;
-    color: #c93b2b;
-  }
-
-  .nav__cta {
-    padding: 10px 22px;
-    font-size: 15px;
-    min-height: 40px;
+    white-space: nowrap;
+    line-height: 1;
+    box-shadow: 0 4px 12px rgba(33, 134, 80, 0.25);
+    flex-shrink: 0;
   }
 
   .nav__toggle {
@@ -249,11 +238,17 @@ const base = import.meta.env.BASE_URL;
     flex-direction: column;
     justify-content: center;
     gap: 5px;
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
+    padding: 8px;
     border: none;
     background: transparent;
     cursor: pointer;
+    border-radius: 8px;
+  }
+
+  .nav__toggle:hover {
+    background: var(--pyto-green-soft);
   }
 
   .nav__toggle span {
@@ -273,6 +268,31 @@ const base = import.meta.env.BASE_URL;
     border-bottom: 1px solid var(--border);
   }
 
+  .nav__mobile-petualang {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 12px 14px;
+    background: var(--pyto-green-soft);
+    border: 1px solid rgba(33, 134, 80, 0.3);
+    border-radius: 10px;
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 14px;
+    color: var(--pyto-green-dark);
+    cursor: pointer;
+    margin: 6px 0 10px;
+  }
+
+  .nav__mobile-streak-pill {
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--white);
+    font-size: 12px;
+    color: #c93b2b;
+  }
+
   .nav__mobile a {
     text-decoration: none;
     color: var(--ink);
@@ -283,8 +303,15 @@ const base = import.meta.env.BASE_URL;
 
   .nav__mobile a:last-child {
     border-bottom: none;
-    margin-top: 8px;
-    text-align: center;
+  }
+
+  .nav__mobile-cta {
+    width: 100%;
+    height: 44px;
+    min-height: 44px;
+    margin-top: 10px;
+    font-size: 15px;
+    border-radius: var(--radius-btn);
   }
 
   .nav.is-open .nav__mobile {
@@ -303,7 +330,17 @@ const base = import.meta.env.BASE_URL;
     transform: translateY(-8px) rotate(-45deg);
   }
 
-  @media (max-width: 860px) {
+  @media (max-width: 1140px) {
+    .nav__links {
+      gap: 14px;
+      font-size: 14px;
+    }
+    .nav__bag-text {
+      display: none;
+    }
+  }
+
+  @media (max-width: 1024px) {
     .nav__links {
       display: none;
     }
