@@ -1,6 +1,7 @@
 ---
 // Animasi #10 — panah "Bab Selanjutnya" mengedip pelan, mengundang pembaca
 // lanjut. Dipakai di akhir tiap halaman bab.
+import ChapterChallenge from './ChapterChallenge.astro';
 import ChapterCompleteCard from './ChapterCompleteCard.astro';
 import { chapters } from '../data/chapters.js';
 
@@ -46,6 +47,7 @@ const hasNext = Boolean(resolvedNextLabel);
 ---
 
 <div class="chapter-footer-wrap">
+  <ChapterChallenge chapterNumber={currentNum} />
   <ChapterCompleteCard chapterNumber={currentNum} />
 
   <nav class="chapter-footer-nav" data-reveal aria-label="Navigasi bab">

@@ -9,6 +9,7 @@
 
 export const STORAGE_KEYS = {
   COMPLETED_CHAPTERS: 'pyto_completed_chapters',
+  COMPLETED_CHALLENGES: 'pyto_completed_challenges',
   STREAK_DATA: 'pyto_streak_data',
   USER_NAME: 'pyto_user_name',
 };
@@ -47,6 +48,14 @@ export const BADGES = [
     description: 'Merapikan data dengan List dan menuntaskan Fase 1.',
     unlockHint: 'Selesaikan Bab 10',
     check: (completed) => completed.includes(10),
+  },
+  {
+    id: 'jawara_tantangan',
+    title: 'Jawara Misi Kode',
+    emoji: '🎯',
+    description: 'Menyelesaikan minimal 5 misi tantangan kode praktis.',
+    unlockHint: 'Selesaikan minimal 5 misi tantangan',
+    check: (completed, challenges = []) => challenges.length >= 5,
   },
   {
     id: 'seniman_digital',
@@ -141,6 +150,50 @@ export function toggleChapterCompleted(chapterNum) {
   return !current;
 }
 
+export function getCompletedChallenges() {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.COMPLETED_CHALLENGES);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) {
+      return parsed.map((n) => Number(n)).filter((n) => !isNaN(n) && n >= 1 && n <= TOTAL_CHAPTERS);
+    }
+    return [];
+  } catch {
+    return [];
+  }
+}
+
+export function isChallengeCompleted(chapterNum) {
+  const challenges = getCompletedChallenges();
+  return challenges.includes(Number(chapterNum));
+}
+
+export function setChallengeCompleted(chapterNum, isCompleted = true) {
+  if (typeof window === 'undefined') return [];
+  const num = Number(chapterNum);
+  let challenges = getCompletedChallenges();
+  const prevCount = challenges.length;
+
+  if (isCompleted) {
+    if (!challenges.includes(num)) {
+      challenges.push(num);
+      challenges.sort((a, b) => a - b);
+      updateDailyStreak();
+    }
+  } else {
+    challenges = challenges.filter((n) => n !== num);
+  }
+
+  try {
+    localStorage.setItem(STORAGE_KEYS.COMPLETED_CHALLENGES, JSON.stringify(challenges));
+  } catch {}
+
+  notifyProgressChange({ challenge: num, isCompleted, challengeCountChanged: challenges.length !== prevCount });
+  return challenges;
+}
+
 export function getStreakData() {
   if (typeof window === 'undefined') return { streak: 0, lastActiveDate: '', isTodayActive: false };
   try {
@@ -214,6 +267,7 @@ export function setUserName(name) {
 
 export function getProgressStats() {
   const completed = getCompletedChapters();
+  const challenges = getCompletedChallenges();
   const count = completed.length;
   const percentage = Math.round((count / TOTAL_CHAPTERS) * 100);
 
@@ -233,6 +287,8 @@ export function getProgressStats() {
   return {
     completed,
     completedCount: count,
+    challenges,
+    challengesCount: challenges.length,
     totalChapters: TOTAL_CHAPTERS,
     percentage,
     title,
@@ -241,8 +297,9 @@ export function getProgressStats() {
 
 export function getBadgeStatus() {
   const completed = getCompletedChapters();
+  const challenges = getCompletedChallenges();
   return BADGES.map((badge) => {
-    const isUnlocked = badge.check(completed);
+    const isUnlocked = badge.check(completed, challenges);
     return {
       ...badge,
       isUnlocked,

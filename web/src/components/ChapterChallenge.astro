@@ -1,0 +1,418 @@
+---
+// ChapterChallenge.astro: Komponen tantangan kode interaktif & auto-graded evaluator
+import { getChallengeForChapter } from '../data/challenges.js';
+
+interface Props {
+  chapterNumber?: number;
+}
+
+const { chapterNumber: propChapter } = Astro.props;
+const match = Astro.url.pathname.match(/\/bab\/(\d+)\/?/);
+const currentChapter = propChapter ?? (match ? parseInt(match[1], 10) : 1);
+
+const challenge = getChallengeForChapter(currentChapter);
+---
+
+{challenge && (
+  <section class="chapter-challenge-card" id={`challenge-card-${currentChapter}`} data-chapter={currentChapter} data-reveal>
+    <div class="ccc-header">
+      <div class="ccc-header__left">
+        <span class="ccc-badge">🎯 Misi Tantangan Pyto</span>
+        <h3 class="ccc-title">{challenge.title}</h3>
+      </div>
+      <div class="ccc-status-pill" id={`challenge-status-${currentChapter}`}>
+        <span class="status-icon">⏳</span>
+        <span class="status-text">Belum Dicoba</span>
+      </div>
+    </div>
+
+    <p class="ccc-mission">{challenge.mission}</p>
+
+    <div class="ccc-editor-wrap">
+      <div class="ccc-editor-topbar">
+        <span class="editor-tab">🐍 misi_{currentChapter}.py</span>
+        <button type="button" class="btn-reset-code" id={`btn-reset-${currentChapter}`} title="Kembalikan ke kode awal">
+          ↺ Reset
+        </button>
+      </div>
+      <textarea
+        class="ccc-code-area"
+        id={`challenge-code-${currentChapter}`}
+        rows="6"
+        spellcheck="false"
+        aria-label="Editor kode tantangan Pyto"
+      >{challenge.starterCode}</textarea>
+    </div>
+
+    <div class="ccc-actions">
+      <button type="button" class="btn btn-primary ccc-run-btn" id={`btn-check-${currentChapter}`}>
+        <span class="run-icon">▶</span> Uji Jawaban
+      </button>
+      <button type="button" class="btn btn-secondary ccc-hint-btn" id={`btn-hint-${currentChapter}`}>
+        💡 Petunjuk
+      </button>
+    </div>
+
+    <!-- Hint Accordion -->
+    <div class="ccc-hint-box" id={`hint-box-${currentChapter}`} hidden>
+      <div class="hint-content">
+        <strong>💡 Tips dari Pyto:</strong>
+        <p>{challenge.hint}</p>
+      </div>
+    </div>
+
+    <!-- Feedback Banner -->
+    <div class="ccc-feedback-box" id={`feedback-box-${currentChapter}`} hidden>
+      <div class="feedback-icon" id={`feedback-icon-${currentChapter}`}>🤖</div>
+      <div class="feedback-content">
+        <h4 id={`feedback-title-${currentChapter}`}>Hasil Pengujian</h4>
+        <p id={`feedback-message-${currentChapter}`}></p>
+      </div>
+    </div>
+  </section>
+)}
+
+<script>
+  import { runPython, friendlyError } from '../scripts/pyodide-runner.js';
+  import { getChallengeForChapter } from '../data/challenges.js';
+  import { isChallengeCompleted, setChallengeCompleted } from '../scripts/gamification.js';
+
+  document.querySelectorAll('.chapter-challenge-card').forEach((card) => {
+    const chapterNum = Number(card.getAttribute('data-chapter'));
+    if (!chapterNum) return;
+
+    const challenge = getChallengeForChapter(chapterNum);
+    if (!challenge) return;
+
+    const codeArea = card.querySelector(`#challenge-code-${chapterNum}`) as HTMLTextAreaElement;
+    const btnCheck = card.querySelector(`#btn-check-${chapterNum}`) as HTMLButtonElement;
+    const btnReset = card.querySelector(`#btn-reset-${chapterNum}`) as HTMLButtonElement;
+    const btnHint = card.querySelector(`#btn-hint-${chapterNum}`) as HTMLButtonElement;
+    const hintBox = card.querySelector(`#hint-box-${chapterNum}`) as HTMLDivElement;
+    const feedbackBox = card.querySelector(`#feedback-box-${chapterNum}`) as HTMLDivElement;
+    const feedbackIcon = card.querySelector(`#feedback-icon-${chapterNum}`) as HTMLElement;
+    const feedbackTitle = card.querySelector(`#feedback-title-${chapterNum}`) as HTMLElement;
+    const feedbackMsg = card.querySelector(`#feedback-message-${chapterNum}`) as HTMLElement;
+    const statusPill = card.querySelector(`#challenge-status-${chapterNum}`) as HTMLElement;
+
+    // Cek status tersimpan di localStorage
+    function refreshStatus() {
+      const done = isChallengeCompleted(chapterNum);
+      if (done) {
+        statusPill.classList.add('is-done');
+        statusPill.innerHTML = '<span class="status-icon">✅</span> <span class="status-text">Tuntas!</span>';
+      } else {
+        statusPill.classList.remove('is-done');
+        statusPill.innerHTML = '<span class="status-icon">🎯</span> <span class="status-text">Tantangan Aktif</span>';
+      }
+    }
+    refreshStatus();
+
+    // Toggle hint
+    btnHint?.addEventListener('click', () => {
+      const isHidden = hintBox.hidden;
+      hintBox.hidden = !isHidden;
+    });
+
+    // Reset code
+    btnReset?.addEventListener('click', () => {
+      codeArea.value = challenge.starterCode;
+      feedbackBox.hidden = true;
+    });
+
+    // Jalankan & Evaluasi
+    btnCheck?.addEventListener('click', async () => {
+      const userCode = codeArea.value;
+      btnCheck.disabled = true;
+      btnCheck.innerHTML = '<span>⏳ Memeriksa...</span>';
+      feedbackBox.hidden = false;
+      feedbackBox.className = 'ccc-feedback-box is-loading';
+      feedbackIcon.textContent = '🐍';
+      feedbackTitle.textContent = 'Pyto sedang menguji kodemu...';
+      feedbackMsg.textContent = 'Menjalankan kode di mesin Python browser...';
+
+      try {
+        let stdout = '';
+        await runPython(userCode, {
+          onOutput: (text: string) => {
+            stdout += text + '\n';
+          },
+        });
+
+        // Validasi logika
+        const result = challenge.validate(stdout, userCode);
+        if (result.pass) {
+          feedbackBox.className = 'ccc-feedback-box is-success';
+          feedbackIcon.textContent = '🎉';
+          feedbackTitle.textContent = 'Misi Berhasil!';
+          feedbackMsg.textContent = result.message;
+          setChallengeCompleted(chapterNum, true);
+          refreshStatus();
+        } else {
+          feedbackBox.className = 'ccc-feedback-box is-error';
+          feedbackIcon.textContent = '💡';
+          feedbackTitle.textContent = 'Hampir Tepat!';
+          feedbackMsg.textContent = result.message;
+        }
+      } catch (err: any) {
+        feedbackBox.className = 'ccc-feedback-box is-error';
+        feedbackIcon.textContent = '⚠️';
+        feedbackTitle.textContent = 'Terjadi Error pada Kode';
+        feedbackMsg.textContent = friendlyError(err);
+      } finally {
+        btnCheck.disabled = false;
+        btnCheck.innerHTML = '<span class="run-icon">▶</span> Uji Jawaban';
+      }
+    });
+
+    // Tab key handling di textarea
+    codeArea?.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = codeArea.selectionStart;
+        const end = codeArea.selectionEnd;
+        codeArea.value = codeArea.value.substring(0, start) + '    ' + codeArea.value.substring(end);
+        codeArea.selectionStart = codeArea.selectionEnd = start + 4;
+      }
+    });
+  });
+</script>
+
+<style>
+  .chapter-challenge-card {
+    background: #ffffff;
+    border: 2px solid var(--pyto-yellow, #ffc83b);
+    border-radius: 16px;
+    padding: 24px;
+    margin: 40px 0 20px;
+    box-shadow: 0 10px 25px -5px rgba(255, 200, 59, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ccc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .ccc-badge {
+    display: inline-block;
+    background: #fff8e1;
+    color: #b78103;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 200, 59, 0.4);
+    margin-bottom: 6px;
+  }
+
+  .ccc-title {
+    margin: 0;
+    font-size: 20px;
+    color: var(--pyto-navy, #1e293b);
+    font-weight: 800;
+  }
+
+  .ccc-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 999px;
+    border: 1px solid #e2e8f0;
+  }
+
+  .ccc-status-pill.is-done {
+    background: #ecfdf5;
+    color: #059669;
+    border-color: #a7f3d0;
+  }
+
+  .ccc-mission {
+    font-size: 15px;
+    line-height: 1.6;
+    color: #334155;
+    margin-bottom: 18px;
+  }
+
+  .ccc-editor-wrap {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #1e1e2e;
+    margin-bottom: 16px;
+  }
+
+  .ccc-editor-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #181825;
+    padding: 8px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .editor-tab {
+    font-family: var(--font-mono, monospace);
+    font-size: 12px;
+    color: #cdd6f4;
+  }
+
+  .btn-reset-code {
+    background: transparent;
+    border: none;
+    color: #a6adc8;
+    font-size: 12px;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: all 0.2s;
+  }
+
+  .btn-reset-code:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .ccc-code-area {
+    width: 100%;
+    background: transparent;
+    color: #a6e3a1;
+    font-family: var(--font-mono, 'Fira Code', monospace);
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 14px;
+    border: none;
+    outline: none;
+    resize: vertical;
+    box-sizing: border-box;
+    tab-size: 4;
+  }
+
+  .ccc-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+
+  .ccc-run-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--pyto-green, #2fbf71);
+    color: #ffffff;
+    font-weight: 700;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.15s, background 0.2s;
+  }
+
+  .ccc-run-btn:hover:not(:disabled) {
+    background: #25a25e;
+    transform: translateY(-1px);
+  }
+
+  .ccc-run-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .ccc-hint-btn {
+    background: #f8fafc;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    padding: 9px 16px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .ccc-hint-btn:hover {
+    background: #f1f5f9;
+  }
+
+  .ccc-hint-box {
+    background: #fffbeb;
+    border: 1px solid #fef3c7;
+    border-left: 4px solid #f59e0b;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 10px;
+    font-size: 14px;
+    color: #92400e;
+  }
+
+  .ccc-hint-box p {
+    margin: 4px 0 0;
+  }
+
+  .ccc-feedback-box {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 14px 18px;
+    border-radius: 12px;
+    margin-top: 14px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .ccc-feedback-box.is-loading {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+  }
+
+  .ccc-feedback-box.is-success {
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    color: #065f46;
+  }
+
+  .ccc-feedback-box.is-error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+  }
+
+  .feedback-icon {
+    font-size: 24px;
+    line-height: 1;
+  }
+
+  .feedback-content h4 {
+    margin: 0 0 4px;
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .feedback-content p {
+    margin: 0;
+  }
+
+  @media (max-width: 640px) {
+    .chapter-challenge-card {
+      padding: 18px;
+    }
+    .ccc-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>

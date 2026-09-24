@@ -1,0 +1,502 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const base = import.meta.env.BASE_URL;
+
+const pageTitle = 'Cheatsheet Python A4: Rangkuman Rumus & Sintaks Lengkap — Belajar Python Bareng Pyto';
+const pageDesc = 'Lembar rangkuman rumus sintaks Python dasar dan lanjutan siap cetak format A4. Cocok untuk pegangan belajar siswa, pemula, dan guru informatika.';
+
+const snippetIo = `# Menampilkan teks ke layar
+print("Halo, Dunia!")
+
+# f-string: Menggabungkan teks & variabel
+nama = "Pyto"
+umur = 10
+print(f"Halo, namaku {nama}, umurku {umur} tahun.")
+
+# Menerima input dari pengguna (selalu berupa teks/str)
+jawaban = input("Siapa namamu? ")`;
+
+const snippetTypes = `# 4 Tipe Data Utama:
+teks = "Halo"        # str (string)
+angka = 42           # int (bilangan bulat)
+desimal = 3.14       # float (desimal)
+aktif = True         # bool (True atau False)
+
+# Mengubah teks angka menjadi angka hitung:
+teks_angka = "10"
+angka_asli = int(teks_angka)    # jadi 10 (int)
+desimal_asli = float("9.5")     # jadi 9.5 (float)`;
+
+const snippetOperators = `# Aritmatika:
+tambah = 10 + 5    # 15
+kurang = 10 - 5    # 5
+kali   = 10 * 5    # 50
+bagi   = 10 / 4    # 2.5 (hasil float)
+bagi_bulat = 10 // 4 # 2
+sisa_bagi  = 10 % 3  # 1 (modulo)
+pangkat    = 2 ** 3  # 8
+
+# Pembanding: ==, !=, <, >, <=, >=
+# Logika: and (dan), or (atau), not (bukan)`;
+
+const snippetIf = `nilai = 85
+
+# Indentasi wajib 4 spasi!
+if nilai >= 90:
+    print("Nilai A - Sangat Baik!")
+elif nilai >= 75:
+    print("Nilai B - Lulus!")
+else:
+    print("Nilai C - Semangat Remedial!")`;
+
+const snippetLoops = `# for loop: mengulang urutan angka
+# range(awal, stop_sebelum, lompatan)
+for i in range(1, 6):
+    print(f"Langkah ke-{i}")  # mencetak 1 s.d. 5
+
+# while loop: mengulang selama syarat bernilai True
+koin = 3
+while koin > 0:
+    print(f"Koin tersisa: {koin}")
+    koin -= 1`;
+
+const snippetList = `# Indeks selalu dimulai dari 0!
+buah = ["Apel", "Jeruk", "Mangga"]
+print(buah[0])       # Apel
+print(buah[-1])      # Mangga (elemen terakhir)
+
+# Menambah elemen baru di akhir:
+buah.append("Pisang")
+
+# Panjang list & perulangan item:
+print(len(buah))     # 4
+for item in buah:
+    print(f"- {item}")`;
+
+const snippetDict = `# Data berpasangan key: value
+profil = {
+    "nama": "Pyto",
+    "level": 10,
+    "elemen": "Petir"
+}
+
+# Mengambil data (pakai .get agar aman dari KeyError):
+print(profil.get("nama"))            # Pyto
+print(profil.get("darah", 100))      # 100 (nilai cadangan)
+
+# Menambah / mengubah data:
+profil["skor"] = 500`;
+
+const snippetDef = `# Membungkus kode jadi resep otomatis
+def hitung_diskon(harga, persen=10):
+    potongan = harga * (persen / 100)
+    total_bayar = harga - potongan
+    return total_bayar
+
+# Memanggil fungsi:
+bayar = hitung_diskon(50000, 20)
+print(f"Total: Rp{bayar:,.0f}")  # Rp40,000`;
+
+const snippetLibs = `# Bilangan Acak (Bab 10 & 19):
+import random
+dadu = random.randint(1, 6)
+
+# Pola Teks Regex (Bab 18):
+import re
+angka = re.findall(r"\\d+", "3 buku & 5 pensil") # ['3', '5']
+
+# Buat QR Code (Bab 14):
+import qrcode
+img = qrcode.make("https://pyto.id")
+
+# Visualisasi Grafik Matplotlib (Bab 20):
+import matplotlib.pyplot as plt
+plt.bar(["Jajan", "Buku"], [30000, 20000])`;
+---
+
+<BaseLayout title={pageTitle} description={pageDesc}>
+  <div class="cs-page">
+    <div class="cs-topbar no-print">
+      <div class="container cs-topbar__inner">
+        <a href={`${base}/`} class="btn btn-secondary cs-back-btn">
+          ← Kembali ke Beranda
+        </a>
+        <div class="cs-topbar__actions">
+          <a href={`${base}/guru/`} class="btn btn-secondary">
+            🏫 Panduan Guru
+          </a>
+          <button type="button" class="btn btn-primary cs-print-btn" onclick="window.print()">
+            🖨️ Cetak / Simpan PDF (A4)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <main class="container cs-main">
+      <!-- Header Dokumen Cetak -->
+      <header class="cs-header">
+        <div class="cs-header__brand">
+          <span class="cs-logo" aria-hidden="true">🐍</span>
+          <div>
+            <h1 class="cs-title">Lembar Rangkuman Python (Cheatsheet)</h1>
+            <p class="cs-subtitle">Panduan Sintaks & Rumus Praktis — Belajar Python Bareng Pyto (Fase 1 & Fase 2)</p>
+          </div>
+        </div>
+        <div class="cs-header__meta">
+          <span class="cs-badge">Format Cetak A4</span>
+          <span class="cs-web">https://andhikapp28.github.io/pyto/</span>
+        </div>
+      </header>
+
+      <!-- Grid Kartu Cheatsheet -->
+      <div class="cs-grid">
+        <!-- 1. Output & Input -->
+        <article class="cs-card">
+          <h2 class="cs-card__title">1. Teks, Output, & Input</h2>
+          <div class="cs-card__content">
+            <pre><code>{snippetIo}</code></pre>
+          </div>
+        </article>
+
+        <!-- 2. Tipe Data & Konversi -->
+        <article class="cs-card">
+          <h2 class="cs-card__title">2. Tipe Data & Konversi</h2>
+          <div class="cs-card__content">
+            <pre><code>{snippetTypes}</code></pre>
+          </div>
+        </article>
+
+        <!-- 3. Operator Matematika -->
+        <article class="cs-card">
+          <h2 class="cs-card__title">3. Operator Hitung & Logika</h2>
+          <div class="cs-card__content">
+            <pre><code>{snippetOperators}</code></pre>
+          </div>
+        </article>
+
+        <!-- 4. Percabangan if-elif-else -->
+        <article class="cs-card">
+          <h2 class="cs-card__title">4. Percabangan Logika (if/else)</h2>
+          <div class="cs-card__content">
+            <pre><code>{snippetIf}</code></pre>
+          </div>
+        </article>
+
+        <!-- 5. Perulangan (for & while) -->
+        <article class="cs-card">
+          <h2 class="cs-card__title">5. Perulangan Loop (for & while)</h2>
+          <div class="cs-card__content">
+            <pre><code>{snippetLoops}</code></pre>
+          </div>
+        </article>
+
+        <!-- 6. Struktur Data List -->
+        <article class="cs-card">
+          <h2 class="cs-card__title">6. Struktur Data List (Daftar)</h2>
+          <div class="cs-card__content">
+            <pre><code>{snippetList}</code></pre>
+          </div>
+        </article>
+
+        <!-- 7. Struktur Data Dictionary -->
+        <article class="cs-card">
+          <h2 class="cs-card__title">7. Struktur Data Dictionary (Kamus)</h2>
+          <div class="cs-card__content">
+            <pre><code>{snippetDict}</code></pre>
+          </div>
+        </article>
+
+        <!-- 8. Fungsi Buatan Sendiri (def) -->
+        <article class="cs-card">
+          <h2 class="cs-card__title">8. Fungsi Buatan Sendiri (def)</h2>
+          <div class="cs-card__content">
+            <pre><code>{snippetDef}</code></pre>
+          </div>
+        </article>
+
+        <!-- 9. Pustaka Populer Fase 2 -->
+        <article class="cs-card">
+          <h2 class="cs-card__title">9. Pustaka Populer (Fase 2)</h2>
+          <div class="cs-card__content">
+            <pre><code>{snippetLibs}</code></pre>
+          </div>
+        </article>
+
+        <!-- 10. Panduan Detektif Error (Traceback) -->
+        <article class="cs-card">
+          <h2 class="cs-card__title">10. Kamus Detektif Error</h2>
+          <div class="cs-card__content">
+            <ul class="cs-error-list">
+              <li><strong>SyntaxError:</strong> Ada salah tanda baca, kurung kurang, atau kutip tidak berpasangan.</li>
+              <li><strong>IndentationError:</strong> Spasi baris di dalam <code>if</code>/<code>for</code>/<code>def</code> tidak rata.</li>
+              <li><strong>NameError:</strong> Nama variabel salah ketik (*typo*) atau belum pernah dibuat.</li>
+              <li><strong>TypeError:</strong> Menghitung teks dengan angka, misal <code>"10" + 5</code>.</li>
+              <li><strong>IndexError:</strong> Memanggil nomor indeks list yang tidak ada (misal list ada 3, panggil <code>[99]</code>).</li>
+              <li><strong>KeyError:</strong> Mencari label dictionary yang tidak ada (selalu gunakan <code>.get()</code>!).</li>
+            </ul>
+          </div>
+        </article>
+      </div>
+
+      <!-- Footer Dokumen -->
+      <footer class="cs-footer">
+        <p>
+          Buku Interaktif "Belajar Python Bareng Pyto" • 100% Gratis & Terbuka untuk Pendidikan Indonesia • Dibuat oleh Andhika Putra Pratama
+        </p>
+      </footer>
+    </main>
+  </div>
+</BaseLayout>
+
+<style>
+  .cs-page {
+    background: #f8fafc;
+    min-height: 100vh;
+    padding-bottom: 60px;
+  }
+
+  .cs-topbar {
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 14px 0;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .cs-topbar__inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .cs-topbar__actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .cs-main {
+    max-width: 1040px;
+    margin: 28px auto 0;
+    padding: 0 16px;
+  }
+
+  .cs-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+
+  .cs-header__brand {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .cs-logo {
+    font-size: 38px;
+    line-height: 1;
+  }
+
+  .cs-title {
+    margin: 0 0 4px;
+    font-size: 22px;
+    font-weight: 800;
+    color: #0f172a;
+  }
+
+  .cs-subtitle {
+    margin: 0;
+    font-size: 13px;
+    color: #64748b;
+  }
+
+  .cs-header__meta {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+  }
+
+  .cs-badge {
+    background: #ecfdf5;
+    color: #059669;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 6px;
+    border: 1px solid #a7f3d0;
+  }
+
+  .cs-web {
+    font-family: var(--font-mono, monospace);
+    font-size: 11px;
+    color: #94a3b8;
+  }
+
+  .cs-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .cs-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 16px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    break-inside: avoid;
+  }
+
+  .cs-card__title {
+    margin: 0 0 10px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e293b;
+    border-bottom: 2px solid var(--pyto-green, #2fbf71);
+    padding-bottom: 4px;
+  }
+
+  .cs-card pre {
+    background: #1e1e2e;
+    color: #cdd6f4;
+    padding: 12px;
+    border-radius: 8px;
+    font-family: var(--font-mono, 'Fira Code', monospace);
+    font-size: 11.5px;
+    line-height: 1.5;
+    margin: 0;
+    overflow-x: auto;
+  }
+
+  .cs-card code {
+    font-family: inherit;
+  }
+
+  .cs-error-list {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #334155;
+  }
+
+  .cs-error-list li {
+    margin-bottom: 6px;
+  }
+
+  .cs-error-list strong {
+    color: #e11d48;
+  }
+
+  .cs-footer {
+    text-align: center;
+    margin-top: 32px;
+    font-size: 12px;
+    color: #94a3b8;
+    border-top: 1px dashed #cbd5e1;
+    padding-top: 16px;
+  }
+
+  /* MEDIA PRINT KHUSUS A4 */
+  @media print {
+    @page {
+      size: A4 portrait;
+      margin: 10mm;
+    }
+
+    body {
+      background: #ffffff !important;
+      color: #000000 !important;
+      font-size: 10pt;
+    }
+
+    .no-print,
+    .cs-topbar,
+    #site-nav,
+    footer,
+    .pyto-modal-overlay {
+      display: none !important;
+    }
+
+    .cs-page {
+      background: transparent !important;
+      padding: 0 !important;
+    }
+
+    .cs-main {
+      max-width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    .cs-header {
+      padding: 8px 12px !important;
+      margin-bottom: 12px !important;
+      border: 1px solid #94a3b8 !important;
+      box-shadow: none !important;
+    }
+
+    .cs-title {
+      font-size: 15pt !important;
+    }
+
+    .cs-grid {
+      grid-template-columns: 1fr 1fr !important;
+      gap: 10px !important;
+    }
+
+    .cs-card {
+      border: 1px solid #cbd5e1 !important;
+      padding: 10px !important;
+      box-shadow: none !important;
+      break-inside: avoid !important;
+      page-break-inside: avoid !important;
+    }
+
+    .cs-card__title {
+      font-size: 10.5pt !important;
+      border-bottom: 1.5pt solid #059669 !important;
+      margin-bottom: 6px !important;
+    }
+
+    .cs-card pre {
+      background: #f8fafc !important;
+      color: #0f172a !important;
+      border: 1px solid #e2e8f0 !important;
+      font-size: 8.5pt !important;
+      line-height: 1.35 !important;
+      padding: 6px !important;
+    }
+
+    .cs-error-list {
+      font-size: 8.5pt !important;
+      line-height: 1.35 !important;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .cs-grid {
+      grid-template-columns: 1fr;
+    }
+    .cs-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .cs-header__meta {
+      align-items: flex-start;
+      text-align: left;
+    }
+  }
+</style>

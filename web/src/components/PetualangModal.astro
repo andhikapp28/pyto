@@ -50,12 +50,17 @@
           </div>
         </div>
 
-        <!-- 3 Statistik Ringkas -->
+        <!-- 4 Statistik Ringkas -->
         <div class="p-stats-grid">
           <div class="p-stat-box">
             <span class="p-stat-box__emoji" aria-hidden="true">📚</span>
             <span class="p-stat-box__label">Bab Selesai</span>
             <span class="p-stat-box__value" id="p-stat-chapters">0 / 20</span>
+          </div>
+          <div class="p-stat-box">
+            <span class="p-stat-box__emoji" aria-hidden="true">🎯</span>
+            <span class="p-stat-box__label">Misi Kode</span>
+            <span class="p-stat-box__value" id="p-stat-challenges">0 / 20</span>
           </div>
           <div class="p-stat-box">
             <span class="p-stat-box__emoji" aria-hidden="true">🔥</span>
@@ -65,7 +70,7 @@
           <div class="p-stat-box">
             <span class="p-stat-box__emoji" aria-hidden="true">🏅</span>
             <span class="p-stat-box__label">Lencana</span>
-            <span class="p-stat-box__value" id="p-stat-badges">0 / 7</span>
+            <span class="p-stat-box__value" id="p-stat-badges">0 / 8</span>
           </div>
         </div>
 
@@ -331,8 +336,8 @@
   /* Stats Grid */
   .p-stats-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
     margin-bottom: 18px;
   }
 
@@ -544,6 +549,7 @@
   const nameInput = document.getElementById('p-user-name-input');
   const userTitleEl = document.getElementById('p-user-title');
   const statChaptersEl = document.getElementById('p-stat-chapters');
+  const statChallengesEl = document.getElementById('p-stat-challenges');
   const statStreakEl = document.getElementById('p-stat-streak');
   const statBadgesEl = document.getElementById('p-stat-badges');
   const progressTextEl = document.getElementById('p-progress-text');
@@ -611,6 +617,7 @@
     if (nameInput) nameInput.value = currentName;
     if (userTitleEl) userTitleEl.textContent = stats.title;
     if (statChaptersEl) statChaptersEl.textContent = `${stats.completedCount} / ${stats.totalChapters}`;
+    if (statChallengesEl) statChallengesEl.textContent = `${stats.challengesCount} / ${stats.totalChapters}`;
     if (statStreakEl) statStreakEl.textContent = `${streak.streak} Hari`;
     if (statBadgesEl) statBadgesEl.textContent = `${badges.filter((b) => b.isUnlocked).length} / ${badges.length}`;
     if (progressTextEl) progressTextEl.textContent = `${stats.percentage}%`;

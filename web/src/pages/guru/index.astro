@@ -1,0 +1,500 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { fase1Chapters } from '../../data/fase1.js';
+import { fase2Chapters } from '../../data/fase2.js';
+
+const base = import.meta.env.BASE_URL;
+
+const pageTitle = 'Ruang Guru & Pengajar Informatika — Belajar Python Bareng Pyto';
+const pageDesc = 'Panduan mengajar koding Python di sekolah, silabus 20 pertemuan, pemetaan Capaian Pembelajaran (CP) Kurikulum Merdeka, dan modul lab komputer tanpa instalasi.';
+---
+
+<BaseLayout title={pageTitle} description={pageDesc}>
+  <div class="guru-page">
+    <!-- Top Action Bar -->
+    <div class="guru-topbar no-print">
+      <div class="container guru-topbar__inner">
+        <a href={`${base}/`} class="btn btn-secondary guru-back-btn">
+          ← Kembali ke Beranda
+        </a>
+        <div class="guru-topbar__actions">
+          <a href={`${base}/cheatsheet/`} class="btn btn-secondary">
+            📋 Lembar Cheatsheet A4
+          </a>
+          <button type="button" class="btn btn-primary" onclick="window.print()">
+            🖨️ Cetak Panduan Guru
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <main class="container guru-main">
+      <!-- Hero Guru -->
+      <section class="guru-hero">
+        <span class="guru-badge">🏫 Portal Edukator & Guru Informatika</span>
+        <h1 class="guru-hero__title">
+          Bawa Koding Python ke Ruang Kelas <span class="text-green">Tanpa Kendala Teknis!</span>
+        </h1>
+        <p class="guru-hero__subtitle">
+          Dirancang khusus untuk mendukung implementasi Kurikulum Merdeka (Permendikdasmen No. 13 Tahun 2025). 
+          Materi ajar Python interaktif yang berjalan 100% di browser sekolah tanpa repot menginstal software.
+        </p>
+
+        <div class="guru-hero__badges no-print">
+          <div class="gh-pill">✅ 100% Gratis Tanpa Batas</div>
+          <div class="gh-pill">✅ Zero Install (Browser WASM)</div>
+          <div class="gh-pill">✅ Ramah Privasi Murid (Tanpa Akun)</div>
+          <div class="gh-pill">✅ Bahasa Indonesia Alami</div>
+        </div>
+      </section>
+
+      <!-- 4 Alasan Memakai Pyto di Lab Komputer -->
+      <section class="guru-section">
+        <h2 class="guru-section__title">💡 Mengapa Pyto Solusi Ideal untuk Lab Sekolah?</h2>
+        <div class="guru-cards-grid">
+          <div class="guru-card">
+            <span class="guru-card__icon">🖥️</span>
+            <h3>Bebas Izin Administrator Lab</h3>
+            <p>
+              Sering terkendala izin install file <code>.exe</code> di PC lab sekolah? Pyto ditenagai WebAssembly (Pyodide), sehingga Python dijalankan langsung di browser seperti Chrome, Edge, atau Firefox.
+            </p>
+          </div>
+          <div class="guru-card">
+            <span class="guru-card__icon">🔒</span>
+            <h3>Perlindungan Privasi Anak</h3>
+            <p>
+              Tidak memerlukan pendaftaran email, password, atau nomor telepon siswa. Seluruh progres belajar, streak, dan kode tersimpan di browser lokal masing-masing perangkat.
+            </p>
+          </div>
+          <div class="guru-card">
+            <span class="guru-card__icon">🎯</span>
+            <h3>Evaluasi Kode Otomatis</h3>
+            <p>
+              Tiap bab dilengkapi <strong>Misi Tantangan Kode</strong> yang diuji otomatis oleh Pyto. Guru tidak perlu memeriksa baris kode puluhan siswa satu per satu untuk latihan dasar.
+            </p>
+          </div>
+          <div class="guru-card">
+            <span class="guru-card__icon">🏆</span>
+            <h3>Kartu Prestasi Siap Pamer</h3>
+            <p>
+              Siswa dapat mengunduh kartu prestasi visual (*Brag Card*) atau menunjukkan status lencana di akhir sesi sebagai bukti asesmen formatif yang menyenangkan.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pemetaan CP Kurikulum Merdeka -->
+      <section class="guru-section">
+        <h2 class="guru-section__title">📚 Penyelarasan Capaian Pembelajaran (CP) Informatika</h2>
+        <p class="guru-section__desc">
+          Materi 20 Bab Pyto memetakan 4 elemen utama mata pelajaran Informatika fase D (SMP) dan fase E/F (SMA/SMK):
+        </p>
+
+        <div class="cp-table-wrap">
+          <table class="cp-table">
+            <thead>
+              <tr>
+                <th style="width: 25%;">Elemen Capaian</th>
+                <th style="width: 35%;">Konsep & Keterampilan</th>
+                <th style="width: 40%;">Bab Terkait di Pyto</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Berpikir Komputasional (BK)</strong></td>
+                <td>Dekomposisi masalah, abstraksi pola, logika keputusan, perulangan, dan pemecahan bug (*debugging*).</td>
+                <td>Bab 6 (Percabangan if), Bab 7 (Perulangan for/while), Bab 9 (Debugging & Error), Bab 18 (Pola Regex).</td>
+              </tr>
+              <tr>
+                <td><strong>Algoritma & Pemrograman (AP)</strong></td>
+                <td>Sintaks bahasa tingkat tinggi, variabel, tipe data, input-output, struktur data list & kamus, modularisasi fungsi.</td>
+                <td>Bab 1 s.d. 5 (Dasar & Input), Bab 8 (List), Bab 10 (Mini Proyek), Bab 11 (Dictionary), Bab 12 (Fungsi def), Bab 19 (Game Teks).</td>
+              </tr>
+              <tr>
+                <td><strong>Analisis Data (AD)</strong></td>
+                <td>Pengambilan data format standar (JSON), pembersihan data tabel (Excel), agregasi data, dan visualisasi grafik.</td>
+                <td>Bab 12 (Data JSON API), Bab 15 (Otomasi Excel openpyxl), Bab 20 (Visualisasi Grafik Matplotlib).</td>
+              </tr>
+              <tr>
+                <td><strong>Dampak Sosial Informatika (DSI)</strong></td>
+                <td>Keamanan siber, pembuatan kata sandi kuat, etika kueri data internet, dan pemanfaatan kode QR.</td>
+                <td>Bab 12 (Etika API), Bab 14 (Standar QR Code), Bab 16 (Kriptografi & Penguji Kata Sandi).</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Silabus 20 Pertemuan Kelas -->
+      <section class="guru-section">
+        <h2 class="guru-section__title">🗓️ Silabus & Rencana Pelaksanaan Kelas (20 Sesi)</h2>
+        <p class="guru-section__desc">
+          Rancangan dapat dipakai untuk 1 semester (20 pekan @ 2 JP) atau kegiatan ekstrakurikuler koding:
+        </p>
+
+        <!-- Fase 1 Table -->
+        <h3 class="phase-subtitle">Fase 1: Fondasi Logika & Pemrograman (Pertemuan 1 – 10)</h3>
+        <div class="cp-table-wrap">
+          <table class="cp-table">
+            <thead>
+              <tr>
+                <th style="width: 10%;">Sesi</th>
+                <th style="width: 25%;">Topik Bab</th>
+                <th style="width: 40%;">Aktivitas Pembelajaran Lab</th>
+                <th style="width: 25%;">Karya / Bukti Belajar</th>
+              </tr>
+            </thead>
+            <tbody>
+              {fase1Chapters.map((ch) => (
+                <tr>
+                  <td><strong>Pertemuan {ch.number}</strong></td>
+                  <td>{ch.emoji} {ch.title}</td>
+                  <td>{ch.blurb}</td>
+                  <td>Misi Tantangan #{ch.number} & Checklist Selesai</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Fase 2 Table -->
+        <h3 class="phase-subtitle" style="margin-top: 36px;">Fase 2: Proyek Terapan & Pustaka Industri (Pertemuan 11 – 20)</h3>
+        <div class="cp-table-wrap">
+          <table class="cp-table">
+            <thead>
+              <tr>
+                <th style="width: 10%;">Sesi</th>
+                <th style="width: 25%;">Topik Bab</th>
+                <th style="width: 40%;">Aktivitas Pembelajaran Lab</th>
+                <th style="width: 25%;">Karya / Bukti Belajar</th>
+              </tr>
+            </thead>
+            <tbody>
+              {fase2Chapters.map((ch) => (
+                <tr>
+                  <td><strong>Pertemuan {ch.number}</strong></td>
+                  <td>{ch.emoji} {ch.title}</td>
+                  <td>{ch.blurb}</td>
+                  <td>Misi Tantangan #{ch.number} & Hasil Unduhan Proyek</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Rekomendasi Format Asesmen Praktik -->
+      <section class="guru-section">
+        <h2 class="guru-section__title">📝 Panduan Asesmen Formatif & Portofolio Siswa</h2>
+        <div class="guru-assessment-box">
+          <ol>
+            <li>
+              <strong>Cek Keaktifan Mandiri:</strong> Minta siswa memperlihatkan ikon api streak di pojok kanan atas browser (menandakan siswa konsisten berlatih di sekolah maupun di rumah).
+            </li>
+            <li>
+              <strong>Penyelesaian Misi Tantangan:</strong> Tiap bab memiliki Misi Tantangan berkode hijau `✅ Tuntas!` setelah kode diverifikasi mesin uji Pyto.
+            </li>
+            <li>
+              <strong>Ekspor Portofolio Kartu Prestasi (*Brag Card*):</strong> Di akhir semester atau bab 20, siswa dapat menekan tombol `🎒 Tas Petualang` $\rightarrow$ `📥 Unduh Kartu Prestasi (PNG)` untuk dikumpulkan sebagai bukti portofolio tugas akhir.
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- Footer Guru -->
+      <footer class="guru-footer no-print">
+        <p>
+          Ada pertanyaan atau butuh penyesuaian materi untuk sekolah Anda? 
+          Repositori ini bersifat *open-source* di <a href="https://github.com/andhikapp28/pyto" target="_blank" rel="noopener">GitHub andhikapp28/pyto</a>.
+        </p>
+      </footer>
+    </main>
+  </div>
+</BaseLayout>
+
+<style>
+  .guru-page {
+    background: #f8fafc;
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+
+  .guru-topbar {
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 14px 0;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .guru-topbar__inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .guru-topbar__actions {
+    display: flex;
+    gap: 12px;
+  }
+
+  .guru-main {
+    max-width: 1040px;
+    margin: 36px auto 0;
+    padding: 0 16px;
+  }
+
+  .guru-hero {
+    background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 36px;
+    margin-bottom: 40px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  }
+
+  .guru-badge {
+    display: inline-block;
+    background: #ecfdf5;
+    color: #059669;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 999px;
+    border: 1px solid #a7f3d0;
+    margin-bottom: 14px;
+  }
+
+  .guru-hero__title {
+    margin: 0 0 14px;
+    font-size: 32px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.25;
+  }
+
+  .text-green {
+    color: var(--pyto-green, #2fbf71);
+  }
+
+  .guru-hero__subtitle {
+    margin: 0 0 24px;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #475569;
+    max-width: 800px;
+  }
+
+  .guru-hero__badges {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .gh-pill {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 8px;
+  }
+
+  .guru-section {
+    margin-bottom: 44px;
+  }
+
+  .guru-section__title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 10px;
+  }
+
+  .guru-section__desc {
+    font-size: 15px;
+    color: #64748b;
+    margin: 0 0 20px;
+  }
+
+  .guru-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .guru-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
+
+  .guru-card__icon {
+    font-size: 32px;
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+
+  .guru-card h3 {
+    margin: 0 0 8px;
+    font-size: 17px;
+    font-weight: 700;
+    color: #1e293b;
+  }
+
+  .guru-card p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #475569;
+  }
+
+  .phase-subtitle {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 16px 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cp-table-wrap {
+    overflow-x: auto;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
+
+  .cp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    text-align: left;
+  }
+
+  .cp-table th,
+  .cp-table td {
+    padding: 12px 18px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .cp-table th {
+    background: #f1f5f9;
+    color: #1e293b;
+    font-weight: 700;
+  }
+
+  .cp-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .cp-table tr:hover td {
+    background: #f8fafc;
+  }
+
+  .guru-assessment-box {
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    border-radius: 12px;
+    padding: 20px 24px;
+  }
+
+  .guru-assessment-box ol {
+    margin: 0;
+    padding-left: 20px;
+    color: #065f46;
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+
+  .guru-assessment-box li {
+    margin-bottom: 8px;
+  }
+
+  .guru-assessment-box strong {
+    color: #047857;
+  }
+
+  .guru-footer {
+    text-align: center;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 24px;
+    color: #64748b;
+    font-size: 14px;
+  }
+
+  .guru-footer a {
+    color: var(--pyto-green, #2fbf71);
+    font-weight: 600;
+  }
+
+  @media print {
+    @page {
+      margin: 12mm;
+      size: A4 portrait;
+    }
+
+    body {
+      background: #ffffff !important;
+      color: #000000 !important;
+    }
+
+    .no-print,
+    .guru-topbar,
+    #site-nav,
+    footer,
+    .pyto-modal-overlay {
+      display: none !important;
+    }
+
+    .guru-page {
+      background: transparent !important;
+      padding: 0 !important;
+    }
+
+    .guru-main {
+      margin: 0 !important;
+      max-width: 100% !important;
+    }
+
+    .guru-hero {
+      padding: 16px !important;
+      margin-bottom: 20px !important;
+      border: 1px solid #94a3b8 !important;
+      box-shadow: none !important;
+    }
+
+    .guru-hero__title {
+      font-size: 20pt !important;
+    }
+
+    .guru-cards-grid {
+      grid-template-columns: 1fr 1fr !important;
+      gap: 12px !important;
+    }
+
+    .cp-table th,
+    .cp-table td {
+      padding: 8px 12px !important;
+      font-size: 9pt !important;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .guru-cards-grid {
+      grid-template-columns: 1fr;
+    }
+    .guru-hero {
+      padding: 24px;
+    }
+    .guru-hero__title {
+      font-size: 24px;
+    }
+  }
+</style>
