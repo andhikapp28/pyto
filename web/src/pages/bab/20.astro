@@ -63,7 +63,7 @@ const glossaryTerms = [
     term: '.get(label, cadangan)',
     def: 'Cara aman mengambil ATAU menambah isi dictionary — kalau labelnya belum ada, dipakai nilai cadangan dulu, tanpa KeyError.',
   },
-  { term: 'matplotlib', def: 'Perpustakaan Python paling terkenal untuk menggambar grafik dari data.' },
+  { term: 'matplotlib', def: 'Pustaka (library) Python paling terkenal untuk menggambar grafik visual dari data.' },
   {
     term: 'pyplot (plt)',
     def: 'Bagian dari matplotlib yang paling sering dipakai untuk menggambar grafik — kebiasaan menyingkatnya jadi plt.',
@@ -83,12 +83,12 @@ const glossaryTerms = [
 
 <ChapterLayout
   currentChapter={20}
-  description="Bab 20: Kalkulator Keuangan Mini — capstone penutup Fase 2. Catat transaksi lewat dictionary, tampilkan ringkasan keuangan, dan gambar grafik pengeluaran sungguhan pakai matplotlib, ditemani Pyto si robot ular."
+  description="Bab 20: Aplikasi Keuangan & Visualisasi Data — capstone proyek penutup Fase 2. Catat arus kas via dictionary dan visualisasikan grafik dengan matplotlib bersama Pyto."
 >
   <ChapterHero
     number={20}
-    title="Kalkulator Keuangan Mini 💰"
-    tagline={'Catat uang jajanmu lewat <code>dictionary</code>, lalu gambar grafik pengeluarannya pakai <code>matplotlib</code> — penutup <strong>seluruh Fase 2</strong>.'}
+    title="Aplikasi Keuangan & Visualisasi Data 💰"
+    tagline={'Catat arus kas keuangan lewat <code>dictionary</code>, lalu visualisasikan grafik pengeluaran pakai <code>matplotlib</code> — karya penutup <strong>seluruh Fase 2</strong>.'}
   >
     <PytoWalletHero slot="mascot" />
   </ChapterHero>
@@ -106,7 +106,7 @@ const glossaryTerms = [
     </p>
     <p>
       Tapi ada satu hal yang benar-benar baru di bab ini — dan ini yang bikin bab ini istimewa
-      sebagai penutup: kamu akan memakai <code>matplotlib</code>, perpustakaan Python paling
+      sebagai penutup: kamu akan memakai <code>matplotlib</code>, pustaka (library) Python paling
       terkenal di dunia nyata untuk menggambar grafik. Ini kali PERTAMA di seluruh buku ini (Fase 1
       maupun Fase 2) kamu menggambar grafik dari data sungguhan, bukan cuma mencetak angka ke
       layar. Anggap ini hadiah penutup Fase 2: kamu akan pulang membawa kalkulator keuangan
@@ -300,8 +300,8 @@ for kategori, total in kategori_pengeluaran.items():
     <p>
       Sekarang bagian yang benar-benar baru. Data yang sudah rapi di
       <code>kategori_pengeluaran</code> sayang kalau cuma jadi baris teks — mari ubah jadi grafik
-      batang sungguhan, pakai <code>matplotlib</code>, perpustakaan menggambar grafik paling
-      dipakai di dunia Python nyata (dipakai peneliti, jurnalis data, sampai perusahaan besar):
+      batang sungguhan, pakai <code>matplotlib</code>, pustaka menggambar grafik paling
+      banyak dipakai di dunia Python nyata (dipakai peneliti, analis data, sampai perusahaan teknologi):
     </p>
     <CodeBlock
       code={`import matplotlib.pyplot as plt
@@ -323,8 +323,8 @@ plt.ylabel("Jumlah (Rp)")`}
     <ul>
       <li>
         <code>import matplotlib.pyplot as plt</code> — sama seperti <code>import random</code> di
-        Bab 10, ini "memanggil" kotak alat tambahan. <code>matplotlib</code> sendiri artinya
-        "matematika plot library" (perpustakaan gambar-plot matematika), dan <code>pyplot</code>
+        Bab 10, ini memanggil modul pustaka tambahan. <code>matplotlib</code> sendiri artinya
+        "matematika plot library" (pustaka visualisasi grafik matematika), dan <code>pyplot</code>
         adalah bagian di dalamnya yang paling sering dipakai — kebiasaan programmer di seluruh
         dunia menyingkatnya jadi <code>plt</code>.
       </li>

@@ -53,12 +53,12 @@ const glossaryTerms = [
 
 <ChapterLayout
   currentChapter={16}
-  description="Bab 16: Agen Rahasia Pyto (Kode Rahasia & Keamanan Kata Sandi) — bikin dan pecahkan sandi Caesar pakai ord()/chr(), sekaligus belajar kenapa kata sandi seperti '123456' itu ide buruk, ditemani Pyto si robot ular."
+  description="Bab 16: Kriptografi & Keamanan Sandi — bikin dan pecahkan sandi Caesar dengan ord()/chr(), sekaligus menguji ketahanan kata sandi bersama Pyto si robot detektif."
 >
   <ChapterHero
     number={16}
-    title="Agen Rahasia Pyto 🕵️"
-    tagline={'Bikin & pecahkan sandi rahasia ala agen mata-mata pakai Python, sekaligus belajar kenapa kata sandi seperti <code>"123456"</code> itu sama saja dengan pintu markas yang dibiarkan terbuka.'}
+    title="Kriptografi & Keamanan Sandi 🕵️"
+    tagline={'Bikin & pecahkan sandi rahasia klasik Caesar cipher pakai Python, sekaligus belajar membangun sistem penguji kata sandi yang aman.'}
   >
     <PytoSecretAgentHero slot="mascot" />
   </ChapterHero>
@@ -93,7 +93,7 @@ const glossaryTerms = [
       Sandi rahasia paling klasik di dunia namanya <strong>sandi Caesar</strong> — caranya
       sederhana: geser tiap huruf sejauh N langkah di alfabet. Kalau geserannya 3, <code>A</code>
       jadi <code>D</code>, <code>B</code> jadi <code>E</code>, dan seterusnya. Ini kodenya,
-      dibungkus jadi satu fungsi (mantra dari Bab 12) supaya bisa dipakai ulang untuk pesan apa
+      dibungkus jadi satu fungsi (seperti yang kita pelajari di Bab 12) supaya bisa dipakai ulang untuk pesan apa
       pun:
     </p>
     <div class="chapter-media">

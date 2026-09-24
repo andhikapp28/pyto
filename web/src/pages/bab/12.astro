@@ -32,8 +32,8 @@ const kotaList = [
 const rangkuman = [
   '<strong>API</strong> adalah cara meminta data dari layanan online lain dengan sopan, seperti memesan ke pelayan restoran.',
   'Data yang dibalas biasanya berformat <strong>JSON</strong> — begitu diambil lewat <code>.json()</code> di Python, otomatis jadi <code>dictionary</code> biasa (Bab 11).',
-  '<code>def nama_mantra(parameter):</code> membungkus kode jadi mantra yang bisa dipanggil ulang tanpa menulis ulang — <code>return</code> mengirim balik hasilnya.',
-  '<code>async</code>/<code>await</code> adalah kata tambahan yang dibutuhkan khusus untuk mantra yang menunggu jawaban dari internet.',
+  '<code>def nama_fungsi(parameter):</code> membungkus kode jadi fungsi siap pakai yang bisa dipanggil ulang tanpa menulis ulang — <code>return</code> mengirim balik hasilnya.',
+  '<code>async</code>/<code>await</code> adalah kata tambahan yang dibutuhkan khusus untuk fungsi yang menunggu jawaban dari internet.',
   'Tidak semua situs mengizinkan diminta datanya dari browser — aturan ini namanya <strong>CORS</strong>. Pakai API yang memang ramah-CORS seperti Open-Meteo.',
   'Sekali polanya dipahami (fetch → <code>.json()</code> → dictionary), kamu bisa "ngobrol" dengan API ramah-CORS lain juga.',
 ];
@@ -42,7 +42,7 @@ const glossaryTerms = [
   { term: 'API', def: 'Cara sebuah layanan online membagikan datanya ke program lain lewat permintaan (request) dan balasan (response).' },
   { term: 'JSON', def: 'Format data yang dipakai kebanyakan API — begitu diambil di Python, berubah jadi dictionary.' },
   { term: 'pyfetch', def: 'Perintah Pyodide untuk mengirim permintaan data ke internet.' },
-  { term: 'def', def: 'Kata kunci untuk membuat fungsi (mantra) baru yang bisa dipanggil ulang.' },
+  { term: 'def', def: 'Kata kunci untuk membuat fungsi (function) baru yang bisa dipanggil ulang seperti resep otomatis.' },
   { term: 'Parameter', def: 'Bahan/masukan yang dibutuhkan sebuah fungsi, ditulis di dalam kurung setelah nama fungsinya.' },
   { term: 'return', def: 'Kata kunci di dalam fungsi untuk mengirim balik hasil, supaya bisa ditampung variabel di luar fungsi.' },
   { term: 'CORS', def: 'Aturan yang menentukan situs mana yang boleh diminta datanya dari browser lain.' },
@@ -51,12 +51,12 @@ const glossaryTerms = [
 
 <ChapterLayout
   currentChapter={12}
-  description="Bab 12: Data dari Internet (API & JSON) — belajar mengambil data cuaca sungguhan dari Open-Meteo lewat pyfetch, JSON yang jadi dictionary, dan membungkus kode jadi fungsi pakai def, ditemani Pyto si robot ular."
+  description="Bab 12: Mengambil Data Internet (API & JSON) — belajar mengambil data cuaca sungguhan dari Open-Meteo lewat pyfetch, format JSON, dan fungsi buatan sendiri pakai def bersama Pyto."
 >
   <ChapterHero
     number={12}
-    title="Data dari Internet 🌐"
-    tagline={'Banyak website mau membagikan data GRATIS — cuaca, kutipan, bahkan foto anjing acak — asal kamu tahu cara memintanya dengan sopan lewat <strong>API</strong>.'}
+    title="Mengambil Data Internet (API & JSON) 🌐"
+    tagline={'Banyak website mau membagikan data GRATIS — cuaca, kutipan, bahkan foto satelit — asal kamu tahu cara memintanya dengan sopan lewat <strong>API</strong>.'}
   >
     <PytoInternetWindowHero slot="mascot" />
   </ChapterHero>
@@ -90,17 +90,17 @@ const glossaryTerms = [
   </section>
 
   <section data-reveal>
-    <h2>Bungkus Jadi Mantra Sendiri, Pakai <code>def</code></h2>
+    <h2>Bungkus Jadi Fungsi Sendiri, Pakai <code>def</code></h2>
     <p>
       Sedikit disinggung di Bab 10 — sekarang saatnya <code>def</code> beraksi sungguhan. Daripada
       menulis ulang kode pengambilan cuaca tiap kali ganti kota, kita bungkus jadi
-      <strong>mantra sendiri</strong> yang bisa dipanggil ulang berkali-kali:
+      <strong>fungsi sendiri</strong> yang bisa dipanggil ulang berkali-kali layaknya resep otomatis:
     </p>
     <div class="chapter-media">
       <DefWrapperDemo />
     </div>
     <p>
-      <code>def ambil_cuaca(lintang, bujur):</code> artinya: "buat mantra baru bernama
+      <code>def ambil_cuaca(lintang, bujur):</code> artinya: "buat fungsi baru bernama
       <code>ambil_cuaca</code>, yang butuh dua bahan (<strong>parameter</strong>) — koordinat
       lintang dan bujur." Baris <code>return data["current_weather"]</code> artinya: "kirim balik
       hasilnya, supaya bisa ditampung ke variabel di luar." Sekarang, mau tanya cuaca kota mana pun,
@@ -113,11 +113,10 @@ const glossaryTerms = [
     <span class="pyto-quote-box__mascot" role="img" aria-label="Pyto">🐍</span>
     <p class="pyto-quote-box__text">
       "Perhatikan ada kata <code>async</code> sebelum <code>def</code>, dan <code>await</code>
-      sebelum <code>pyfetch(...)</code>. Itu kata sihir khusus yang Python butuhkan tiap kali
-      sebuah mantra harus <strong>menunggu jawaban dari internet</strong> — jangan terlalu dipikirkan
+      sebelum <code>pyfetch(...)</code>. Itu kata kunci khusus yang Python butuhkan tiap kali
+      sebuah fungsi harus <strong>menunggu balasan dari internet</strong> — jangan terlalu dipikirkan
       dulu, cukup ikuti polanya persis seperti contoh. Yang penting kamu pahami dulu:
-      <code>def</code> membungkus kode jadi mantra yang bisa dipanggil ulang, itu sudah cukup untuk
-      sekarang!"
+      <code>def</code> membungkus barisan kode jadi satu fungsi rapi yang bisa dipanggil berulang kali, itu sudah keren banget!"
     </p>
   </section>
 
@@ -201,7 +200,7 @@ print(f"Kecepatan angin: {cuaca['windspeed']} km/jam")
 `}
       notes={[
         '✏️ Ganti angka koordinatnya dengan kota lain dari tabel di "Main Yuk", atau tambah baris <code>print(cuaca[\'winddirection\'])</code> untuk melihat arah anginnya juga!',
-        '🎉 Kalau layar menampilkan suhu dan kecepatan angin sungguhan — kamu baru saja bikin program yang "ngobrol" dengan internet, pakai mantra bikinanmu sendiri!',
+        '🎉 Kalau layar menampilkan suhu dan kecepatan angin sungguhan — kamu baru saja bikin program yang "ngobrol" dengan internet, pakai fungsi bikinanmu sendiri!',
       ]}
     />
   </section>

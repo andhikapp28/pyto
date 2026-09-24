@@ -50,12 +50,12 @@ const glossaryTerms = [
 
 <ChapterLayout
   currentChapter={15}
-  description="Bab 15: Asisten Kantor Kilat (Excel & PDF Sederhana) — upload file Excel sungguhan, olah datanya, lalu unduh hasilnya yang rapi, ditemani Pyto si robot ular."
+  description="Bab 15: Otomasi File Excel & PDF — upload file Excel sungguhan, filter dan olah ribuan baris data otomatis dengan openpyxl, ditemani Pyto si robot ular."
 >
   <ChapterHero
     number={15}
-    title="Asisten Kantor Kilat 📊"
-    tagline={'Capek buka Excel manual tiap bulan? Ajari Pyto sekali lewat kode, dan dia akan merapikannya berkali-kali tanpa capek.'}
+    title="Otomasi File Excel & PDF 📊"
+    tagline={'Capek buka dan rekap file Excel manual? Ajari program sekali lewat kode Python, dan biarkan komputer merapikan datanya secara otomatis.'}
   >
     <PytoOfficeHero slot="mascot" />
   </ChapterHero>
@@ -124,7 +124,7 @@ const glossaryTerms = [
       satu baris per barang laris. Tiga baris terakhir (<code>buf = io.BytesIO()</code>,
       <code>buku_baru.save(buf)</code>, <code>hasil = buf.getvalue()</code>) itu
       <strong>resep tetap</strong> yang selalu sama tiap kali mau menyiapkan file Excel untuk
-      diunduh — anggap saja mantra penutup wajib.
+      diunduh — langkah penutup yang standar di Python.
     </p>
   </section>
 
