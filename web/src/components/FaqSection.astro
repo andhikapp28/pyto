@@ -1,0 +1,132 @@
+---
+// Komponen FAQ (Tanya Jawab) untuk mengoptimalkan SEO On-Page dan menjaring
+// pencarian berniat tinggi di Indonesia (belajar python pemula, tanpa instalasi,
+// tutorial python bahasa indonesia gratis, untuk anak/sekolah).
+export const faqs = [
+  {
+    q: 'Apakah website Belajar Python Bareng Pyto ini benar-benar gratis?',
+    a: 'Ya, 100% gratis selamanya! Seluruh 20 bab materi kurikulum (Fase 1 Python Dasar & Fase 2 Python Lanjutan), editor koding interaktif, kuis latihan, dan sistem lencana petualang dapat diakses siapa saja tanpa biaya langganan dan tanpa perlu mendaftar atau login.',
+  },
+  {
+    q: 'Apakah saya perlu menginstal Python di laptop atau komputer saya?',
+    a: 'Sama sekali tidak perlu! Website ini menggunakan teknologi Pyodide (Python yang dikompilasi ke WebAssembly) yang berjalan langsung di dalam peramban webmu. Kamu bisa langsung mengetik kode, menekan tombol Jalankan, dan melihat hasilnya seketika di laptop, PC, tablet, maupun smartphone.',
+  },
+  {
+    q: 'Apakah materi ini cocok untuk anak sekolah, pemula, atau orang yang belum pernah ngoding?',
+    a: 'Sangat cocok! Materi dirancang bertahap dari nol menggunakan bahasa Indonesia yang santai, analogi ramah dunia nyata (seperti kotak ajaib untuk variabel dan rak berlabel untuk list/kamus), serta ditemani Pyto si robot ular. Sangat ideal untuk pelajar SD, SMP, SMA, mahasiswa pemula, maupun guru informatika sebagai bahan ajar di sekolah.',
+  },
+  {
+    q: 'Materi apa saja yang dipelajari dalam 20 bab ini?',
+    a: 'Fase 1 (Bab 1–10) membahas pondasi: print, variabel, input interaktif, hitungan angka, percabangan logika if/else, perulangan loop for & while, struktur data list, penanganan pesan error, dan proyek mini game tebak angka. Fase 2 (Bab 11–20) membahas aplikasi nyata: dictionary, koneksi API internet cuaca, manipulasi foto (Pillow), generator kode QR untuk HP, otomasi spreadsheet Excel, keamanan kata sandi & enkripsi Caesar, seni grafis koordinat, pengenalan pola teks (Regex), hingga kalkulator keuangan mini bergrafik.',
+  },
+  {
+    q: 'Bagaimana progres belajar dan lencana petualang saya disimpan?',
+    a: 'Progres bab yang telah selesai, streak harian, dan lencana petualang tersimpan otomatis di perangkatmu menggunakan fitur penyimpanan lokal browser (localStorage). Tidak ada data pribadi yang dikumpulkan atau dikirim ke server luar, sehingga sangat aman dan privat.',
+  },
+];
+---
+
+<section class="faq-section" id="faq">
+  <div class="container">
+    <div class="section-head" data-reveal>
+      <span class="badge">❓ Tanya Jawab</span>
+      <h2>Pertanyaan yang Sering Diajukan</h2>
+      <p>Punya pertanyaan seputar cara belajar Python di sini? Temukan jawaban lengkapnya di bawah ini.</p>
+    </div>
+
+    <div class="faq-list">
+      {
+        faqs.map((item) => (
+          <details class="faq-item card" data-reveal>
+            <summary class="faq-item__question">
+              <span class="faq-item__qtext">{item.q}</span>
+              <span class="faq-item__icon" aria-hidden="true">▾</span>
+            </summary>
+            <div class="faq-item__answer">
+              <p>{item.a}</p>
+            </div>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq-section {
+    background: var(--cloud);
+    padding-block: var(--section-spacing);
+  }
+
+  .faq-list {
+    max-width: 820px;
+    margin-inline: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .faq-item {
+    background: var(--white);
+    padding: 0;
+    overflow: hidden;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .faq-item[open] {
+    box-shadow: 0 6px 20px rgba(30, 42, 50, 0.08);
+  }
+
+  .faq-item__question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 24px;
+    font-family: var(--font-heading);
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--ink);
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+  }
+
+  .faq-item__question::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq-item__icon {
+    font-size: 20px;
+    color: var(--pyto-green-dark);
+    transition: transform 0.2s ease;
+  }
+
+  .faq-item[open] .faq-item__icon {
+    transform: rotate(180deg);
+  }
+
+  .faq-item__answer {
+    padding: 0 24px 22px;
+    color: var(--ink);
+    font-size: 16px;
+    line-height: 1.7;
+    border-top: 1px solid rgba(0, 0, 0, 0.04);
+  }
+
+  .faq-item__answer p {
+    margin: 12px 0 0;
+    color: var(--slate);
+  }
+
+  @media (max-width: 600px) {
+    .faq-item__question {
+      font-size: 17px;
+      padding: 16px 18px;
+    }
+
+    .faq-item__answer {
+      padding: 0 18px 18px;
+    }
+  }
+</style>

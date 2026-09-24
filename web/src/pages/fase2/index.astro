@@ -12,11 +12,52 @@ import { fase2Meta, fase2Chapters } from '../../data/fase2.js';
 const base = import.meta.env.BASE_URL;
 const pembuka = fase2Chapters.filter((c) => c.group === 'pembuka');
 const susulan = fase2Chapters.filter((c) => c.group === 'susulan');
+
+const siteUrl = Astro.site ? Astro.site.origin : 'https://andhikapp28.github.io';
+const canonicalHref = `${siteUrl}${base}/fase2/`;
+const pageTitle = 'Fase 2: Python Lanjutan (Bab 11–20) — Proyek Nyata & Interaktif | Belajar Python Bareng Pyto';
+const pageDesc = 'Pelajari 10 bab Python lanjutan: manipulasi dictionary, ambil data API internet, edit foto dengan Pillow, generator QR code HP, otomasi Excel, hingga grafik keuangan.';
+
+const breadcrumbLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Beranda',
+      item: `${siteUrl}${base}/`,
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Fase 2: Python Lanjutan',
+      item: canonicalHref,
+    },
+  ],
+};
+
+const courseLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Course',
+  name: 'Python Lanjutan (Fase 2) — Belajar Python Bareng Pyto',
+  description: pageDesc,
+  provider: {
+    '@type': 'Organization',
+    name: 'Belajar Python Bareng Pyto',
+    url: `${siteUrl}${base}/`,
+  },
+  isAccessibleForFree: true,
+  inLanguage: 'id',
+  educationalLevel: 'Intermediate',
+  url: canonicalHref,
+};
 ---
 
 <BaseLayout
-  title={`${fase2Meta.label} — Semua 10 Bab Sudah Bisa Dicoba — Belajar Python Bareng Pyto`}
-  description={`Semua ${fase2Meta.count} bab lanjutan Python (${fase2Meta.name}) sudah bisa dicoba sekarang — Fase 2 resmi selesai.`}
+  title={pageTitle}
+  description={pageDesc}
+  jsonLd={[breadcrumbLd, courseLd]}
 >
   <Nav />
   <main>
@@ -27,7 +68,7 @@ const susulan = fase2Chapters.filter((c) => c.group === 'susulan');
         <span class="fase2-hero__mascot" role="img" aria-label="Pyto merayakan Fase 2 yang sudah selesai">
           🐍🎉
         </span>
-        <h1>Semua 10 Bab Sudah Bisa Dicoba!</h1>
+        <h1>Fase 2: Python Lanjutan — Dari Kode Jadi Proyek Nyata!</h1>
         <p class="fase2-hero__tagline">
           Kamu sudah menyelesaikan 10 bab dasar — keren banget! Pyto sudah menyiapkan
           <strong>{fase2Meta.count} bab lanjutan</strong> yang menghasilkan sesuatu yang beneran

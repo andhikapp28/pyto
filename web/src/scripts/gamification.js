@@ -219,9 +219,9 @@ export function getProgressStats() {
 
   let title = 'Pemula Penasaran';
   if (count >= 20) {
-    title = 'Master Python Cilik 🏆';
+    title = 'Master Python 🏆';
   } else if (count >= 15) {
-    title = 'Penyihir Kode Senior 🧙‍♂️';
+    title = 'Pakar Python Kreatif 🚀';
   } else if (count >= 10) {
     title = 'Penjelajah Tangguh ⚔️';
   } else if (count >= 5) {

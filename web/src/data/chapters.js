@@ -7,19 +7,11 @@
 // adanya dari `data/fase2.js` (satu sumber, jangan diketik ulang beda kata).
 // Bab 11-20 sekarang SEMUANYA sudah punya halaman sungguhan (lihat
 // AVAILABLE_CHAPTERS) -- Fase 2 selesai.
+import { fase1Chapters } from './fase1.js';
 import { fase2Chapters } from './fase2.js';
 
 export const chapters = [
-  { number: 1, title: 'Kenalan dengan Python' },
-  { number: 2, title: 'Menyapa Dunia (print)' },
-  { number: 3, title: 'Kotak Ajaib (Variabel)' },
-  { number: 4, title: 'Ngobrol dengan Komputer (input)' },
-  { number: 5, title: 'Angka & Hitung-hitungan' },
-  { number: 6, title: 'Kalau Begini Maka Begitu (if)' },
-  { number: 7, title: 'Ulang-ulang (Loop)' },
-  { number: 8, title: 'Kumpulan Barang (List sederhana)' },
-  { number: 9, title: 'Salah itu Wajar (Error)' },
-  { number: 10, title: 'Proyek Seru' },
+  ...fase1Chapters.map((c) => ({ number: c.number, title: c.title })),
   ...fase2Chapters.map((c) => ({ number: c.number, title: c.title })),
 ];
 

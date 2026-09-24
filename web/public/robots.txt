@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Host & Sitemap
+Sitemap: https://andhikapp28.github.io/pyto/sitemap-index.xml

@@ -5,12 +5,44 @@ import PetualangModal from '../components/PetualangModal.astro';
 interface Props {
   title?: string;
   description?: string;
+  image?: string;
+  type?: 'website' | 'article';
+  keywords?: string[];
+  jsonLd?: Record<string, any> | Array<Record<string, any>>;
+  noindex?: boolean;
 }
 
 const {
-  title = 'Belajar Python Bareng Pyto',
-  description = 'Belajar ngoding Python dari nol, dengan bahasa yang ramah dan seru — ditemani Pyto, si robot ular. Gratis, langsung coba di browser.',
+  title = 'Belajar Python Bareng Pyto — Tutorial Python Pemula Gratis di Browser',
+  description = 'Belajar ngoding Python dari nol dengan cara santai dan seru bareng Pyto, si robot ular. 100% gratis, interaktif langsung coba di browser tanpa instalasi.',
+  image = '/og-image.png',
+  type = 'website',
+  keywords = [
+    'belajar python pemula',
+    'tutorial python bahasa indonesia gratis',
+    'koding python interaktif di browser',
+    'python untuk anak',
+    'python untuk sekolah',
+    'belajar coding gratis',
+    'dasar pemrograman python',
+    'pyto python',
+  ],
+  jsonLd,
+  noindex = false,
 } = Astro.props;
+
+// Canonical URL handling - konsisten dengan base /pyto/ dan trailing slash
+const siteUrl = Astro.site ? Astro.site.origin : 'https://andhikapp28.github.io';
+const canonicalURL = new URL(Astro.url.pathname, siteUrl);
+
+// Resolve gambar Open Graph absolut untuk WhatsApp, Twitter, dan search bot
+const resolvedImageUrl = image.startsWith('http')
+  ? image
+  : `${import.meta.env.BASE_URL}${image.startsWith('/') ? image : '/' + image}`;
+const socialImageURL = new URL(resolvedImageUrl, siteUrl);
+
+const schemaString = jsonLd ? JSON.stringify(Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : '';
+const schemaTag = schemaString ? `<script type="application/ld+json">${schemaString}</script>` : '';
 ---
 
 <!doctype html>
@@ -18,9 +50,51 @@ const {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}/favicon.svg`} />
-    <meta name="description" content={description} />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href={canonicalURL.href} />
+
+    <!-- Primary Metadata -->
     <title>{title}</title>
+    <meta name="title" content={title} />
+    <meta name="description" content={description} />
+    {keywords && keywords.length > 0 && <meta name="keywords" content={keywords.join(', ')} />}
+    <meta name="author" content="Andhika" />
+    <meta
+      name="robots"
+      content={noindex
+        ? 'noindex, nofollow'
+        : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'}
+    />
+
+    <!-- Theme & Mobile App -->
+    <meta name="theme-color" content="#2FBF71" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Pyto Python" />
+
+    <!-- Favicon & Touch Icon -->
+    <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}/favicon.svg`} />
+    <link rel="apple-touch-icon" href={`${import.meta.env.BASE_URL}/favicon.svg`} />
+
+    <!-- Open Graph / Facebook / WhatsApp / Telegram -->
+    <meta property="og:type" content={type} />
+    <meta property="og:url" content={canonicalURL.href} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={socialImageURL.href} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Pratinjau Belajar Python Bareng Pyto" />
+    <meta property="og:site_name" content="Belajar Python Bareng Pyto" />
+    <meta property="og:locale" content="id_ID" />
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content={canonicalURL.href} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImageURL.href} />
 
     <!-- Google Fonts: Baloo 2 (judul), Nunito (isi teks), JetBrains Mono (kode) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -29,6 +103,9 @@ const {
       href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
+
+    <!-- Structured Data (Schema.org / JSON-LD) -->
+    {schemaTag && <Fragment set:html={schemaTag} />}
 
     <!--
       Tandai bahwa JS aktif SEBELUM halaman dirender, agar CSS animasi

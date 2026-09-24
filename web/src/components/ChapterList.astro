@@ -72,9 +72,9 @@ const fase3Placeholders = Array.from({ length: fase3PlaceholderCount });
       fases.map((fase) => (
         <section class="fase-group">
           <div class="fase-group__head" data-reveal>
-            <span class="badge fase-group__badge">
+            <h3 class="badge fase-group__badge">
               {fase.meta.label} · {fase.meta.name}
-            </span>
+            </h3>
             <p class="fase-group__tagline">
               {fase.meta.tagline} — {fase.meta.count} bab
               {fase.meta.detailHref && (
@@ -108,7 +108,7 @@ const fase3Placeholders = Array.from({ length: fase3PlaceholderCount });
                           ✓ Selesai
                         </span>
                       </span>
-                      <span class="fase-card__title">{chapter.title}</span>
+                      <h4 class="fase-card__title">{chapter.title}</h4>
                       <span class="fase-card__desc">{chapter.blurb}</span>
                     </span>
                     <span class="fase-card__tag">{available ? 'Mulai di sini →' : 'Segera'}</span>
@@ -125,9 +125,9 @@ const fase3Placeholders = Array.from({ length: fase3PlaceholderCount });
       fase3Meta.comingSoon && (
         <section class="fase-group fase-group--placeholder">
           <div class="fase-group__head" data-reveal>
-            <span class="badge fase-group__badge fase-group__badge--muted">
+            <h3 class="badge fase-group__badge fase-group__badge--muted">
               {fase3Meta.label} · {fase3Meta.name}
-            </span>
+            </h3>
             <p class="fase-group__tagline">{fase3Meta.tagline}</p>
           </div>
 

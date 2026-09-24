@@ -2,6 +2,7 @@
 // Animasi #10 — panah "Bab Selanjutnya" mengedip pelan, mengundang pembaca
 // lanjut. Dipakai di akhir tiap halaman bab.
 import ChapterCompleteCard from './ChapterCompleteCard.astro';
+import { chapters } from '../data/chapters.js';
 
 interface Props {
   prevHref?: string;
@@ -21,22 +22,37 @@ const {
   chapterNumber,
 } = Astro.props;
 
-// Kalau nextLabel tidak diisi sama sekali (bab terakhir kurikulum, tidak ada
-// bab berikutnya untuk ditautkan), jangan render slot "next" apa pun —
-// baik link maupun span disabled-nya. Tanpa guard ini, ternary di bawah
-// cuma bercabang berdasarkan nextDisabled, jadi <a href={undefined}> kosong
-// tetap muncul kalau prop next* sama sekali tidak diberikan.
-const hasNext = Boolean(nextLabel);
+// Deteksi otomatis nomor bab dari URL atau props untuk sinkronisasi judul dinamis
+const currentPath = Astro.url.pathname;
+const match = currentPath.match(/\/bab\/(\d+)\/?/);
+const currentNum = chapterNumber ?? (match ? parseInt(match[1], 10) : undefined);
+
+let resolvedPrevLabel = prevLabel;
+let resolvedNextLabel = nextLabel;
+
+if (currentNum) {
+  const prevCh = chapters.find((c) => c.number === currentNum - 1);
+  const nextCh = chapters.find((c) => c.number === currentNum + 1);
+
+  if (prevCh && (!prevLabel || prevLabel.startsWith('← Bab'))) {
+    resolvedPrevLabel = `← Bab ${prevCh.number}: ${prevCh.title}`;
+  }
+  if (nextCh && (!nextLabel || nextLabel.startsWith('Bab'))) {
+    resolvedNextLabel = `Bab ${nextCh.number}: ${nextCh.title}`;
+  }
+}
+
+const hasNext = Boolean(resolvedNextLabel);
 ---
 
 <div class="chapter-footer-wrap">
-  <ChapterCompleteCard chapterNumber={chapterNumber} />
+  <ChapterCompleteCard chapterNumber={currentNum} />
 
   <nav class="chapter-footer-nav" data-reveal aria-label="Navigasi bab">
   {
     prevHref && (
       <a href={prevHref} class="btn btn-secondary chapter-footer-nav__prev">
-        {prevLabel}
+        {resolvedPrevLabel}
       </a>
     )
   }
@@ -48,14 +64,14 @@ const hasNext = Boolean(nextLabel);
           class="btn btn-primary chapter-footer-nav__next chapter-footer-nav__next--disabled"
           aria-disabled="true"
         >
-          {nextLabel}
+          {resolvedNextLabel}
           <span class="chapter-footer-nav__arrow" aria-hidden="true">
             →
           </span>
         </span>
       ) : (
         <a href={nextHref} class="btn btn-primary chapter-footer-nav__next">
-          {nextLabel}
+          {resolvedNextLabel}
           <span class="chapter-footer-nav__arrow" aria-hidden="true">
             →
           </span>
