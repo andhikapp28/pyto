@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import PetualangModal from '../components/PetualangModal.astro';
 
 interface Props {
   title?: string;
@@ -42,5 +43,6 @@ const {
   </head>
   <body>
     <slot />
+    <PetualangModal />
   </body>
 </html>

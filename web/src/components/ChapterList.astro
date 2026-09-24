@@ -45,6 +45,29 @@ const fase3Placeholders = Array.from({ length: fase3PlaceholderCount });
       </p>
     </div>
 
+    <!-- Banner Progres Petualang & Streak (Gamifikasi Lokal) -->
+    <div class="adventurer-banner" data-reveal id="adventurer-banner">
+      <div class="adventurer-banner__main">
+        <div class="adventurer-banner__info">
+          <div class="adventurer-banner__header">
+            <span class="adventurer-banner__icon" aria-hidden="true">🎒</span>
+            <h3 class="adventurer-banner__title">Progres Petualanganmu</h3>
+            <span class="adventurer-banner__streak" id="ab-streak">🔥 1 Hari Belajar</span>
+          </div>
+          <p class="adventurer-banner__text">
+            Kamu telah menuntaskan <strong id="ab-completed-count">0</strong> dari <strong>{totalChapters}</strong> bab (<span id="ab-percentage">0%</span>) — <span id="ab-title">Pemula Penasaran</span>
+          </p>
+        </div>
+        <button type="button" class="btn btn-secondary adventurer-banner__btn" data-open-petualang-modal>
+          Buka Tas & Lencana →
+        </button>
+      </div>
+
+      <div class="adventurer-banner__track">
+        <div class="adventurer-banner__fill" id="ab-fill" style="width: 0%"></div>
+      </div>
+    </div>
+
     {
       fases.map((fase) => (
         <section class="fase-group">
@@ -80,7 +103,10 @@ const fase3Placeholders = Array.from({ length: fase3PlaceholderCount });
                     </span>
                     <span class="fase-card__body">
                       <span class="fase-card__eyebrow">
-                        Bab {chapter.number} · {chapter.short}
+                        <span>Bab {chapter.number} · {chapter.short}</span>
+                        <span class="fase-card__done-pill" data-chapter-done={chapter.number} hidden>
+                          ✓ Selesai
+                        </span>
                       </span>
                       <span class="fase-card__title">{chapter.title}</span>
                       <span class="fase-card__desc">{chapter.blurb}</span>
@@ -306,9 +332,149 @@ const fase3Placeholders = Array.from({ length: fase3PlaceholderCount });
     color: var(--white);
   }
 
+  /* Banner Progres Petualang */
+  .adventurer-banner {
+    margin: 32px 0 48px;
+    padding: 24px 28px;
+    background: var(--white);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .adventurer-banner__main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .adventurer-banner__info {
+    flex: 1;
+    min-width: 260px;
+  }
+
+  .adventurer-banner__header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+
+  .adventurer-banner__icon {
+    font-size: 24px;
+  }
+
+  .adventurer-banner__title {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--ink);
+  }
+
+  .adventurer-banner__streak {
+    font-size: 12px;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: #fff3f0;
+    color: #c93b2b;
+    border: 1px solid rgba(255, 122, 107, 0.3);
+  }
+
+  .adventurer-banner__text {
+    margin: 0;
+    font-size: 15px;
+    color: var(--slate);
+  }
+
+  .adventurer-banner__btn {
+    font-size: 14px;
+    padding: 10px 18px;
+    min-height: 42px;
+  }
+
+  .adventurer-banner__track {
+    width: 100%;
+    height: 12px;
+    background: var(--cloud);
+    border-radius: 999px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .adventurer-banner__fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--pyto-green), var(--sunny-yellow));
+    border-radius: 999px;
+    transition: width 0.4s ease;
+  }
+
+  .fase-card__eyebrow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .fase-card__done-pill {
+    font-size: 11px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--pyto-green-soft);
+    color: var(--pyto-green-dark);
+    border: 1px solid rgba(47, 191, 113, 0.3);
+  }
+
   @media (max-width: 600px) {
     .fase-card {
       padding: 18px;
     }
+
+    .adventurer-banner {
+      padding: 20px 18px;
+    }
   }
 </style>
+
+<script>
+  import { getProgressStats, getStreakData, getCompletedChapters } from '../scripts/gamification.js';
+
+  const completedCountEl = document.getElementById('ab-completed-count');
+  const percentageEl = document.getElementById('ab-percentage');
+  const titleEl = document.getElementById('ab-title');
+  const streakEl = document.getElementById('ab-streak');
+  const fillEl = document.getElementById('ab-fill');
+
+  function syncChapterListProgress() {
+    const stats = getProgressStats();
+    const streak = getStreakData();
+    const completed = getCompletedChapters();
+
+    if (completedCountEl) completedCountEl.textContent = String(stats.completedCount);
+    if (percentageEl) percentageEl.textContent = `${stats.percentage}%`;
+    if (titleEl) titleEl.textContent = stats.title;
+    if (streakEl) streakEl.textContent = `🔥 ${streak.streak} Hari Belajar`;
+    if (fillEl) fillEl.style.width = `${stats.percentage}%`;
+
+    // Beri penanda pada kartu bab yang sudah selesai
+    document.querySelectorAll('[data-chapter-done]').forEach((pill) => {
+      const chNum = Number(pill.getAttribute('data-chapter-done'));
+      const isDone = completed.includes(chNum);
+      pill.hidden = !isDone;
+
+      const card = pill.closest('.fase-card');
+      if (card) {
+        card.classList.toggle('fase-card--done', isDone);
+      }
+    });
+  }
+
+  syncChapterListProgress();
+  window.addEventListener('pyto:progress-updated', syncChapterListProgress);
+</script>

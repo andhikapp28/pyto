@@ -1,0 +1,283 @@
+---
+// ChapterCompleteCard.astro: Kartu interaktif di akhir bab untuk menandai
+// progres belajar lokal, menyalakan konfeti, dan memicu lencana / streak.
+interface Props {
+  chapterNumber?: number;
+}
+
+const { chapterNumber: propChapter } = Astro.props;
+
+// Ekstrak nomor bab dari URL jika tidak dioper langsung (mis. /bab/5/ -> 5)
+const match = Astro.url.pathname.match(/\/bab\/(\d+)\/?/);
+const currentChapter = propChapter ?? (match ? parseInt(match[1], 10) : 1);
+---
+
+<section class="chapter-complete-card" id={`complete-card-${currentChapter}`} data-chapter={currentChapter} data-reveal>
+  <div class="ccc__confetti" id={`confetti-complete-${currentChapter}`} aria-hidden="true"></div>
+
+  <!-- State 1: Belum Ditandai Selesai -->
+  <div class="ccc__uncompleted" id={`ccc-uncompleted-${currentChapter}`}>
+    <div class="ccc__icon-wrap">
+      <span class="ccc__icon" aria-hidden="true">🎯</span>
+    </div>
+    <div class="ccc__content">
+      <h3 class="ccc__title">Sudah Selesai Membaca & Mencoba Bab {currentChapter}?</h3>
+      <p class="ccc__desc">
+        Tandai bab ini sebagai selesai untuk mencatat progres belajarmu, mempertahankan streak harian, dan membuka lencana petualang!
+      </p>
+      <div class="ccc__actions">
+        <button type="button" class="btn btn-primary ccc__btn-complete" id={`btn-complete-${currentChapter}`}>
+          ✅ Tandai Bab {currentChapter} Selesai
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- State 2: Sudah Ditandai Selesai -->
+  <div class="ccc__completed" id={`ccc-completed-${currentChapter}`} hidden>
+    <div class="ccc__icon-wrap ccc__icon-wrap--done">
+      <span class="ccc__icon" aria-hidden="true">🌟</span>
+    </div>
+    <div class="ccc__content">
+      <div class="ccc__eyebrow">Pencapaian Disimpan!</div>
+      <h3 class="ccc__title">Hebat! Kamu Sudah Menuntaskan Bab {currentChapter}</h3>
+      <p class="ccc__desc">
+        Progresmu berhasil dicatat. Terus jaga semangat belajarmu dan kumpulkan seluruh lencana petualang Pyto!
+      </p>
+
+      <div class="ccc__badge-unlocked" id={`ccc-badge-alert-${currentChapter}`} hidden>
+        <span class="ccc__badge-emoji" id={`ccc-badge-emoji-${currentChapter}`}>🏅</span>
+        <div class="ccc__badge-text">
+          <strong id={`ccc-badge-title-${currentChapter}`}>Lencana Baru Terbuka!</strong>
+          <span id={`ccc-badge-desc-${currentChapter}`}>Buka tas petualang untuk melihatnya.</span>
+        </div>
+      </div>
+
+      <div class="ccc__actions">
+        <button type="button" class="btn btn-primary" data-open-petualang-modal>
+          🎒 Buka Tas Petualang & Lencana
+        </button>
+        <button type="button" class="ccc__btn-undo" id={`btn-undo-${currentChapter}`}>
+          Batal tandai selesai
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .chapter-complete-card {
+    position: relative;
+    padding: 28px 24px;
+    background: var(--white);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-soft);
+    margin-top: 36px;
+    margin-bottom: 24px;
+    overflow: hidden;
+    transition: border-color 0.25s, background-color 0.25s;
+  }
+
+  .chapter-complete-card.is-done {
+    border-color: rgba(47, 191, 113, 0.45);
+    background: linear-gradient(180deg, var(--white) 0%, var(--pyto-green-soft) 100%);
+  }
+
+  .ccc__confetti {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  .ccc__uncompleted,
+  .ccc__completed {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .ccc__icon-wrap {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: var(--cloud);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    flex-shrink: 0;
+  }
+
+  .ccc__icon-wrap--done {
+    background: var(--sunny-yellow);
+    border-color: rgba(0, 0, 0, 0.08);
+  }
+
+  .ccc__content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .ccc__eyebrow {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--pyto-green-dark);
+    margin-bottom: 4px;
+  }
+
+  .ccc__title {
+    margin: 0 0 8px;
+    font-family: var(--font-heading);
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--ink);
+  }
+
+  .ccc__desc {
+    margin: 0 0 16px;
+    font-size: 15px;
+    color: var(--slate);
+    line-height: 1.6;
+  }
+
+  .ccc__actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .ccc__btn-undo {
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--slate);
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 6px;
+  }
+
+  .ccc__btn-undo:hover {
+    color: var(--coral);
+  }
+
+  /* Badge Alert */
+  .ccc__badge-unlocked {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: var(--white);
+    border: 1px solid var(--sunny-yellow);
+    border-radius: 10px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(255, 201, 77, 0.2);
+  }
+
+  .ccc__badge-emoji {
+    font-size: 24px;
+  }
+
+  .ccc__badge-text {
+    display: flex;
+    flex-direction: column;
+    font-size: 13px;
+  }
+
+  .ccc__badge-text strong {
+    color: var(--ink);
+  }
+
+  .ccc__badge-text span {
+    color: var(--slate);
+  }
+
+  @media (max-width: 600px) {
+    .ccc__uncompleted,
+    .ccc__completed {
+      flex-direction: column;
+      gap: 14px;
+    }
+  }
+</style>
+
+<script>
+  import {
+    isChapterCompleted,
+    setChapterCompleted,
+    getBadgeStatus,
+    updateDailyStreak,
+  } from '../scripts/gamification.js';
+  import { launchConfetti } from '../scripts/confetti.js';
+
+  document.querySelectorAll('.chapter-complete-card').forEach((card) => {
+    const chapterNum = Number(card.getAttribute('data-chapter'));
+    if (!chapterNum) return;
+
+    const uncompletedEl = document.getElementById(`ccc-uncompleted-${chapterNum}`);
+    const completedEl = document.getElementById(`ccc-completed-${chapterNum}`);
+    const btnComplete = document.getElementById(`btn-complete-${chapterNum}`);
+    const btnUndo = document.getElementById(`btn-undo-${chapterNum}`);
+    const confettiEl = document.getElementById(`confetti-complete-${chapterNum}`);
+    const badgeAlertEl = document.getElementById(`ccc-badge-alert-${chapterNum}`);
+    const badgeEmojiEl = document.getElementById(`ccc-badge-emoji-${chapterNum}`);
+    const badgeTitleEl = document.getElementById(`ccc-badge-title-${chapterNum}`);
+    const badgeDescEl = document.getElementById(`ccc-badge-desc-${chapterNum}`);
+
+    function syncState() {
+      const isDone = isChapterCompleted(chapterNum);
+      card.classList.toggle('is-done', isDone);
+
+      if (isDone) {
+        if (uncompletedEl) uncompletedEl.hidden = true;
+        if (completedEl) completedEl.hidden = false;
+      } else {
+        if (uncompletedEl) uncompletedEl.hidden = false;
+        if (completedEl) completedEl.hidden = true;
+      }
+    }
+
+    // Inisialisasi awal saat halaman dibuka
+    syncState();
+
+    btnComplete?.addEventListener('click', () => {
+      const beforeBadges = getBadgeStatus().filter((b) => b.isUnlocked).map((b) => b.id);
+      setChapterCompleted(chapterNum, true);
+      updateDailyStreak();
+      syncState();
+
+      if (confettiEl) {
+        launchConfetti(confettiEl, { pieces: 40 });
+      }
+
+      // Cek apakah ada lencana baru yang terbuka
+      const afterBadges = getBadgeStatus().filter((b) => b.isUnlocked);
+      const newlyUnlocked = afterBadges.find((b) => !beforeBadges.includes(b.id));
+
+      if (newlyUnlocked && badgeAlertEl) {
+        if (badgeEmojiEl) badgeEmojiEl.textContent = newlyUnlocked.emoji;
+        if (badgeTitleEl) badgeTitleEl.textContent = `Lencana Baru: ${newlyUnlocked.title}! 🎉`;
+        if (badgeDescEl) badgeDescEl.textContent = newlyUnlocked.description;
+        badgeAlertEl.hidden = false;
+      }
+    });
+
+    btnUndo?.addEventListener('click', () => {
+      setChapterCompleted(chapterNum, false);
+      if (badgeAlertEl) badgeAlertEl.hidden = true;
+      syncState();
+    });
+
+    // Sinkronisasi jika diubah dari tab atau tempat lain
+    window.addEventListener('pyto:progress-updated', () => {
+      syncState();
+    });
+  });
+</script>

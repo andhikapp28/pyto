@@ -28,6 +28,25 @@ const pageTitle =
           </span>
         </a>
 
+        <!-- Gamifikasi: Progres & Tas Petualang di Sidebar -->
+        <div class="sidebar__petualang">
+          <button
+            type="button"
+            class="sidebar__petualang-btn"
+            data-open-petualang-modal
+            title="Buka Tas Petualang & Lencana"
+          >
+            <div class="sidebar__petualang-row">
+              <span class="sidebar__petualang-title">🎒 Tas Petualang</span>
+              <span class="sidebar__streak-pill" id="sidebar-streak">🔥 1 Hari</span>
+            </div>
+            <div class="sidebar__track">
+              <div class="sidebar__fill" id="sidebar-progress-fill" style="width: 0%"></div>
+            </div>
+            <div class="sidebar__progress-caption" id="sidebar-progress-text">0 / 20 Bab Selesai</div>
+          </button>
+        </div>
+
         <div class="sidebar__label">Daftar Bab</div>
 
         <nav class="sidebar__nav" aria-label="Daftar bab">
@@ -44,6 +63,9 @@ const pageTitle =
                 >
                   <span class="sidebar__number">{chapter.number}</span>
                   <span class="sidebar__title">{chapter.title}</span>
+                  <span class="sidebar__done-dot" data-sidebar-done={chapter.number} hidden title="Bab ini sudah selesai">
+                    ✓
+                  </span>
                   {!available && <span class="sidebar__tag">Segera</span>}
                 </Tag>
               );
@@ -59,7 +81,17 @@ const pageTitle =
         <span class="topbar__logo" aria-hidden="true">🐍</span>
         Bab {currentChapter}
       </span>
-      <a href={`${base}/`} class="topbar__all">Semua Bab →</a>
+      <div class="topbar__actions">
+        <button
+          type="button"
+          class="topbar__bag-btn"
+          data-open-petualang-modal
+          title="Buka Tas Petualang & Lencana"
+        >
+          🎒 <span id="topbar-streak">🔥 1</span>
+        </button>
+        <a href={`${base}/`} class="topbar__all">Semua Bab →</a>
+      </div>
     </div>
 
     <main class="chapter-main">
@@ -97,9 +129,86 @@ const pageTitle =
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 26px;
+    margin-bottom: 20px;
     text-decoration: none;
     color: var(--ink);
+  }
+
+  /* Gamifikasi Sidebar */
+  .sidebar__petualang {
+    margin-bottom: 22px;
+  }
+
+  .sidebar__petualang-btn {
+    width: 100%;
+    padding: 12px 14px;
+    background: var(--pyto-green-soft);
+    border: 1px solid rgba(47, 191, 113, 0.35);
+    border-radius: 12px;
+    text-align: left;
+    cursor: pointer;
+    transition: transform 0.15s, background-color 0.15s;
+  }
+
+  .sidebar__petualang-btn:hover {
+    background: #d6f2e3;
+    transform: translateY(-1px);
+  }
+
+  .sidebar__petualang-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .sidebar__petualang-title {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--pyto-green-dark);
+  }
+
+  .sidebar__streak-pill {
+    font-size: 11px;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: #fff3f0;
+    color: #c93b2b;
+    border: 1px solid rgba(255, 122, 107, 0.3);
+  }
+
+  .sidebar__track {
+    width: 100%;
+    height: 6px;
+    background: rgba(0, 0, 0, 0.08);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+
+  .sidebar__fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--pyto-green), var(--sunny-yellow));
+    border-radius: 999px;
+    transition: width 0.3s ease;
+  }
+
+  .sidebar__progress-caption {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--slate);
+  }
+
+  .sidebar__done-dot {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--pyto-green);
+    background: var(--pyto-green-soft);
+    padding: 1px 6px;
+    border-radius: 999px;
+    margin-left: auto;
   }
 
   .sidebar__logo {
@@ -278,6 +387,27 @@ const pageTitle =
       font-size: 15px;
     }
 
+    .topbar__actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .topbar__bag-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--pyto-green-soft);
+      border: 1px solid rgba(47, 191, 113, 0.3);
+      font-family: var(--font-heading);
+      font-weight: 800;
+      font-size: 13px;
+      color: var(--pyto-green-dark);
+      cursor: pointer;
+    }
+
     .topbar__all {
       font-weight: 700;
       color: var(--pyto-green-dark);
@@ -287,3 +417,33 @@ const pageTitle =
     }
   }
 </style>
+
+<script>
+  import { getProgressStats, getStreakData, getCompletedChapters, updateDailyStreak } from '../scripts/gamification.js';
+
+  const sidebarStreak = document.getElementById('sidebar-streak');
+  const sidebarFill = document.getElementById('sidebar-progress-fill');
+  const sidebarText = document.getElementById('sidebar-progress-text');
+  const topbarStreak = document.getElementById('topbar-streak');
+
+  function syncChapterSidebar() {
+    updateDailyStreak();
+    const stats = getProgressStats();
+    const streak = getStreakData();
+    const completed = getCompletedChapters();
+
+    const streakLabel = `🔥 ${streak.streak} Hari`;
+    if (sidebarStreak) sidebarStreak.textContent = streakLabel;
+    if (topbarStreak) topbarStreak.textContent = `🔥 ${streak.streak}`;
+    if (sidebarFill) sidebarFill.style.width = `${stats.percentage}%`;
+    if (sidebarText) sidebarText.textContent = `${stats.completedCount} / ${stats.totalChapters} Bab Selesai (${stats.percentage}%)`;
+
+    document.querySelectorAll('[data-sidebar-done]').forEach((dot) => {
+      const chNum = Number(dot.getAttribute('data-sidebar-done'));
+      dot.hidden = !completed.includes(chNum);
+    });
+  }
+
+  syncChapterSidebar();
+  window.addEventListener('pyto:progress-updated', syncChapterSidebar);
+</script>

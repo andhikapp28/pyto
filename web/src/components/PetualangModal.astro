@@ -1,0 +1,735 @@
+---
+// PetualangModal.astro: Modal profil petualang, daftar lencana (badges),
+// dan generator kartu prestasi (Brag Card) untuk dibagikan ke medsos.
+---
+
+<div id="petualang-modal" class="p-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="p-modal-title">
+  <div class="p-modal__backdrop" id="p-modal-backdrop"></div>
+
+  <div class="p-modal__dialog">
+    <div class="p-modal__header">
+      <div class="p-modal__title-wrap">
+        <span class="p-modal__icon" aria-hidden="true">🎒</span>
+        <h2 id="p-modal-title" class="p-modal__title">Tas Petualang Pyto</h2>
+      </div>
+      <button type="button" class="p-modal__close" id="p-modal-close" aria-label="Tutup jendela">
+        ✕
+      </button>
+    </div>
+
+    <!-- Tab Navigasi -->
+    <div class="p-modal__tabs" role="tablist">
+      <button type="button" role="tab" class="p-modal__tab is-active" id="tab-btn-profil" aria-selected="true" aria-controls="tab-panel-profil">
+        Lencana & Progres
+      </button>
+      <button type="button" role="tab" class="p-modal__tab" id="tab-btn-kartu" aria-selected="false" aria-controls="tab-panel-kartu">
+        Kartu Prestasi (Brag Card)
+      </button>
+    </div>
+
+    <div class="p-modal__body">
+      <!-- TAB 1: PROFIL & LENCANA -->
+      <div id="tab-panel-profil" class="p-modal__panel is-active" role="tabpanel" aria-labelledby="tab-btn-profil">
+        <!-- Kartu Identitas Pengguna -->
+        <div class="p-user-card">
+          <div class="p-user-card__avatar" aria-hidden="true">🐍</div>
+          <div class="p-user-card__info">
+            <div class="p-user-card__name-row">
+              <label for="p-user-name-input" class="visually-hidden">Nama Petualang</label>
+              <input
+                type="text"
+                id="p-user-name-input"
+                class="p-user-card__input"
+                placeholder="Namamu..."
+                maxlength="24"
+                title="Klik untuk mengubah nama petualangmu"
+              />
+              <span class="p-user-card__edit-hint" aria-hidden="true">✏️</span>
+            </div>
+            <div class="p-user-card__title" id="p-user-title">Pemula Penasaran</div>
+          </div>
+        </div>
+
+        <!-- 3 Statistik Ringkas -->
+        <div class="p-stats-grid">
+          <div class="p-stat-box">
+            <span class="p-stat-box__emoji" aria-hidden="true">📚</span>
+            <span class="p-stat-box__label">Bab Selesai</span>
+            <span class="p-stat-box__value" id="p-stat-chapters">0 / 20</span>
+          </div>
+          <div class="p-stat-box">
+            <span class="p-stat-box__emoji" aria-hidden="true">🔥</span>
+            <span class="p-stat-box__label">Streak Belajar</span>
+            <span class="p-stat-box__value" id="p-stat-streak">0 Hari</span>
+          </div>
+          <div class="p-stat-box">
+            <span class="p-stat-box__emoji" aria-hidden="true">🏅</span>
+            <span class="p-stat-box__label">Lencana</span>
+            <span class="p-stat-box__value" id="p-stat-badges">0 / 7</span>
+          </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="p-progress-wrap">
+          <div class="p-progress-label">
+            <span>Kemajuan Petualangan</span>
+            <span id="p-progress-text">0%</span>
+          </div>
+          <div class="p-progress-track">
+            <div class="p-progress-fill" id="p-progress-bar" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- Daftar 7 Lencana -->
+        <div class="p-badges-section">
+          <h3 class="p-badges-heading">Koleksi Lencana</h3>
+          <div class="p-badges-grid" id="p-badges-list">
+            <!-- Diisi dinamis via JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: KARTU PRESTASI (BRAG CARD) -->
+      <div id="tab-panel-kartu" class="p-modal__panel" role="tabpanel" aria-labelledby="tab-btn-kartu" hidden>
+        <p class="p-kartu-desc">
+          Bagikan kartu prestasimu ke WhatsApp Status, Instagram Story, atau teman belajarmu!
+        </p>
+
+        <div class="p-canvas-container">
+          <canvas id="p-brag-canvas" class="p-brag-canvas"></canvas>
+        </div>
+
+        <div class="p-kartu-actions">
+          <button type="button" class="btn btn-primary" id="p-download-card-btn">
+            📥 Unduh Kartu (PNG)
+          </button>
+          <button type="button" class="btn btn-secondary" id="p-copy-card-btn">
+            📋 Salin Gambar
+          </button>
+        </div>
+        <div id="p-card-status" class="p-card-status" aria-live="polite"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+  }
+
+  .p-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .p-modal.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .p-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 32, 0.65);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+
+  .p-modal__dialog {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 580px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--white);
+    border-radius: 20px;
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.22);
+    overflow: hidden;
+    transform: translateY(12px) scale(0.98);
+    transition: transform 0.2s ease;
+  }
+
+  .p-modal.is-open .p-modal__dialog {
+    transform: translateY(0) scale(1);
+  }
+
+  .p-modal__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--cloud);
+  }
+
+  .p-modal__title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .p-modal__icon {
+    font-size: 24px;
+  }
+
+  .p-modal__title {
+    margin: 0;
+    font-size: 20px;
+    font-family: var(--font-heading);
+    font-weight: 800;
+    color: var(--ink);
+  }
+
+  .p-modal__close {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--slate);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .p-modal__close:hover {
+    background: rgba(0, 0, 0, 0.08);
+    color: var(--ink);
+  }
+
+  /* Tabs */
+  .p-modal__tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--white);
+    padding: 0 16px;
+  }
+
+  .p-modal__tab {
+    flex: 1;
+    padding: 12px 16px;
+    border: none;
+    background: transparent;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--slate);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .p-modal__tab:hover {
+    color: var(--ink);
+  }
+
+  .p-modal__tab.is-active {
+    color: var(--pyto-green-dark);
+    border-bottom-color: var(--pyto-green);
+  }
+
+  .p-modal__body {
+    padding: 20px 24px 28px;
+    overflow-y: auto;
+  }
+
+  .p-modal__panel {
+    display: none;
+  }
+
+  .p-modal__panel.is-active {
+    display: block;
+  }
+
+  /* User Card */
+  .p-user-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: var(--pyto-green-soft);
+    border: 1px solid rgba(47, 191, 113, 0.25);
+    border-radius: 16px;
+    margin-bottom: 18px;
+  }
+
+  .p-user-card__avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--pyto-green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    flex-shrink: 0;
+  }
+
+  .p-user-card__info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .p-user-card__name-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .p-user-card__input {
+    border: 1px dashed transparent;
+    background: transparent;
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 20px;
+    color: var(--ink);
+    padding: 2px 6px;
+    border-radius: 6px;
+    max-width: 220px;
+    transition: background 0.15s, border-color 0.15s;
+  }
+
+  .p-user-card__input:focus {
+    background: var(--white);
+    border-color: var(--pyto-green);
+    outline: none;
+  }
+
+  .p-user-card__edit-hint {
+    font-size: 14px;
+    opacity: 0.6;
+  }
+
+  .p-user-card__title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--pyto-green-dark);
+    margin-top: 2px;
+  }
+
+  /* Stats Grid */
+  .p-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  .p-stat-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 12px 8px;
+    background: var(--cloud);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+
+  .p-stat-box__emoji {
+    font-size: 20px;
+    margin-bottom: 2px;
+  }
+
+  .p-stat-box__label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--slate);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .p-stat-box__value {
+    font-family: var(--font-heading);
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--ink);
+    margin-top: 2px;
+  }
+
+  /* Progress Bar */
+  .p-progress-wrap {
+    margin-bottom: 24px;
+  }
+
+  .p-progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--slate);
+    margin-bottom: 6px;
+  }
+
+  .p-progress-track {
+    width: 100%;
+    height: 10px;
+    background: var(--border);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .p-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--pyto-green), var(--sunny-yellow));
+    border-radius: 999px;
+    transition: width 0.4s ease;
+  }
+
+  /* Badges Section */
+  .p-badges-heading {
+    font-size: 16px;
+    font-family: var(--font-heading);
+    font-weight: 800;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+
+  .p-badges-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .p-badge-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--white);
+    transition: transform 0.15s, border-color 0.15s;
+  }
+
+  .p-badge-card.is-unlocked {
+    background: var(--box-tahu-lebih-bg);
+    border-color: rgba(77, 166, 255, 0.4);
+  }
+
+  .p-badge-card.is-locked {
+    opacity: 0.65;
+    background: var(--cloud);
+  }
+
+  .p-badge-card__emoji {
+    font-size: 26px;
+    width: 40px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .p-badge-card__info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .p-badge-card__title {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .p-badge-card__status {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 999px;
+    background: var(--pyto-green);
+    color: var(--white);
+  }
+
+  .p-badge-card.is-locked .p-badge-card__status {
+    background: var(--slate);
+  }
+
+  .p-badge-card__desc {
+    font-size: 13px;
+    color: var(--slate);
+    margin-top: 2px;
+  }
+
+  /* Tab 2: Brag Card */
+  .p-kartu-desc {
+    font-size: 14px;
+    color: var(--slate);
+    margin-bottom: 14px;
+    text-align: center;
+  }
+
+  .p-canvas-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 18px;
+    background: var(--cloud);
+    border-radius: 12px;
+    padding: 12px;
+    border: 1px solid var(--border);
+  }
+
+  .p-brag-canvas {
+    max-width: 100%;
+    height: auto;
+    max-height: 420px;
+    border-radius: 10px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  }
+
+  .p-kartu-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .p-card-status {
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    margin-top: 10px;
+    color: var(--pyto-green-dark);
+    min-height: 20px;
+  }
+
+  @media (max-width: 480px) {
+    .p-stats-grid {
+      grid-template-columns: 1fr;
+    }
+    .p-stat-box {
+      flex-direction: row;
+      justify-content: space-between;
+      padding: 10px 14px;
+    }
+  }
+</style>
+
+<script>
+  import {
+    getUserName,
+    setUserName,
+    getProgressStats,
+    getStreakData,
+    getBadgeStatus,
+    updateDailyStreak,
+  } from '../scripts/gamification.js';
+  import { renderBragCard } from '../scripts/brag-card.js';
+
+  const modal = document.getElementById('petualang-modal');
+  const backdrop = document.getElementById('p-modal-backdrop');
+  const closeBtn = document.getElementById('p-modal-close');
+  const nameInput = document.getElementById('p-user-name-input');
+  const userTitleEl = document.getElementById('p-user-title');
+  const statChaptersEl = document.getElementById('p-stat-chapters');
+  const statStreakEl = document.getElementById('p-stat-streak');
+  const statBadgesEl = document.getElementById('p-stat-badges');
+  const progressTextEl = document.getElementById('p-progress-text');
+  const progressBarEl = document.getElementById('p-progress-bar');
+  const badgesListEl = document.getElementById('p-badges-list');
+
+  const tabBtnProfil = document.getElementById('tab-btn-profil');
+  const tabBtnKartu = document.getElementById('tab-btn-kartu');
+  const panelProfil = document.getElementById('tab-panel-profil');
+  const panelKartu = document.getElementById('tab-panel-kartu');
+
+  const canvas = document.getElementById('p-brag-canvas');
+  const downloadBtn = document.getElementById('p-download-card-btn');
+  const copyBtn = document.getElementById('p-copy-card-btn');
+  const cardStatus = document.getElementById('p-card-status');
+
+  function openModal() {
+    if (!modal) return;
+    updateDailyStreak();
+    refreshModalData();
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    if (!modal) return;
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  function switchTab(target) {
+    if (target === 'kartu') {
+      tabBtnProfil?.classList.remove('is-active');
+      tabBtnProfil?.setAttribute('aria-selected', 'false');
+      tabBtnKartu?.classList.add('is-active');
+      tabBtnKartu?.setAttribute('aria-selected', 'true');
+
+      if (panelProfil) panelProfil.hidden = true;
+      if (panelProfil) panelProfil.classList.remove('is-active');
+      if (panelKartu) panelKartu.hidden = false;
+      if (panelKartu) panelKartu.classList.add('is-active');
+
+      renderCard();
+    } else {
+      tabBtnKartu?.classList.remove('is-active');
+      tabBtnKartu?.setAttribute('aria-selected', 'false');
+      tabBtnProfil?.classList.add('is-active');
+      tabBtnProfil?.setAttribute('aria-selected', 'true');
+
+      if (panelKartu) panelKartu.hidden = true;
+      if (panelKartu) panelKartu.classList.remove('is-active');
+      if (panelProfil) panelProfil.hidden = false;
+      if (panelProfil) panelProfil.classList.add('is-active');
+    }
+  }
+
+  function refreshModalData() {
+    const stats = getProgressStats();
+    const streak = getStreakData();
+    const badges = getBadgeStatus();
+    const currentName = getUserName();
+
+    if (nameInput) nameInput.value = currentName;
+    if (userTitleEl) userTitleEl.textContent = stats.title;
+    if (statChaptersEl) statChaptersEl.textContent = `${stats.completedCount} / ${stats.totalChapters}`;
+    if (statStreakEl) statStreakEl.textContent = `${streak.streak} Hari`;
+    if (statBadgesEl) statBadgesEl.textContent = `${badges.filter((b) => b.isUnlocked).length} / ${badges.length}`;
+    if (progressTextEl) progressTextEl.textContent = `${stats.percentage}%`;
+    if (progressBarEl) progressBarEl.style.width = `${stats.percentage}%`;
+
+    if (badgesListEl) {
+      badgesListEl.innerHTML = badges
+        .map(
+          (b) => `
+        <div class="p-badge-card ${b.isUnlocked ? 'is-unlocked' : 'is-locked'}">
+          <span class="p-badge-card__emoji" aria-hidden="true">${b.isUnlocked ? b.emoji : '🔒'}</span>
+          <div class="p-badge-card__info">
+            <div class="p-badge-card__title">
+              ${b.title}
+              <span class="p-badge-card__status">${b.isUnlocked ? 'Terbuka' : 'Terkunci'}</span>
+            </div>
+            <div class="p-badge-card__desc">${b.isUnlocked ? b.description : b.unlockHint}</div>
+          </div>
+        </div>
+      `
+        )
+        .join('');
+    }
+  }
+
+  function renderCard() {
+    if (!canvas) return;
+    const stats = getProgressStats();
+    const streak = getStreakData();
+    const badges = getBadgeStatus();
+    const userName = getUserName();
+
+    renderBragCard(canvas, {
+      userName,
+      stats,
+      streakData: streak,
+      badges,
+    });
+  }
+
+  // Event Listeners
+  backdrop?.addEventListener('click', closeModal);
+  closeBtn?.addEventListener('click', closeModal);
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('is-open')) {
+      closeModal();
+    }
+  });
+
+  tabBtnProfil?.addEventListener('click', () => switchTab('profil'));
+  tabBtnKartu?.addEventListener('click', () => switchTab('kartu'));
+
+  nameInput?.addEventListener('change', () => {
+    setUserName(nameInput.value);
+    refreshModalData();
+    renderCard();
+  });
+
+  nameInput?.addEventListener('blur', () => {
+    setUserName(nameInput.value);
+    refreshModalData();
+  });
+
+  downloadBtn?.addEventListener('click', () => {
+    if (!canvas) return;
+    renderCard();
+    const link = document.createElement('a');
+    link.download = `kartu-petualang-pyto-${getUserName().toLowerCase().replace(/\s+/g, '-')}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    if (cardStatus) {
+      cardStatus.textContent = '✅ Kartu prestasi berhasil diunduh!';
+      setTimeout(() => {
+        if (cardStatus) cardStatus.textContent = '';
+      }, 3500);
+    }
+  });
+
+  copyBtn?.addEventListener('click', async () => {
+    if (!canvas) return;
+    renderCard();
+    try {
+      canvas.toBlob(async (blob) => {
+        if (!blob) return;
+        if (navigator.clipboard && window.ClipboardItem) {
+          await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+          if (cardStatus) {
+            cardStatus.textContent = '📋 Gambar disalin ke papan klip!';
+            setTimeout(() => {
+              if (cardStatus) cardStatus.textContent = '';
+            }, 3500);
+          }
+        } else {
+          // Fallback unduh
+          downloadBtn?.click();
+        }
+      });
+    } catch {
+      downloadBtn?.click();
+    }
+  });
+
+  // Hubungkan ke seluruh tombol pembuka modal di halaman
+  document.querySelectorAll('[data-open-petualang-modal]').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      openModal();
+    });
+  });
+
+  // Dengarkan pembaruan progres dari komponen lain
+  window.addEventListener('pyto:progress-updated', () => {
+    if (modal?.classList.contains('is-open')) {
+      refreshModalData();
+      if (!panelKartu?.hidden) renderCard();
+    }
+  });
+
+  // Ekspor pembuka modal secara global
+  window.openPetualangModal = openModal;
+</script>

@@ -1,12 +1,15 @@
 ---
 // Animasi #10 — panah "Bab Selanjutnya" mengedip pelan, mengundang pembaca
 // lanjut. Dipakai di akhir tiap halaman bab.
+import ChapterCompleteCard from './ChapterCompleteCard.astro';
+
 interface Props {
   prevHref?: string;
   prevLabel?: string;
   nextHref?: string;
   nextLabel?: string;
   nextDisabled?: boolean;
+  chapterNumber?: number;
 }
 
 const {
@@ -15,6 +18,7 @@ const {
   nextHref,
   nextLabel,
   nextDisabled = false,
+  chapterNumber,
 } = Astro.props;
 
 // Kalau nextLabel tidak diisi sama sekali (bab terakhir kurikulum, tidak ada
@@ -25,7 +29,10 @@ const {
 const hasNext = Boolean(nextLabel);
 ---
 
-<nav class="chapter-footer-nav" data-reveal aria-label="Navigasi bab">
+<div class="chapter-footer-wrap">
+  <ChapterCompleteCard chapterNumber={chapterNumber} />
+
+  <nav class="chapter-footer-nav" data-reveal aria-label="Navigasi bab">
   {
     prevHref && (
       <a href={prevHref} class="btn btn-secondary chapter-footer-nav__prev">
@@ -56,8 +63,13 @@ const hasNext = Boolean(nextLabel);
       ))
   }
 </nav>
+</div>
 
 <style>
+  .chapter-footer-wrap {
+    width: 100%;
+  }
+
   .chapter-footer-nav {
     display: flex;
     align-items: center;
